@@ -1,0 +1,67 @@
+To do:
+Finir le map plot de DOPC/DOPL 
+Change npy file to load directly from the reader (maybe threading instead)?
+
+Bug:
+Reflectance vs temps... fonctionne pas pour calculer le MOPL
+Dans l'article ça parle de direct light, 
+mais je ne suis pas pas capable de confirmer le MOPL sur plusieurs longueur d'onde pour plusieurs media poreux...
+Le début de la courbe devrait fitter car c'est les rayons qui prennent plus de 4000 interactions qui font diverger de la théorie techniquement...
+Si on veut vraiment on pourrait le faire avec une slab (minimise le temps de calcul et en plus on s'assure une meilleur précision sur la mesure)
+
+Step 1:
+Create Detector X
+Create Source X
+Create Model Sphere X
+Create rule for sphere for randomizing sticky spheres X
+Create arrays of spheres X
+Create Snow X
+
+Step 2:
+Create ray shoot X
+Create plots for vizualizing X
+Modify rays reading of polarization X
+
+Step 3:
+Calculate MOPL X
+Calculate SSA X
+Calculate density X
+Calculate us X
+Calculate us' X
+Calculate Ke X
+Calculate alpha X
+Calculate B X
+Load npy file function X
+Calculate porosité optique X
+Calculate Albedo X
+Calculate Transmission X
+Calculate DOPL X
+Calculate DOPC X
+Calculate DOP X
+Calculate DOPLT X
+Calculate DOP45 X
+Calculate experimental g with 14/15 formulas X
+Verified with TARTES curves X
+Change fit for in terms of mu_s and size of volume X
+Photo of the Volume X
+
+Step 4:
+Create a dataframe for all polarization in function of the transmitance
+Color map detector vs rayons for each polarization
+radius vs length in air/MOPL vs radius 
+Find citation for every equations in litterature
+Write all calculated variable X
+Check to see if all variable calculated are realistic x
+Create plot in reflectance vs distance of source and add polarization
+Maybe step down size of volume ?
+
+Step 5:
+Create option and rule for sphere for randomizing for sticky spheres (put IgnoreErrors=False + petit volume)
+Modify rays initial polarization (SSP and VOL) X
+Change name of the folder (path) to include time X
+Threading for speading creation of snow X
+
+Step 6:
+Integrate multiple size of beads (gaussian distribution)
+Separate calculation of variables (theo and raytracing) so you cannot repeat code for those calculataion in calculate_depth_guess, 
+in (calculate_g/calculate_ke) and in (calculate_B/calculate_ke)

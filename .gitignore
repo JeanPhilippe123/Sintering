@@ -1,0 +1,8 @@
+/Sphere/Volume/Simulations
+/Sphere/SSP/Simulations
+/Sphere/Volume/Vieux
+/Sphere/SSP/Vieux
+*.pyc
+
+#Spyder project
+.spyproject/
