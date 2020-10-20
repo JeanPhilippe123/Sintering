@@ -1477,7 +1477,6 @@ plt.close('all')
 # simulation(name, radius, delta, numrays, numrays_stereo, wlum, pol)
 properties=[]
 for wlum in [1.0]:
-    #test git hub
     # sim = simulation('test1', [65E-6], 287E-6, 1000, 100, wlum, [1,1,0,0], diffuse_light=False)
     sim = simulation('test2', [66E-6], 287E-6, 10000, 1000, wlum, [1,1,0,0], diffuse_light=False)
     # sim = simulation('test1', [36.32E-6], 220E-6, 1000, 1000, 1.0, [1,1,0,90], diffuse_light=True)
