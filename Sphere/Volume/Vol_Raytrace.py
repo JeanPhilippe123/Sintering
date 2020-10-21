@@ -8,6 +8,7 @@ import pandas as pd
 import os
 import time
 
+# @profile
 def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
     
     if Sim.diffuse_light == True:
@@ -63,20 +64,20 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
         else:
             totalSegRead = totalSegRead + readSegments;
             totalRaysRead = np.max(Sim.zosapi.LongToNumpy(ZRDData.RayNumber))
-            WlUM =  Sim.zosapi.LongToNumpy(ZRDData.WlUM)[:totalSegRead]
+            # WlUM =  Sim.zosapi.LongToNumpy(ZRDData.WlUM)[:totalSegRead]
             RayNumber =  Sim.zosapi.LongToNumpy(ZRDData.RayNumber)[:totalSegRead]
             Level = Sim.zosapi.LongToNumpy(ZRDData.Level)[:totalSegRead]
             Parent = Sim.zosapi.LongToNumpy(ZRDData.Parent)[:totalSegRead]
             HitObject = Sim.zosapi.LongToNumpy(ZRDData.HitObject)[:totalSegRead]
-            HitFace = Sim.zosapi.LongToNumpy(ZRDData.HitFace)[:totalSegRead]
+            # HitFace = Sim.zosapi.LongToNumpy(ZRDData.HitFace)[:totalSegRead]
             InsideOf = Sim.zosapi.LongToNumpy(ZRDData.InsideOf)[:totalSegRead]
-            Status = Sim.zosapi.LongToNumpy(ZRDData.Status)[:totalSegRead]
+            # Status = Sim.zosapi.LongToNumpy(ZRDData.Status)[:totalSegRead]
             X =  Sim.zosapi.DoubleToNumpy(ZRDData.X)[:totalSegRead]
             Y = Sim.zosapi.DoubleToNumpy(ZRDData.Y)[:totalSegRead]
             Z =  Sim.zosapi.DoubleToNumpy(ZRDData.Z)[:totalSegRead]
             L =  Sim.zosapi.DoubleToNumpy(ZRDData.L)[:totalSegRead]
-            M =  Sim.zosapi.DoubleToNumpy(ZRDData.M)[:totalSegRead]
-            N =  Sim.zosapi.DoubleToNumpy(ZRDData.N)[:totalSegRead]
+            # M =  Sim.zosapi.DoubleToNumpy(ZRDData.M)[:totalSegRead]
+            # N =  Sim.zosapi.DoubleToNumpy(ZRDData.N)[:totalSegRead]
             Exr =  Sim.zosapi.DoubleToNumpy(ZRDData.Exr)[:totalSegRead]
             Exi =  Sim.zosapi.DoubleToNumpy(ZRDData.Exi)[:totalSegRead]
             Eyr =  Sim.zosapi.DoubleToNumpy(ZRDData.Eyr)[:totalSegRead]
@@ -85,8 +86,8 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
             Ezi =  Sim.zosapi.DoubleToNumpy(ZRDData.Ezi)[:totalSegRead]
             Intensity =  Sim.zosapi.DoubleToNumpy(ZRDData.Intensity)[:totalSegRead]
             PathLen =  Sim.zosapi.DoubleToNumpy(ZRDData.PathLen)[:totalSegRead]
-            index = Sim.zosapi.DoubleToNumpy(ZRDData.index)[:totalSegRead]
-            startingPhase =  Sim.zosapi.DoubleToNumpy(ZRDData.startingPhase)[:totalSegRead]
+            # index = Sim.zosapi.DoubleToNumpy(ZRDData.index)[:totalSegRead]
+            # startingPhase =  Sim.zosapi.DoubleToNumpy(ZRDData.startingPhase)[:totalSegRead]
             i+=1
         if totalRaysRead >= maxSegments:
             isFinished = True
@@ -112,9 +113,8 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
     filenpy = pathnpy
     
     with open(filenpy,'wb') as f:
-        np.save(f,np.array([WlUM,Level,Parent,HitObject,HitFace,
-                            InsideOf,Status,X,Y,Z,L,M,N,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,
-                            index,startingPhase,
+        np.save(f,np.array([Level,Parent,HitObject,InsideOf,
+                            X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,
                             RayNumber]))
     end_write = time.time()
     print("Time took for writing npy file: ",round(end_write-start_write,2))
@@ -125,21 +125,22 @@ def Load_npy(path):
     start_load = time.time()
     
     with open(path, 'rb') as f:
-        [WlUM,Level,Parent,HitObject,HitFace,
-         InsideOf,Status,X,Y,Z,L,M,N,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,
-         index,startingPhase,
-         RayNumber] = np.load(f,allow_pickle=True)
+        data = np.load(f,allow_pickle=True)
     
-    headers = np.array(["WlUM","segmentLevel", "segmentParent", "hitObj", "hitFace", "insideOf", "status",
-    "x", "y", "z", "l", "m", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength",
-     "index", "startingPhase", "numray"])
-
-    df = pd.DataFrame(data = np.transpose([WlUM,Level,Parent,HitObject,HitFace,
-    InsideOf,Status,X,Y,Z,L,M,N,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,
-    index,startingPhase,RayNumber]),columns = headers)
+    headers = np.array(["segmentLevel", "segmentParent", "hitObj", "insideOf",
+    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength", "numray"])
     
+    df = pd.DataFrame(np.transpose(data),columns = headers)
+    
+    types = [int,int,int,int,float,float,float,float,float,float,float,float,
+             float,float,float,float,float]
+    
+    for h,t in zip(headers,types):
+        df[h] = df[h].astype(t)
+        
     df.set_index('numray',inplace=True)
-    
+    df.info(memory_usage='deep')
+
     end_load = time.time()
     
     print("Time took for loading npy file and creating df : ", round(end_load-start_load,2))

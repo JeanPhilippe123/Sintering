@@ -48,7 +48,7 @@ Photo of the Volume X
 Step 4:
 Create a dataframe for all polarization in function of the transmitance
 Color map detector vs rayons for each polarization
-radius vs length in air/MOPL vs radius 
+Radius vs Length in air/MOPL vs radius 
 Find citation for every equations in litterature
 Write all calculated variable X
 Check to see if all variable calculated are realistic x

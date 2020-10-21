@@ -65,7 +65,8 @@ class simulation:
         self.Depth = self.calculate_depth_guess()
         self.XY_half_width = self.Depth/2
         self.diffuse_light = diffuse_light
-
+        self.ice_index,self.ice_complex = tartes.refice2016(self.wlum*1E-6)
+        
         if self.diffuse_light == True:
             self.tartes_dir_frac = 0
             self.diffuse_str = 'diffuse'
@@ -723,8 +724,6 @@ class simulation:
             
             #Change intensity
             self.change_path_intensity()
-            #Change index of refraction
-            self.change_path_index()
             #Groupby for last segment of each ray
             df = self.df.groupby(self.df.index).agg({'hitObj':'last','segmentLevel':'last','intensity':'last'})
             #Transmitance
@@ -759,11 +758,10 @@ class simulation:
         filt_ice, filt_air, filt_inter_ice = self.filter_ice_air(self.df)
 
         #Calculate new intensity
-        X = tartes.refice2016(self.wlum*1E-6)[1]
-        self.gamma = 4*np.pi*X/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         I_0 = 1./self.numrays
         #Ponderate pathlength for ice only (absorbing media)
-        self.df.insert(23,'ponderation',0)
+        self.df.insert(18,'ponderation',0)
         self.df.loc[(filt_ice,'ponderation')] = 1
         pond_pL = self.df['ponderation']*self.df['pathLength']
         
@@ -775,15 +773,6 @@ class simulation:
         self.df.drop(columns = ['ponderation'])
         pass
 
-    def change_path_index(self):
-        #Find indice with tartes
-        n_ice = tartes.refice2016(self.wlum*1E-6)[0]
-        
-        #Overwrite the index of refraction
-        filt_ice, filt_air, filt_inter_ice = self.filter_ice_air(self.df)
-        self.df.loc[(filt_ice,'index')] = n_ice
-        pass
-    
     def calculate_SSA(self):
         #====================SSA stéréologie====================
         #Shoot rays for SSA
@@ -893,7 +882,7 @@ class simulation:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
-        df_filt.insert(23,'OPL',np.nan)
+        df_filt.insert(18,'OPL',np.nan)
         df_filt['OPL'] = df_filt['pathLength']*df_filt['index']
         df_OPL = df_filt.groupby(df_filt.index).agg({'pathLength':sum, 'OPL':sum, 'intensity':'last'})
         self.MOPL_rt = np.average(df_OPL['OPL'],weights=df_OPL['intensity'])
@@ -1012,8 +1001,7 @@ class simulation:
 
         #ke stéréologique
         #Imaginay part of the indice of refraction
-        X = tartes.refice2016(self.wlum*1E-6)[1]
-        self.gamma = 4*np.pi*X/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.ke_stereo = self.density_stereo*np.sqrt(3*self.B_stereo*self.gamma/(4*self.pice)*self.SSA_theo*(1-self.gG_theo))
         
         #ke théorique
@@ -1049,8 +1037,7 @@ class simulation:
         self.alpha_tartes = float(tartes.albedo(self.wlum*1E-6,self.SSA_stereo,self.density_theo,g0=self.g_theo,B0=self.B_stereo,dir_frac=self.tartes_dir_frac))
         
         #alpha stéréologique
-        X = tartes.refice2016(self.wlum*1E-6)[1]
-        self.gamma = 4*np.pi*X/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.alpha_stereo = np.exp(-4*np.sqrt(2*self.B_stereo*self.gamma/(3*self.pice*self.SSA_stereo*(1-self.g_theo))))
 
         #alpha théorique
@@ -1070,8 +1057,7 @@ class simulation:
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
         #Calculate mua theorique
-        X = tartes.refice2016(self.wlum*1E-6)[1]
-        self.gamma = 4*np.pi*X/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.mua_stereo = self.B_stereo*self.gamma*(1-self.physical_porosity_stereo)
         
         #Calculate mua with raytracing
@@ -1127,7 +1113,7 @@ class simulation:
         
         #Calculate radius from source
         r = np.sqrt((df['x']-self.XY_half_width)**2+(df['y']-self.XY_half_width)**2)
-        df.insert(23,'radius',r)
+        df.insert(18,'radius',r)
         
         #Calculate Stokes vs Radius
         bins = np.linspace(0,self.XY_half_width,100)
@@ -1313,7 +1299,7 @@ class simulation:
         
         #Raytracing
         #Add a line of time for each segment
-        self.df.insert(23,'time',np.nan)
+        self.df.insert(18,'time',np.nan)
         v_medium = scipy.constants.c/self.df['index']
         self.df['time'] = self.df['pathLength']/v_medium
         
