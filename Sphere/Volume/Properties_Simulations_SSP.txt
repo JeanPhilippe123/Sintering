@@ -46497,3 +46497,13 @@ Wavelength : 1.0
 Polarization : [1, 1, 0, 0]
 Time started 2020/10/20 12:5:33
  
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/10/21 21:35:47
+ 

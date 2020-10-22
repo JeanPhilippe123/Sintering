@@ -13,6 +13,7 @@ import scipy.constants
 import scipy.optimize
 import concurrent.futures
 import os
+import psutil
 
 path_Vol_Raytrace = 'Z:\Sintering\Sphere\Volume'
 sys.path.insert(1,path_Vol_Raytrace)
@@ -101,7 +102,7 @@ class simulation_MC:
         self.TheNCE = self.TheSystem.NCE
         
         #Change wl in um
-        self.TheSystem.SystemData.Wavelengths.GetWavelength(1).Wavelength = 0.55
+        self.TheSystem.SystemData.Wavelengths.GetWavelength(1).Wavelength = 1.0
         
         #Change Polarization
         Source_obj = self.find_source_object()[0]
@@ -153,12 +154,12 @@ class simulation_MC:
             
             #Groupby for last segment of each ray
             df = self.df.groupby(self.df.index).agg({'hitObj':'last','segmentLevel':'last','intensity':'last'})
-            #Transmitance
+            #Reflectance
             filt_top_detector = df['hitObj'] == self.find_detector_object()[0]
             df_top = df[filt_top_detector]
             self.Reflectance = np.sum(df_top['intensity'])
             self.numrays_Reflectance = df_top.shape[0]
-            #Reflectance
+            #Transmitance
             filt_down_detector = df['hitObj'] == self.find_detector_object()[1]
             df_down = df[filt_down_detector]
             self.Transmitance = np.sum(df_down['intensity'])
@@ -174,7 +175,7 @@ class simulation_MC:
             self.Lost = np.sum(df_Lost['intensity'])
             self.numrays_Lost = df_Lost.shape[0]
             #Absorb (considering total intensity is 1)
-            self.Absorb = 1-self.Reflectance-self.Transmitance-self.Error-self.Lost
+            self.Absorb = np.abs(1-self.Reflectance-self.Transmitance-self.Error-self.Lost)
             self.numrays_Absorb = self.numrays-self.numrays_Reflectance-self.numrays_Transmitance-self.numrays_Error-self.numrays_Lost
         except FileNotFoundError:
             print('The raytrace npy file was not loaded, Please run raytrace')
@@ -185,22 +186,22 @@ class simulation_MC:
         if not hasattr(self, 'optical_porosity_theo'): self.calculate_porosity()
         #Calculate the intensity for each segments
         
-        filt_ice = ((self.df['segmentLevel'] != 0) & (self.df['segmentLevel'].diff(-1) == -1))
+        filt_ice = ((self.df['segmentLevel'] != 0) & (self.df['segmentLevel'].astype('float').diff(-1) == -1))
         
         #Calculate new intensity
         self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         I_0 = 1./self.numrays
         #Ponderate pathlength for ice only (absorbing media)
-        self.df.insert(16,'ponderation',0)
+        self.df.insert(15,'ponderation',0)
         self.df.loc[(filt_ice,'ponderation')] = 1-self.optical_porosity_theo
         pond_pL = self.df['ponderation']*self.df['pathLength']
         
         #Overwrite the intensity
         pathLength = pond_pL.groupby(pond_pL.index).cumsum()
         intensity = I_0*np.exp(-self.gamma*pathLength).values
-        self.df['intensity'] = intensity
+        self.df['intensity'] = pd.DataFrame(intensity,dtype='float32',index=self.df.index)
         
-        self.df.drop(columns = ['ponderation'])
+        self.df = self.df.drop(columns = ['ponderation'])
         pass
 
     def calculate_porosity(self):
@@ -247,7 +248,20 @@ class simulation_MC:
         filt = df['segmentLevel'].diff() != 1.0 
         df_filtered = df.loc[filt]
         return df_filtered
-
+    
+    def calculate_g_theo(self):
+        self.g_theo = 0.89
+        self.gG_theo = self.g_theo*2-1
+    
+    def calculate_g_rt(self):
+        if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
+        if not hasattr(self, 'alpha_rt'): self.calculate_alpha()
+        
+        #g calculé avec ke et alpha raytracing
+        #Équation Quentin Libois 3.3 thèse
+        self.g_rt = 1+8*self.ke_rt/(3*self.density_stereo*np.log(self.alpha_rt)*self.SSA_stereo)
+        self.gG_rt = self.g_rt*2-1
+        
     def ke_raytracing(self,depths_fit,intensity):
         [a,b], pcov=scipy.optimize.curve_fit(lambda x,a,b: a*x+b, depths_fit, np.log(intensity))
         return -a, b
@@ -326,7 +340,7 @@ class simulation_MC:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
-        df_filt.insert(16,'OPL',np.nan)
+        df_filt.insert(15,'OPL',np.nan)
         df_filt['pathLength'] = np.sqrt((((df_filt[['x','y','z']].diff())**2).sum(1)))
         df_filt = df_filt[~(df_filt['hitObj'] == 2)]
         df_filt['OPL'] = df_filt['pathLength']*self.neff_stereo
@@ -349,7 +363,7 @@ class simulation_MC:
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
-        df_filt.insert(16,'time',np.nan)
+        df_filt.insert(15,'time',np.nan)
         df_filt['pathLength'] = np.sqrt((((df_filt[['x','y','z']].diff())**2).sum(1)))
         df_filt = df_filt[~((df_filt['segmentLevel']==1)|(df_filt['hitObj']==3))]
         v_medium = scipy.constants.c/self.ice_index
@@ -488,7 +502,7 @@ class simulation_MC:
         
         #Calculate radius from source
         r = np.sqrt((df['x'])**2+(df['y'])**2)
-        df.insert(16,'radius',r)
+        df.insert(15,'radius',r)
         
         #Calculate Stokes vs Radius
         bins = np.linspace(0,250/self.mus_theo,100)
@@ -643,22 +657,24 @@ plt.close('all')
 properties=[]
 if __name__ == '__main__':
     for wlum in [1.0]:
-        sim = simulation_MC('test1', 1000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
+        print('nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
+        sim = simulation_MC('test1', 50000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
         sim.create_folder()
         sim.Initialize_Zemax()
         sim.Load_File()
         sim.shoot_rays()
-        sim.Load_npyfile() 
-        # sim.calculate_musp()
-        # sim.calculate_ke_theo()
-        # sim.calculate_ke_rt()
-        # sim.calculate_MOPL()
-        # sim.map_DOP_top_detector()
+        sim.Load_npyfile()
+        sim.calculate_musp()
+        sim.calculate_ke_theo()
+        sim.calculate_ke_rt()
+        sim.calculate_MOPL()
+        sim.map_DOP_top_detector()
         sim.plot_DOP_radius_top_detector()
-        # sim.calculate_alpha()
-        # sim.calculate_mua()
+        sim.calculate_alpha()
+        sim.calculate_mua()
         sim.properties()
-        # sim.plot_irradiances()
-        # sim.plot_time_reflectance()
+        sim.plot_irradiances()
+        sim.plot_time_reflectance()
+        print('nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
         # properties += [[sim.mua_theo,sim.alpha_rt,sim.MOPL_theo,sim.MOPL_rt,sim.Error]]
         # del sim

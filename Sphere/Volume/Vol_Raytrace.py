@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import os
 import time
+import psutil
 
 # @profile
 def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
@@ -29,7 +30,7 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
     NSCRayTrace.ScatterNSCRays = True
     NSCRayTrace.SplitNSCRays = True
     NSCRayTrace.UsePolarization = True
-    NSCRayTrace.IgnoreErrors = True #Only if you know what is going on (ignore rays with too much interactions)
+    NSCRayTrace.IgnoreErrors = True 
     NSCRayTrace.SaveRays = True
     fileZRD = nameZRD
     NSCRayTrace.SaveRaysFile = fileZRD
@@ -62,12 +63,13 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
         if readSegments == 0:
             isFinished = True;
         else:
+            test = len(Sim.zosapi.DoubleToNumpy(ZRDData.RayNumber)[:totalSegRead])
             totalSegRead = totalSegRead + readSegments;
-            totalRaysRead = np.max(Sim.zosapi.LongToNumpy(ZRDData.RayNumber))
-            # WlUM =  Sim.zosapi.LongToNumpy(ZRDData.WlUM)[:totalSegRead]
             RayNumber =  Sim.zosapi.LongToNumpy(ZRDData.RayNumber)[:totalSegRead]
+            # WlUM =  Sim.zosapi.LongToNumpy(ZRDData.WlUM)[:totalSegRead]
+            totalRaysRead = np.max(Sim.zosapi.LongToNumpy(ZRDData.RayNumber))
             Level = Sim.zosapi.LongToNumpy(ZRDData.Level)[:totalSegRead]
-            Parent = Sim.zosapi.LongToNumpy(ZRDData.Parent)[:totalSegRead]
+            # Parent = Sim.zosapi.LongToNumpy(ZRDData.Parent)[:totalSegRead]
             HitObject = Sim.zosapi.LongToNumpy(ZRDData.HitObject)[:totalSegRead]
             # HitFace = Sim.zosapi.LongToNumpy(ZRDData.HitFace)[:totalSegRead]
             InsideOf = Sim.zosapi.LongToNumpy(ZRDData.InsideOf)[:totalSegRead]
@@ -113,34 +115,48 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
     filenpy = pathnpy
     
     with open(filenpy,'wb') as f:
-        np.save(f,np.array([Level,Parent,HitObject,InsideOf,
-                            X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,
-                            RayNumber]))
+        np.save(f,np.array([Level,HitObject,InsideOf,RayNumber,
+                            X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen]))
     end_write = time.time()
     print("Time took for writing npy file: ",round(end_write-start_write,2))
 
     return filenpy
 
 def Load_npy(path):
+    #load_npy and transform it into a dataframe with low memory usage
     start_load = time.time()
     
     with open(path, 'rb') as f:
         data = np.load(f,allow_pickle=True)
     
-    headers = np.array(["segmentLevel", "segmentParent", "hitObj", "insideOf",
-    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength", "numray"])
+    headers = np.array(["segmentLevel", "hitObj", "insideOf", "numray",
+    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength"])
     
+    #Sparse fo int columns segmentLevel, hitObj, insideOf and numray
     df = pd.DataFrame(np.transpose(data),columns = headers)
     
-    types = [int,int,int,int,float,float,float,float,float,float,float,float,
+    types = [int,int,int,int,float,float,float,float,float,float,float,
              float,float,float,float,float]
     
     for h,t in zip(headers,types):
         df[h] = df[h].astype(t)
         
+    def mem_usage(pandas_obj):
+        if isinstance(pandas_obj,pd.DataFrame):
+            usage_b = pandas_obj.memory_usage(deep=True).sum()
+        else: # we assume if not a df it's a series
+            usage_b = pandas_obj.memory_usage(deep=True)
+        usage_mb = usage_b / 1024 ** 2 # convert bytes to megabytes
+        return "{:03.2f} MB".format(usage_mb)
+    
+    df_int = df.select_dtypes(include=['int'])
+    converted_int = df_int.apply(pd.to_numeric,downcast='unsigned')
+    df_float = df.select_dtypes(include=['float'])
+    converted_float = df_float.apply(pd.to_numeric,downcast='float')
+    
+    df[converted_int.columns] = converted_int
+    df[converted_float.columns] = converted_float
     df.set_index('numray',inplace=True)
-    df.info(memory_usage='deep')
-
     end_load = time.time()
     
     print("Time took for loading npy file and creating df : ", round(end_load-start_load,2))
