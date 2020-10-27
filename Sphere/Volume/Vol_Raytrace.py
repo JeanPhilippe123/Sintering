@@ -153,10 +153,11 @@ def Load_npy(path):
     converted_int = df_int.apply(pd.to_numeric,downcast='unsigned')
     df_float = df.select_dtypes(include=['float'])
     converted_float = df_float.apply(pd.to_numeric,downcast='float')
-    
+
     df[converted_int.columns] = converted_int
     df[converted_float.columns] = converted_float
     df.set_index('numray',inplace=True)
+    print(mem_usage(df))
     end_load = time.time()
     
     print("Time took for loading npy file and creating df : ", round(end_load-start_load,2))

@@ -51,6 +51,7 @@ class simulation:
         '''
         self.name = name
         self.radius = np.array(radius)
+        self.source_radius = self.radius*10
         self.num_spheres = len(radius)
         self.numrays = numrays
         self.DeltaX = delta
@@ -269,8 +270,8 @@ class simulation:
         Source.YPosition = self.XY_half_width
         Source.ZPosition = self.posz_source
         Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).IntegerValue = 100 #Layout Rays
-        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.radius*25 #X Half width
-        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.radius*25 #Y Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.source_radius #X Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.source_radius #Y Half width
         Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = self.cosine #cosine
 
         Source.SourcesData.RandomPolarization = self.Random_pol
@@ -761,7 +762,7 @@ class simulation:
         self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         I_0 = 1./self.numrays
         #Ponderate pathlength for ice only (absorbing media)
-        self.df.insert(18,'ponderation',0)
+        self.df.insert(15,'ponderation',0)
         self.df.loc[(filt_ice,'ponderation')] = 1
         pond_pL = self.df['ponderation']*self.df['pathLength']
         
@@ -882,7 +883,7 @@ class simulation:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
-        df_filt.insert(18,'OPL',np.nan)
+        df_filt.insert(15,'OPL',np.nan)
         df_filt['OPL'] = df_filt['pathLength']*df_filt['index']
         df_OPL = df_filt.groupby(df_filt.index).agg({'pathLength':sum, 'OPL':sum, 'intensity':'last'})
         self.MOPL_rt = np.average(df_OPL['OPL'],weights=df_OPL['intensity'])
@@ -1113,7 +1114,7 @@ class simulation:
         
         #Calculate radius from source
         r = np.sqrt((df['x']-self.XY_half_width)**2+(df['y']-self.XY_half_width)**2)
-        df.insert(18,'radius',r)
+        df.insert(15,'radius',r)
         
         #Calculate Stokes vs Radius
         bins = np.linspace(0,self.XY_half_width,100)
@@ -1251,7 +1252,6 @@ class simulation:
         ax[1,1].plot(df_DOP['radius'],df_DOP['DOPC']) #DOPC
         
         #Set limits
-        ax[0,0].set_ylim(0,1.0)
         ax[0,1].set_ylim(0,1.0)
         ax[1,0].set_ylim(0,1.0)
         ax[1,1].set_ylim(0,1.0)
@@ -1299,7 +1299,7 @@ class simulation:
         
         #Raytracing
         #Add a line of time for each segment
-        self.df.insert(18,'time',np.nan)
+        self.df.insert(15,'time',np.nan)
         v_medium = scipy.constants.c/self.df['index']
         self.df['time'] = self.df['pathLength']/v_medium
         
@@ -1464,7 +1464,7 @@ plt.close('all')
 properties=[]
 for wlum in [1.0]:
     # sim = simulation('test1', [65E-6], 287E-6, 1000, 100, wlum, [1,1,0,0], diffuse_light=False)
-    sim = simulation('test2', [66E-6], 287E-6, 10000, 1000, wlum, [1,1,0,0], diffuse_light=False)
+    sim = simulation('test2', [66E-6], 287E-6, 10000, 1000, wlum, [1,1,0,90], diffuse_light=False)
     # sim = simulation('test1', [36.32E-6], 220E-6, 1000, 1000, 1.0, [1,1,0,90], diffuse_light=True)
     sim.create_folder()
     sim.Initialize_Zemax()
@@ -1474,7 +1474,7 @@ for wlum in [1.0]:
     sim.create_detectors()
     sim.create_snow()
     # sim.shoot_rays_stereo()
-    sim.shoot_rays()
+    # sim.shoot_rays()
     sim.Load_npyfile()
     # sim.calculate_g_theo()
     # sim.calculate_g_rt()
@@ -1493,9 +1493,9 @@ for wlum in [1.0]:
     # sim.reflectance_transmitance()
     # sim.map_top_detector()
     # sim.map_down_detector()
-    # sim.plot_DOP_radius_top_detector()
+    sim.plot_DOP_radius_top_detector()
     sim.plot_irradiances()
-    # sim.map_DOP_top_detector()
+    sim.map_DOP_top_detector()
     # sim.plot_time_reflectance()
     sim.properties()
     # properties += [[sim.mua_stereo,sim.alpha_rt,sim.alpha_stereo,sim.MOPL_stereo,sim.MOPL_rt,sim.Error]]

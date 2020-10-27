@@ -1,6 +1,13 @@
 To do:
-Finir le map plot de DOPC/DOPL 
 Change npy file to load directly from the reader (maybe threading instead)?
+S'assurer que pour le plot vs radius le calcul du DOP ce fait bien!
+Map stokes vector
+Comparer le plot les plots de Vol_Simulation aux plots de Monte-Carlo
+Créer une façon de save les datas reliées aux plots du Monte-Carlo et de Vol_simulation pour pouvoir les plots un sur l'autre.
+
+Pour la fibre d'émission:
+diamètre: 5.3 ± 1.0 µm
+NA: 0.12
 
 Bug:
 Reflectance vs temps... fonctionne pas pour calculer le MOPL
@@ -65,3 +72,4 @@ Step 6:
 Integrate multiple size of beads (gaussian distribution)
 Separate calculation of variables (theo and raytracing) so you cannot repeat code for those calculataion in calculate_depth_guess, 
 in (calculate_g/calculate_ke) and in (calculate_B/calculate_ke)
+

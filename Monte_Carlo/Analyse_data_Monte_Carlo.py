@@ -14,6 +14,7 @@ import scipy.optimize
 import concurrent.futures
 import os
 import psutil
+import matplotlib.colors as colors
 
 path_Vol_Raytrace = 'Z:\Sintering\Sphere\Volume'
 sys.path.insert(1,path_Vol_Raytrace)
@@ -32,6 +33,7 @@ class simulation_MC:
         self.numrays = numrays
         self.wlum = wlum
         self.radius = radius
+        self.radius_source = self.radius*10        
         self.Delta = Delta
         self.calculate_density()
         self.calculate_SSA()
@@ -107,12 +109,16 @@ class simulation_MC:
         #Change Polarization
         Source_obj = self.find_source_object()[0]
         Source = self.TheNCE.GetObjectAt(Source_obj)
+        
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.radius_source #X Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.radius_source #Y Half width
+        
         Source.SourcesData.RandomPolarization = self.Random_pol
         Source.SourcesData.Jx = self.jx
         Source.SourcesData.Jy = self.jy
         Source.SourcesData.XPhase = self.phase_x
         Source.SourcesData.YPhase = self.phase_y
-        Source = self.TheNCE.GetObjectAt(1)
+        #Change radius of source to correspond with the zemax
 
         Rectangular_obj = self.TheNCE.GetObjectAt(1)
         Rectangular_obj_physdata = Rectangular_obj.VolumePhysicsData
@@ -451,7 +457,8 @@ class simulation_MC:
         [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
         
         #Calculate Stokes vs Radius
-        bins = (np.linspace(-1,1,200),np.linspace(-1,1,200))
+        XY_detector = 100/self.mus_theo
+        bins = (np.linspace(-XY_detector,XY_detector,33),np.linspace(-XY_detector,XY_detector,33))
         
         #Histogram of time vs intensity
         n_rays, x_bins, y_bins = np.histogram2d(df['x'], df['y'], bins=bins)
@@ -459,7 +466,7 @@ class simulation_MC:
         Q, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=Q, bins=bins)
         U, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=U, bins=bins)
         V, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=V, bins=bins)
-
+        
         #Calculate DOPs
         #With handling division by zero
         # DOP=np.true_divide(np.sqrt(Q**2+U**2+V**2), I, out=np.zeros_like(np.sqrt(Q**2+U**2+V**2)), where=I!=0)
@@ -478,16 +485,25 @@ class simulation_MC:
         fig, ax = plt.subplots(nrows=2,ncols=2)
         #return dataframe with dops colummns
         df_DOP = self.calculate_DOP_vs_radius(df)
-        ax[0,0].plot(df_DOP['radius'],df_DOP['numberRays']) #Intensity
+        ax[0,0].plot(df_DOP['radius'],df_DOP['numberRays']/df_DOP['numberRays'].max()) #Intensity
+        # ax[0,0].plot(df_DOP['radius'],df_DOP['intensity']/df_DOP['intensity'].max()) #Intensity
         ax[0,1].plot(df_DOP['radius'],df_DOP['DOPL']) #DOPL
         ax[1,0].plot(df_DOP['radius'],df_DOP['DOP45']) #DOP45
         ax[1,1].plot(df_DOP['radius'],df_DOP['DOPC']) #DOPC
         
+        #Add rectangle
+        max_y_Iplot = ax[0,0].get_ylim()[1]
+        alpha=0.2
+        ax[0,0].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=max_y_Iplot,alpha=alpha))
+        ax[0,1].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=1.,alpha=alpha))
+        ax[1,0].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=1.,alpha=alpha))
+        ax[1,1].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=1.,alpha=alpha))
+        
         #Set limits
         # ax[0,0].set_ylim(0,1.0)
-        ax[0,1].set_ylim(0,1.0)
-        ax[1,0].set_ylim(0,1.0)
-        ax[1,1].set_ylim(0,1.0)
+        ax[0,1].set_ylim(-1.0,1.0)
+        ax[1,0].set_ylim(-1.0,1.0)
+        ax[1,1].set_ylim(-1.0,1.0)
         
         #Set titles
         ax[0,0].set_title('Number of Rays')
@@ -523,9 +539,9 @@ class simulation_MC:
         #Calculate DOPs
         DOP=np.sqrt(Q**2+U**2+V**2)/I_df
         DOPLT=np.sqrt(Q**2+U**2)/I_df
-        DOPL=np.sqrt(Q**2)/I_df
-        DOP45=np.sqrt(U**2)/I_df
-        DOPC=np.sqrt(V**2)/I_df
+        DOPL=Q/I_df
+        DOP45=U/I_df
+        DOPC=V/I_df
         
         df_DOP.insert(len(df_DOP.columns),'numberRays',n_rays)
         df_DOP.insert(len(df_DOP.columns),'DOP',DOP)
@@ -547,10 +563,16 @@ class simulation_MC:
         #return dataframe with dops colummns
         array_DOPs, x_bins, y_bins =  self.calculate_DOP_vs_xy(df)
         x, y = np.meshgrid(x_bins, y_bins)
-        ax[0,0].pcolormesh(x, y, array_DOPs[0]) #Intensity
-        ax[0,1].pcolormesh(x, y, array_DOPs[1]) #DOPL
-        ax[1,0].pcolormesh(x, y, array_DOPs[2]) #DOP45
-        ax[1,1].pcolormesh(x, y, array_DOPs[3]) #DOPC
+        intensity = ax[0,0].pcolormesh(x, y, array_DOPs[0],cmap='PuBu')
+        DOPL = ax[0,1].pcolormesh(x, y, array_DOPs[1],cmap='PuBu') #DOPL
+        DOP45 = ax[1,0].pcolormesh(x, y, array_DOPs[2],cmap='PuBu') #DOP45
+        DOPC = ax[1,1].pcolormesh(x, y, array_DOPs[3],cmap='PuBu') #DOPC
+        
+        #plot colormap
+        fig.colorbar(intensity,ax=ax[0,0])
+        fig.colorbar(DOPL,ax=ax[0,1])
+        fig.colorbar(DOP45,ax=ax[1,0])
+        fig.colorbar(DOPC,ax=ax[1,1])
         
         #Set titles
         ax[0,0].set_title('Intensity')
@@ -657,8 +679,8 @@ plt.close('all')
 properties=[]
 if __name__ == '__main__':
     for wlum in [1.0]:
-        print('nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
-        sim = simulation_MC('test1', 50000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
+        print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
+        sim = simulation_MC('test1', 10000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,-90], diffuse_light=False)
         sim.create_folder()
         sim.Initialize_Zemax()
         sim.Load_File()
@@ -673,8 +695,8 @@ if __name__ == '__main__':
         sim.calculate_alpha()
         sim.calculate_mua()
         sim.properties()
-        sim.plot_irradiances()
-        sim.plot_time_reflectance()
-        print('nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
+        # sim.plot_irradiances()
+        # sim.plot_time_reflectance()
+        print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
         # properties += [[sim.mua_theo,sim.alpha_rt,sim.MOPL_theo,sim.MOPL_rt,sim.Error]]
         # del sim
