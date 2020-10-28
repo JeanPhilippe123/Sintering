@@ -1148,7 +1148,7 @@ class simulation:
         df_DOP.insert(len(df_DOP.columns),'radius',radius[:-1])
         return df_DOP
     
-    def calculate_DOP_vs_xy(self,df):
+    def calculate_Stokes_xy(self,df):
         [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
         
         #Calculate Stokes vs Radius
@@ -1159,7 +1159,12 @@ class simulation:
         Q, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=Q, bins=bins)
         U, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=U, bins=bins)
         V, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=V, bins=bins)
-
+        
+        return np.array([I,Q,U,V]), x_bins, y_bins
+    
+    def calculate_DOP_vs_xy(self,df):
+        [I,Q,U,V], x_bins, y_bins = self.calculate_Stokes_xy(df)
+        
         #Calculate DOPs
         #With handling division by zero
         # DOP=np.true_divide(np.sqrt(Q**2+U**2+V**2), I, out=np.zeros_like(np.sqrt(Q**2+U**2+V**2)), where=I!=0)
@@ -1261,10 +1266,38 @@ class simulation:
         ax[0,1].set_title('DOPL')
         ax[1,0].set_title('DOP45')
         ax[1,1].set_title('DOPC')
+        fig.suptitle('DOP map')
+        pass
+        
+    def map_stokes_reflectance(self):
+        filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
+        df = self.df[filt_top_detector]
+        
+        #Plot datas
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        #return dataframe with dops colummns
+        array_Stokes, x_bins, y_bins =  self.calculate_Stokes_xy(df)
+        x, y = np.meshgrid(x_bins, y_bins)
+        intensity = ax[0,0].pcolormesh(x, y, array_Stokes[0])
+        DOPL = ax[0,1].pcolormesh(x, y, array_Stokes[1]) #DOPL
+        DOP45 = ax[1,0].pcolormesh(x, y, array_Stokes[2]) #DOP45
+        DOPC = ax[1,1].pcolormesh(x, y, array_Stokes[3]) #DOPC
+        
+        #plot colormap
+        fig.colorbar(intensity,ax=ax[0,0])
+        fig.colorbar(DOPL,ax=ax[0,1])
+        fig.colorbar(DOP45,ax=ax[1,0])
+        fig.colorbar(DOPC,ax=ax[1,1])
+        
+        #Set titles
+        ax[0,0].set_title('Intensity')
+        ax[0,1].set_title('DOPL')
+        ax[1,0].set_title('DOP45')
+        ax[1,1].set_title('DOPC')
         fig.suptitle('DOPs vs Depth')
         pass
     
-    def map_DOP_top_detector(self):
+    def map_DOP_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df = self.df[filt_top_detector]
         
@@ -1273,16 +1306,16 @@ class simulation:
         #return dataframe with dops colummns
         array_DOPs, x_bins, y_bins =  self.calculate_DOP_vs_xy(df)
         x, y = np.meshgrid(x_bins, y_bins)
-        ax[0,0].pcolormesh(x, y, array_DOPs[0]) #Intensity
-        ax[0,1].pcolormesh(x, y, array_DOPs[1]) #DOPL
-        ax[1,0].pcolormesh(x, y, array_DOPs[2]) #DOP45
-        ax[1,1].pcolormesh(x, y, array_DOPs[3]) #DOPC
+        intensity = ax[0,0].pcolormesh(x, y, array_DOPs[0],cmap='PuBu')
+        DOPL = ax[0,1].pcolormesh(x, y, array_DOPs[1],cmap='PuBu') #DOPL
+        DOP45 = ax[1,0].pcolormesh(x, y, array_DOPs[2],cmap='PuBu') #DOP45
+        DOPC = ax[1,1].pcolormesh(x, y, array_DOPs[3],cmap='PuBu') #DOPC
         
-        #Set limits
-        # ax[0,0].set_ylim(0,1.0)
-        # ax[0,1].set_ylim(0,1.0)
-        # ax[1,0].set_ylim(0,1.0)
-        # ax[1,1].set_ylim(0,1.0)
+        #plot colormap
+        fig.colorbar(intensity,ax=ax[0,0])
+        fig.colorbar(DOPL,ax=ax[0,1])
+        fig.colorbar(DOP45,ax=ax[1,0])
+        fig.colorbar(DOPC,ax=ax[1,1])
         
         #Set titles
         ax[0,0].set_title('Intensity')
@@ -1338,6 +1371,8 @@ class simulation:
         plt.plot(t_theo,R_theo)
         plt.xlim(1E-12,max(t_rt)/2)
         pass
+    
+        
     
     def map_top_detector(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
@@ -1468,19 +1503,19 @@ for wlum in [1.0]:
     # sim = simulation('test1', [36.32E-6], 220E-6, 1000, 1000, 1.0, [1,1,0,90], diffuse_light=True)
     sim.create_folder()
     sim.Initialize_Zemax()
-    # sim.Load_File()
-    sim.create_ZMX()
-    sim.create_source()
-    sim.create_detectors()
-    sim.create_snow()
+    sim.Load_File()
+    # sim.create_ZMX()
+    # sim.create_source()
+    # sim.create_detectors()
+    # sim.create_snow()
     # sim.shoot_rays_stereo()
     # sim.shoot_rays()
     sim.Load_npyfile()
     # sim.calculate_g_theo()
     # sim.calculate_g_rt()
     # sim.calculate_B()
-    sim.calculate_SSA()
-    sim.calculate_density()
+    # sim.calculate_SSA()
+    # sim.calculate_density()
     # sim.calculate_mus()
     # sim.calculate_mua()
     # sim.calculate_musp()
@@ -1488,14 +1523,15 @@ for wlum in [1.0]:
     # sim.calculate_neff()
     # sim.calculate_porosity()
     # sim.calculate_alpha()
-    sim.calculate_ke_theo()
-    sim.calculate_ke_rt()
+    # sim.calculate_ke_theo()
+    # sim.calculate_ke_rt()
     # sim.reflectance_transmitance()
     # sim.map_top_detector()
     # sim.map_down_detector()
-    sim.plot_DOP_radius_top_detector()
-    sim.plot_irradiances()
-    sim.map_DOP_top_detector()
+    # sim.plot_DOP_radius_top_detector()
+    # sim.plot_irradiances()
+    # sim.map_DOP_reflectance()
+    sim.map_stokes_reflectance()
     # sim.plot_time_reflectance()
     sim.properties()
     # properties += [[sim.mua_stereo,sim.alpha_rt,sim.alpha_stereo,sim.MOPL_stereo,sim.MOPL_rt,sim.Error]]

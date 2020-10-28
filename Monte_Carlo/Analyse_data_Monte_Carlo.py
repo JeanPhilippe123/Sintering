@@ -453,19 +453,23 @@ class simulation_MC:
         V=Icd-Icg
         return np.array([I,Q,U,V])
     
-    def calculate_DOP_vs_xy(self,df):
+    def calculate_Stokes_xy(self,df):
         [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
         
         #Calculate Stokes vs Radius
         XY_detector = 100/self.mus_theo
-        bins = (np.linspace(-XY_detector,XY_detector,33),np.linspace(-XY_detector,XY_detector,33))
+        bins = (np.linspace(-XY_detector,XY_detector,50),np.linspace(-XY_detector,XY_detector,50))
         
         #Histogram of time vs intensity
-        n_rays, x_bins, y_bins = np.histogram2d(df['x'], df['y'], bins=bins)
         I, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=I, bins=bins)
         Q, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=Q, bins=bins)
         U, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=U, bins=bins)
         V, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=V, bins=bins)
+        
+        return np.array([I,Q,U,V]), x_bins, y_bins
+    
+    def calculate_DOP_vs_xy(self,df):
+        [I,Q,U,V], x_bins, y_bins = self.calculate_Stokes_xy(df)
         
         #Calculate DOPs
         #With handling division by zero
@@ -475,9 +479,9 @@ class simulation_MC:
         DOP45=np.true_divide(np.sqrt(U**2), I, out=np.zeros_like(np.sqrt(U**2)), where=I!=0)
         DOPC=np.true_divide(np.sqrt(V**2), I, out=np.zeros_like(np.sqrt(V**2)), where=I!=0)
         
-        return np.array([I,DOPL,DOP45,DOPC,n_rays]),x_bins,y_bins
-    
-    def plot_DOP_radius_top_detector(self):
+        return np.array([I,DOPL,DOP45,DOPC]),x_bins,y_bins
+
+    def plot_DOP_radius_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df = self.df[filt_top_detector]
         
@@ -553,8 +557,36 @@ class simulation_MC:
 
         df_DOP.insert(len(df_DOP.columns),'radius',radius[:-1])
         return df_DOP
-
-    def map_DOP_top_detector(self):
+    
+    def map_stokes_reflectance(self):
+        filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
+        df = self.df[filt_top_detector]
+        
+        #Plot datas
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        #return dataframe with dops colummns
+        array_Stokes, x_bins, y_bins =  self.calculate_Stokes_xy(df)
+        x, y = np.meshgrid(x_bins, y_bins)
+        intensity = ax[0,0].pcolormesh(x, y, array_Stokes[0])
+        DOPL = ax[0,1].pcolormesh(x, y, array_Stokes[1]) #DOPL
+        DOP45 = ax[1,0].pcolormesh(x, y, array_Stokes[2]) #DOP45
+        DOPC = ax[1,1].pcolormesh(x, y, array_Stokes[3]) #DOPC
+        
+        #plot colormap
+        fig.colorbar(intensity,ax=ax[0,0])
+        fig.colorbar(DOPL,ax=ax[0,1])
+        fig.colorbar(DOP45,ax=ax[1,0])
+        fig.colorbar(DOPC,ax=ax[1,1])
+        
+        #Set titles
+        ax[0,0].set_title('Intensity')
+        ax[0,1].set_title('DOPL')
+        ax[1,0].set_title('DOP45')
+        ax[1,1].set_title('DOPC')
+        fig.suptitle('DOPs vs Depth')
+        pass
+    
+    def map_DOP_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df = self.df[filt_top_detector]
         
@@ -680,20 +712,22 @@ properties=[]
 if __name__ == '__main__':
     for wlum in [1.0]:
         print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
-        sim = simulation_MC('test1', 10000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,-90], diffuse_light=False)
+        sim = simulation_MC('test1', 10000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
         sim.create_folder()
         sim.Initialize_Zemax()
         sim.Load_File()
-        sim.shoot_rays()
+        # sim.shoot_rays()
         sim.Load_npyfile()
-        sim.calculate_musp()
-        sim.calculate_ke_theo()
-        sim.calculate_ke_rt()
-        sim.calculate_MOPL()
-        sim.map_DOP_top_detector()
-        sim.plot_DOP_radius_top_detector()
-        sim.calculate_alpha()
-        sim.calculate_mua()
+        # sim.calculate_musp()
+        # sim.calculate_ke_theo()
+        # sim.calculate_ke_rt()
+        # sim.calculate_MOPL()
+        # sim.map_DOP_top_detector()
+        sim.map_stokes_reflectance()
+        sim.map_DOP_reflectance()
+        sim.plot_DOP_radius_reflectance()
+        # sim.calculate_alpha()
+        # sim.calculate_mua()
         sim.properties()
         # sim.plot_irradiances()
         # sim.plot_time_reflectance()
