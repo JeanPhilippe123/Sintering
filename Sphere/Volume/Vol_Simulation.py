@@ -1372,8 +1372,6 @@ class simulation:
         plt.xlim(1E-12,max(t_rt)/2)
         pass
     
-        
-    
     def map_top_detector(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df_top_detector = self.df[filt_top_detector]
