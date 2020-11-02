@@ -4,6 +4,9 @@
 /Sphere/SSP/Vieux
 /Monte_Carlo/Simulations
 *.pyc
+*.parquet
+*.dirlock
+*.lock
 
 #Spyder project
 .spyproject/

@@ -8,9 +8,13 @@ import pandas as pd
 import os
 import time
 import psutil
+import h5py
+import dask.array as da
+import dask.dataframe as dd
+import os
 
 # @profile
-def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
+def Shoot(Sim,Filter,numrays,path_parquet,nameZRD):
     
     if Sim.diffuse_light == True:
         diffuse_str = 'diffuse'
@@ -63,7 +67,7 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
         if readSegments == 0:
             isFinished = True;
         else:
-            test = len(Sim.zosapi.DoubleToNumpy(ZRDData.RayNumber)[:totalSegRead])
+            #Get the right data from the file
             totalSegRead = totalSegRead + readSegments;
             RayNumber =  Sim.zosapi.LongToNumpy(ZRDData.RayNumber)[:totalSegRead]
             # WlUM =  Sim.zosapi.LongToNumpy(ZRDData.WlUM)[:totalSegRead]
@@ -96,6 +100,10 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
     
     ZRDReader.Close();
     
+    #Create DataFrame
+    headers = np.array(["segmentLevel", "hitObj", "insideOf", "numray",
+    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength"])
+
     if i>1:
         print('-------------------------------------------------------')
         print('LOOPS IN READING HIGHER THAN 1 VALUES PROBABLY CORRUPTED')
@@ -110,55 +118,30 @@ def Shoot(Sim,Filter,numrays,pathnpy,nameZRD):
     print('----------------------------------------------------')
     end_read = time.time()
     print('Time took for reading: ',round(end_read-start_read,2))
+    
     start_write = time.time()
+    #Create Dataframe from the retrieve data
+    data = [Level,HitObject,InsideOf,RayNumber,X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen]
+    data = da.stack(data).transpose().rechunk(10*Sim.numrays,1)
+    df = data.to_dask_dataframe(columns=headers)
     
-    filenpy = pathnpy
+    df = df.set_index('numray',sorted=True)
     
-    with open(filenpy,'wb') as f:
-        np.save(f,np.array([Level,HitObject,InsideOf,RayNumber,
-                            X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen]))
+    #Write to parquet
+    df.to_parquet(path_parquet)
+    
     end_write = time.time()
-    print("Time took for writing npy file: ",round(end_write-start_write,2))
+    print("Time took for writing paquet file: ",round(end_write-start_write,2))
+    
+    return path_parquet
 
-    return filenpy
-
-def Load_npy(path):
-    #load_npy and transform it into a dataframe with low memory usage
+def Load_parquet(path_parquet):
+    #load_hdf and transform it into a dataframe with low memory usage
     start_load = time.time()
     
-    with open(path, 'rb') as f:
-        data = np.load(f,allow_pickle=True)
-    
-    headers = np.array(["segmentLevel", "hitObj", "insideOf", "numray",
-    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength"])
-    
-    #Sparse fo int columns segmentLevel, hitObj, insideOf and numray
-    df = pd.DataFrame(np.transpose(data),columns = headers)
-    
-    types = [int,int,int,int,float,float,float,float,float,float,float,
-             float,float,float,float,float]
-    
-    for h,t in zip(headers,types):
-        df[h] = df[h].astype(t)
-        
-    def mem_usage(pandas_obj):
-        if isinstance(pandas_obj,pd.DataFrame):
-            usage_b = pandas_obj.memory_usage(deep=True).sum()
-        else: # we assume if not a df it's a series
-            usage_b = pandas_obj.memory_usage(deep=True)
-        usage_mb = usage_b / 1024 ** 2 # convert bytes to megabytes
-        return "{:03.2f} MB".format(usage_mb)
-    
-    df_int = df.select_dtypes(include=['int'])
-    converted_int = df_int.apply(pd.to_numeric,downcast='unsigned')
-    df_float = df.select_dtypes(include=['float'])
-    converted_float = df_float.apply(pd.to_numeric,downcast='float')
+    df = dd.read_parquet(path_parquet).repartition(partition_size="100MB")
 
-    df[converted_int.columns] = converted_int
-    df[converted_float.columns] = converted_float
-    df.set_index('numray',inplace=True)
-    print(mem_usage(df))
     end_load = time.time()
     
-    print("Time took for loading npy file and creating df : ", round(end_load-start_load,2))
+    print("Time took for loading paquet file : ", round(end_load-start_load,2))
     return df

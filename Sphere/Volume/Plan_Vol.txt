@@ -1,7 +1,6 @@
 To do:
-Change npy to HDF5 file
-S'assurer que pour le plot vs radius le calcul du DOP ce fait bien!
-Map stokes vector
+Continuer à modifier le code vers Dask
+Investiguer la séparation de polarisation
 Comparer les plots de Vol_Simulation aux plots de Monte-Carlo 
 	-> Créer une façon de save les datas reliées aux plots du Monte-Carlo et de Vol_simulation 
 	-> Superposer les plots un sur l'autre dans un autre fichier

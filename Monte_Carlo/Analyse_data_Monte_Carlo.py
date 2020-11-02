@@ -15,6 +15,7 @@ import concurrent.futures
 import os
 import psutil
 import matplotlib.colors as colors
+import dask.dataframe as dd
 
 path_Vol_Raytrace = 'Z:\Sintering\Sphere\Volume'
 sys.path.insert(1,path_Vol_Raytrace)
@@ -56,8 +57,8 @@ class simulation_MC:
             self.tartes_dir_frac = 1
             self.diffuse_str = 'not_diffuse'
         
-        self.name_ZRD = '_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(pol),str(self.numrays),self.diffuse_str])+ ".ZRD"
-        self.path_npy = os.path.join(self.pathZMX,'_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(pol),str(self.numrays),self.diffuse_str])+ ".npy")
+        self.name_ZRD = '_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".ZRD"
+        self.path_parquet = os.path.join(self.pathZMX,'_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".parquet")
         self.path_ZRD = os.path.join(self.pathZMX,self.name_ZRD)
         
     def create_folder(self):
@@ -144,14 +145,14 @@ class simulation_MC:
         Source_object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = cosine
             
         print('Raytrace')
-        Vol_Raytrace.Shoot(self,'',self.numrays,self.path_npy,self.name_ZRD)
+        Vol_Raytrace.Shoot(self,'',self.numrays,self.path_parquet,self.name_ZRD)
         pass    
     
-    def Load_npyfile(self): 
+    def Load_parquetfile(self): 
         #Try loading the ray file
         try:
             #Filter les rayons avec plus de 4000 interactions
-            self.df = Vol_Raytrace.Load_npy(self.path_npy)
+            self.df = Vol_Raytrace.Load_parquet(self.path_parquet)
             
             #Change pathLength
             self.df['pathLength'] = np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
@@ -184,7 +185,7 @@ class simulation_MC:
             self.Absorb = np.abs(1-self.Reflectance-self.Transmitance-self.Error-self.Lost)
             self.numrays_Absorb = self.numrays-self.numrays_Reflectance-self.numrays_Transmitance-self.numrays_Error-self.numrays_Lost
         except FileNotFoundError:
-            print('The raytrace npy file was not loaded, Please run raytrace')
+            print('The raytrace parquet file was not loaded, Please run raytrace')
             sys.exit()
             pass
         
@@ -198,12 +199,12 @@ class simulation_MC:
         self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         I_0 = 1./self.numrays
         #Ponderate pathlength for ice only (absorbing media)
-        self.df.insert(15,'ponderation',0)
-        self.df.loc[(filt_ice,'ponderation')] = 1-self.optical_porosity_theo
+        self.df['ponderation'] = 0
+        self.df['ponderation'] = self.df['ponderation'].mask(filt_ice, 1-self.optical_porosity_theo)
         pond_pL = self.df['ponderation']*self.df['pathLength']
         
         #Overwrite the intensity
-        pathLength = pond_pL.groupby(pond_pL.index).cumsum()
+        %time pathLength = pond_pL.groupby(pond_pL.index).apply(np.cumsum,meta='float')
         intensity = I_0*np.exp(-self.gamma*pathLength).values
         self.df['intensity'] = pd.DataFrame(intensity,dtype='float32',index=self.df.index)
         
@@ -334,7 +335,7 @@ class simulation_MC:
         
     def calculate_MOPL(self):
         #Shoot rays for SSA
-        if not hasattr(self, 'df'): self.Load_npyfile()
+        if not hasattr(self, 'df'): self.Load_parquetfile()
         if not hasattr(self, 'musp_theo'): self.calculate_musp()
         
         z_o = self.musp_theo**(-1)
@@ -458,7 +459,7 @@ class simulation_MC:
         
         #Calculate Stokes vs Radius
         XY_detector = 100/self.mus_theo
-        bins = (np.linspace(-XY_detector,XY_detector,50),np.linspace(-XY_detector,XY_detector,50))
+        bins = (np.linspace(-XY_detector,XY_detector,100),np.linspace(-XY_detector,XY_detector,100))
         
         #Histogram of time vs intensity
         I, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=I, bins=bins)
@@ -658,8 +659,8 @@ class simulation_MC:
         
     def properties(self):
         print('\n----------------------------------------------------\n')
-        if hasattr(self, 'path_npy'): print('Simulation path npy file: ', self.path_npy)
-        if hasattr(self, 'path_stereo_npy'): print('Simulation path npy file: ', self.path_stereo_npy)
+        if hasattr(self, 'path_parquet'): print('Simulation path parquet file: ', self.path_parquet)
+        if hasattr(self, 'path_stereo_parquet'): print('Simulation path parquet file: ', self.path_stereo_parquet)
         if hasattr(self, 'fileZMX'): print('Simulation path ZMX files: ', self.fileZMX)
         if hasattr(self, 'B_stereo'): print('Le B stéréologique: ' + str(round(self.B_stereo,4)))
         if hasattr(self, 'B_theo'): print('Le B théorique: ' + str(round(self.B_theo,4)))
@@ -712,25 +713,25 @@ properties=[]
 if __name__ == '__main__':
     for wlum in [1.0]:
         print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
-        sim = simulation_MC('test1', 10000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
+        sim = simulation_MC('test1', 1_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
         sim.create_folder()
         sim.Initialize_Zemax()
         sim.Load_File()
-        # sim.shoot_rays()
-        sim.Load_npyfile()
+        sim.shoot_rays()
+        sim.Load_parquetfile()
+        # print(psutil.virtual_memory()[2])
         # sim.calculate_musp()
         # sim.calculate_ke_theo()
-        # sim.calculate_ke_rt()
+        sim.calculate_ke_rt()
         # sim.calculate_MOPL()
         # sim.map_DOP_top_detector()
-        sim.map_stokes_reflectance()
-        sim.map_DOP_reflectance()
-        sim.plot_DOP_radius_reflectance()
+        # sim.map_stokes_reflectance()
+        # sim.map_DOP_reflectance()
+        # sim.plot_DOP_radius_reflectance()
         # sim.calculate_alpha()
         # sim.calculate_mua()
-        sim.properties()
+        # sim.properties()
         # sim.plot_irradiances()
         # sim.plot_time_reflectance()
-        print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
         # properties += [[sim.mua_theo,sim.alpha_rt,sim.MOPL_theo,sim.MOPL_rt,sim.Error]]
         # del sim
