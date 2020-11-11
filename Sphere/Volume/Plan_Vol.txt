@@ -1,4 +1,8 @@
 To do:
+Je sais pas pourquoi mais dans le parquet il a seulement les 30 derniers segments... ou ben je suis pas capable de voir les autres...
+	-> À cause des chunks size..., donc devrait fonctionner correctement.
+Si non le problème de groupby semble régler...
+
 Continuer à modifier le code vers Dask
 Investiguer la séparation de polarisation
 Comparer les plots de Vol_Simulation aux plots de Monte-Carlo 
@@ -12,7 +16,7 @@ NA: 0.12
 Bug:
 Reflectance vs temps... fonctionne pas pour calculer le MOPL
 Dans l'article ça parle de direct light, 
-mais je ne suis pas pas capable de confirmer le MOPL sur plusieurs longueur d'onde pour plusieurs media poreux...
+mais je ne suis pas pas capable de confirmer le MOPL sur plusieurs longueur d'onde pour plusieurs medias poreux...
 Le début de la courbe devrait fitter car c'est les rayons qui prennent plus de 4000 interactions qui font diverger de la théorie techniquement...
 Si on veut vraiment on pourrait le faire avec une slab (minimise le temps de calcul et en plus on s'assure une meilleur précision sur la mesure)
 

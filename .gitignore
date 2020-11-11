@@ -7,6 +7,8 @@
 *.parquet
 *.dirlock
 *.lock
+*.xml
 
 #Spyder project
 .spyproject/
+.idea/
