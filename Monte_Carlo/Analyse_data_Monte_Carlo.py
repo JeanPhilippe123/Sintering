@@ -1,7 +1,8 @@
 """
 Auteur: Jean-Philippe Langelier 
 Étudiant à la maitrise 
-Université Laval"""
+Université Laval
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -15,14 +16,13 @@ import os
 import psutil
 import matplotlib.colors as colors
 import dask.dataframe as dd
-import dask.array as da
 
 path_Vol_Raytrace = 'Z:\Sintering\Sphere\Volume'
-sys.path.insert(3,path_Vol_Raytrace)
+sys.path.insert(1,path_Vol_Raytrace)
+pathRaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries\Raytrace.DLL'
+sys.path.insert(2,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
+import PythonNET_ZRDLoaderFull as init_Zemax
 import Vol_Raytrace
-path_RaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries'
-sys.path.insert(2,path_RaytraceDLL)
-import PythonNET_ZRDLoader as init_Zemax
 
 class simulation_MC:
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
@@ -201,18 +201,13 @@ class simulation_MC:
         #Ponderate pathlength for ice only (absorbing media)
         self.df['ponderation'] = 0
         self.df['ponderation'] = self.df['ponderation'].mask(filt_ice, 1-self.optical_porosity_theo)
-        
-        temp_df=dd.from_pandas(pd.DataFrame(data = self.df['ponderation']*self.df['pathLength'], 
-                                            columns=['pond_pL'],index=self.df.index),
-                               npartitions=self.df.npartitions)
+        pond_pL = self.df['ponderation']*self.df['pathLength']
         
         #Overwrite the intensity
-        meta = dd.utils.make_meta({'pond_pL': 'O'}, index=pd.Index([], 'f8'))
-        self.pl = temp_df.groupby(temp_df.index).apply(np.cumsum,meta=meta)
-        # self.intensity = I_0*np.exp(-self.gamma*self.pl)
-        # intensity_da = da.asarray(intensity,dtype='float32')
-        # self.df['intensity'] = dd.from_pandas(intensity_df,npartitions=self.df.npartitions)
-        sys.exit()
+        %time pathLength = pond_pL.groupby(pond_pL.index).apply(np.cumsum,meta='float')
+        intensity = I_0*np.exp(-self.gamma*pathLength).values
+        self.df['intensity'] = pd.DataFrame(intensity,dtype='float32',index=self.df.index)
+        
         self.df = self.df.drop(columns = ['ponderation'])
         pass
 
@@ -718,7 +713,7 @@ properties=[]
 if __name__ == '__main__':
     for wlum in [1.0]:
         print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
-        sim = simulation_MC('test1', 3, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
+        sim = simulation_MC('test1', 1_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
         sim.create_folder()
         sim.Initialize_Zemax()
         sim.Load_File()
@@ -727,7 +722,7 @@ if __name__ == '__main__':
         # print(psutil.virtual_memory()[2])
         # sim.calculate_musp()
         # sim.calculate_ke_theo()
-        # sim.calculate_ke_rt()
+        sim.calculate_ke_rt()
         # sim.calculate_MOPL()
         # sim.map_DOP_top_detector()
         # sim.map_stokes_reflectance()

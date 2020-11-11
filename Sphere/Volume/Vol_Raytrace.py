@@ -8,6 +8,7 @@ import pandas as pd
 import os
 import time
 import psutil
+import h5py
 import dask.array as da
 import dask.dataframe as dd
 import os
@@ -121,12 +122,10 @@ def Shoot(Sim,Filter,numrays,path_parquet,nameZRD):
     start_write = time.time()
     #Create Dataframe from the retrieve data
     data = [Level,HitObject,InsideOf,RayNumber,X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen]
-    data = da.stack(data).transpose()
+    data = da.stack(data).transpose().rechunk(10*Sim.numrays,1)
     df = data.to_dask_dataframe(columns=headers)
     
-    #Divisions for partitions
-    div=[x for x in range(1,Sim.numrays+1)]+[Sim.numrays]
-    df = df.set_index('numray').repartition(divisions=div)
+    df = df.set_index('numray',sorted=True)
     
     #Write to parquet
     df.to_parquet(path_parquet)
@@ -140,7 +139,7 @@ def Load_parquet(path_parquet):
     #load_hdf and transform it into a dataframe with low memory usage
     start_load = time.time()
     
-    df = dd.read_parquet(path_parquet)
+    df = dd.read_parquet(path_parquet).repartition(partition_size="100MB")
 
     end_load = time.time()
     
