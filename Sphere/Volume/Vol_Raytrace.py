@@ -38,7 +38,7 @@ def retrieve_data(Sim,ZRDReader):
             X =  Sim.zosapi.DoubleToNumpy(ZRDData.X)[:readSegments]
             Y = Sim.zosapi.DoubleToNumpy(ZRDData.Y)[:readSegments]
             Z =  Sim.zosapi.DoubleToNumpy(ZRDData.Z)[:readSegments]
-            N =  Sim.zosapi.DoubleToNumpy(ZRDData.N)[:readSegments]
+            L =  Sim.zosapi.DoubleToNumpy(ZRDData.L)[:readSegments]
             Exr = Sim.zosapi.DoubleToNumpy(ZRDData.Exr)[:readSegments]
             Exi = Sim.zosapi.DoubleToNumpy(ZRDData.Exi)[:readSegments]
             Eyr = Sim.zosapi.DoubleToNumpy(ZRDData.Eyr)[:readSegments]
@@ -48,7 +48,7 @@ def retrieve_data(Sim,ZRDReader):
             Intensity = Sim.zosapi.DoubleToNumpy(ZRDData.Intensity)[:readSegments]
             PathLen = Sim.zosapi.DoubleToNumpy(ZRDData.PathLen)[:readSegments]
             Indice = Sim.zosapi.DoubleToNumpy(ZRDData.index)[:readSegments]
-            data = da.concatenate([data,[Level,HitObject,InsideOf,RayNumber,X,Y,Z,N,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,Indice]],axis=1).persist()
+            data = da.concatenate([data,[Level,HitObject,InsideOf,RayNumber,X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,Indice]],axis=1).persist()
             i+=1
         if totalRaysRead >= maxSegments:
             isFinished = True

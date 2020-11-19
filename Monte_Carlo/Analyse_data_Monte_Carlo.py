@@ -657,6 +657,7 @@ class simulation_MC:
         if not hasattr(self, 'density_stereo'): self.calculate_density()
         if not hasattr(self, 'g_theo'): self.calculate_g()
         if not hasattr(self, 'SSA_theo'): self.calculate_SSA()
+        if not hasattr(self, 'alpha_rt'): self.calculate_alpha()
         irradiance_up_tartes, irradiance_down_tartes = tartes.irradiance_profiles(
             self.wlum*1E-6, depth, self.SSA_theo, density=self.density_theo,
             g0=self.g_theo,B0=self.B_theo,dir_frac=self.tartes_dir_frac,totflux=0.75)
@@ -747,6 +748,7 @@ if __name__ == '__main__':
         # sim.calculate_musp()
         # sim.calculate_ke_theo()
         # sim.calculate_MOPL()
+        # sim.map_DOP_top_detector()
         # sim.map_stokes_reflectance()
         # sim.map_DOP_reflectance()
         # sim.plot_DOP_radius_reflectance()
@@ -756,6 +758,8 @@ if __name__ == '__main__':
         # print(sim.ke_rt)
         sim.plot_irradiances()
         # sim.properties()
+        sim.properties()
+        sim.plot_irradiances()
         # sim.plot_time_reflectance()
         # del sim
         
