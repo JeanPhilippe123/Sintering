@@ -47151,3 +47151,3493 @@ Time started 2020/10/27 23:11:17
  
 File Loaded 
  
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/16 18:30:57
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 13:49:20
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 13:50:32
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 100
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 13:58:45
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 13:59:56
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:4:37
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:5:11
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:10:30
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:11:59
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:16:20
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:19:49
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:29:7
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:29:27
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:30:23
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:30:34
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:33:24
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:58:7
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 14:59:24
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 15:53:47
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:0:34
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:10:28
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:10:41
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:11:31
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:11:40
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:11:50
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:12:2
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:12:40
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:13:39
+ 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:20:28
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:21:38
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:29:3
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:29:30
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:30:48
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:31:7
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:32:3
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:34:42
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:35:30
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:36:23
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:37:26
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:41:6
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:41:22
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:43:21
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:45:30
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:47:7
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:47:27
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:48:38
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:49:9
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:51:45
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:53:18
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 16:59:37
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:2:7
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : [6.6e-05]
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:3:35
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:6:10
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:6:20
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:6:52
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:9:18
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:11:11
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:13:3
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:14:44
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:18:17
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:21:47
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:22:26
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:25:40
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:26:56
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:33:14
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:34:12
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:40:15
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:48:3
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:48:26
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:49:14
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:51:8
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:54:43
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:56:2
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 17:58:8
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/17 21:39:24
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:50:49
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:51:19
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:52:10
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:54:8
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:54:58
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:55:39
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:59:3
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 9:59:57
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:0:28
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:1:3
+ 
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:1:44
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:2:17
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:2:58
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:3:44
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+alpha raytracing: 0.7347
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9230742578052199
+gG raytracing 0.8461485156104398
+B stéréologique : 1.5345
+B stéréologique : 1.5345
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 7.478
+mua raytracing: 7.6491
+mua raytracing: 7.7549
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.02379911858067205
+MOPL stéréologique: 0.0341220211396633
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.7180269008164469
+Porosité Optique stéréologique : 0.674338
+alpha raytracing: 0.7237
+alpha TARTES: 0.7286
+alpha stéréologique: 0.7741
+alpha théorique: 0.7725
+ke TARTES: 97.9492
+ke théorique: 98.6311
+ke stéréologique: 116.9914
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:6:28
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+ke TARTES: 92.0336
+ke théorique: 92.7765
+ke stéréologique: 110.047
+alpha raytracing: 0.7034
+alpha TARTES: 0.7422
+alpha stéréologique: 0.7859
+alpha théorique: 0.7844
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.742132545191978
+Porosité Optique stéréologique : 0.700621
+B stéréologique : 1.3578
+B stéréologique : 1.3578
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.742132545191978
+Porosité Optique stéréologique : 0.700621
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9376009416768164
+gG raytracing 0.8752018833536328
+B stéréologique : 1.3578
+B stéréologique : 1.3578
+SSA stéréologie : 50.370829
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 221.637983
+mu_s stereo : 5582.044470798954
+mu_s theo : 4631.077411455417
+mua théorique: 6.6165
+mua raytracing: 8.0842
+mua raytracing: 6.8581
+mu_s' stereo : 614.0248917878848
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.025104627858677987
+MOPL stéréologique: 0.03829948789743314
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.760621
+Porosité Optique théorique : 0.742132545191978
+Porosité Optique stéréologique : 0.700621
+alpha raytracing: 0.6973
+alpha TARTES: 0.7422
+alpha stéréologique: 0.7859
+alpha théorique: 0.7844
+ke TARTES: 92.0336
+ke théorique: 92.7765
+ke stéréologique: 110.047
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:11:56
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 199.499769
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 46.633676
+SSA théorique: 49.56875185882819
+mu_s stereo : 4651.703794810422
+mu_s theo : 4631.077411455417
+mu_s' stereo : 511.6874174291463
+mu_s' theo : 509.41851526009583
+ke TARTES: 86.3541
+ke théorique: 87.1472
+ke stéréologique: 93.0448
+alpha raytracing: 0.6104
+alpha TARTES: 0.7475
+alpha stéréologique: 0.7904
+alpha théorique: 0.796
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.784531
+Porosité Optique théorique : 0.7653558027858831
+Porosité Optique stéréologique : 0.752433
+B stéréologique : 1.198
+B stéréologique : 1.198
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.784531
+Porosité Optique théorique : 0.7653558027858831
+Porosité Optique stéréologique : 0.752433
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:17:30
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 114.79739599999999
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 52.677153
+SSA théorique: 49.56875185882819
+mu_s stereo : 3023.5999965467936
+mu_s theo : 4631.077411455417
+mu_s' stereo : 332.59599962014727
+mu_s' theo : 509.41851526009583
+ke TARTES: 94.6018
+ke théorique: 95.3193
+ke stéréologique: 58.5611
+alpha raytracing: 0.7189
+alpha TARTES: 0.7412
+alpha stéréologique: 0.785
+alpha théorique: 0.7792
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+B stéréologique : 1.4332
+B stéréologique : 1.4332
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.7445245132575304
+gG raytracing 0.4890490265150609
+B stéréologique : 1.4332
+B stéréologique : 1.4332
+SSA stéréologie : 52.677153
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 114.79739599999999
+mu_s stereo : 3023.5999965467936
+mu_s theo : 4631.077411455417
+mua théorique: 3.6175
+mua raytracing: 15.7823
+mua raytracing: 7.0818
+mu_s' stereo : 332.59599962014727
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.026870777928552227
+MOPL stéréologique: 0.03232578365814219
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+alpha raytracing: 0.7145
+alpha TARTES: 0.7412
+alpha stéréologique: 0.785
+alpha théorique: 0.7792
+ke TARTES: 94.6018
+ke théorique: 95.3193
+ke stéréologique: 58.5611
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:20:24
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 114.79739599999999
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 52.677153
+SSA théorique: 49.56875185882819
+mu_s stereo : 3023.5999965467936
+mu_s theo : 4631.077411455417
+mu_s' stereo : 332.59599962014727
+mu_s' theo : 509.41851526009583
+ke TARTES: 94.6018
+ke théorique: 95.3193
+ke stéréologique: 58.5611
+alpha raytracing: 0.7189
+alpha TARTES: 0.7412
+alpha stéréologique: 0.785
+alpha théorique: 0.7792
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+B stéréologique : 1.4332
+B stéréologique : 1.4332
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.7445245132575304
+gG raytracing 0.4890490265150609
+B stéréologique : 1.4332
+B stéréologique : 1.4332
+SSA stéréologie : 52.677153
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 114.79739599999999
+mu_s stereo : 3023.5999965467936
+mu_s theo : 4631.077411455417
+mua théorique: 3.6175
+mua raytracing: 15.7823
+mua raytracing: 7.0818
+mu_s' stereo : 332.59599962014727
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.026870777928552227
+MOPL stéréologique: 0.03232578365814219
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+alpha raytracing: 0.7145
+alpha TARTES: 0.7412
+alpha stéréologique: 0.785
+alpha théorique: 0.7792
+ke TARTES: 94.6018
+ke théorique: 95.3193
+ke stéréologique: 58.5611
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:21:55
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 114.79739599999999
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 52.677153
+SSA théorique: 49.56875185882819
+mu_s stereo : 3023.5999965467936
+mu_s theo : 4631.077411455417
+mu_s' stereo : 332.59599962014727
+mu_s' theo : 509.41851526009583
+ke TARTES: 94.6018
+ke théorique: 95.3193
+ke stéréologique: 58.5611
+alpha raytracing: 0.7189
+alpha TARTES: 0.7412
+alpha stéréologique: 0.785
+alpha théorique: 0.7792
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+B stéréologique : 1.4332
+B stéréologique : 1.4332
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.876013
+Porosité Optique théorique : 0.7316485952040711
+Porosité Optique stéréologique : 0.83136
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.7445245132575304
+gG raytracing 0.4890490265150609
+B stéréologique : 1.4332
+B stéréologique : 1.4332
+SSA stéréologie : 52.677153
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 114.79739599999999
+mu_s stereo : 3023.5999965467936
+mu_s theo : 4631.077411455417
+mua théorique: 3.6175
+mua raytracing: 15.7823
+mua raytracing: 7.0818
+mu_s' stereo : 332.59599962014727
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:36:28
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:39:7
+ 
+Densité théorique : 186.85471139740318
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:45:26
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:46:52
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:47:7
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:47:30
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:47:37
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 209.816019
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 44.340741
+SSA théorique: 49.56875185882819
+mu_s stereo : 4651.69887806504
+mu_s theo : 4631.077411455417
+mu_s' stereo : 511.68687658715436
+mu_s' theo : 509.41851526009583
+ke TARTES: 89.15
+ke théorique: 89.9194
+ke stéréologique: 100.969
+alpha raytracing: 0.6026
+alpha TARTES: 0.735
+alpha stéréologique: 0.7797
+alpha théorique: 0.7903
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.773389
+Porosité Optique théorique : 0.7539222113757245
+Porosité Optique stéréologique : 0.727956
+B stéréologique : 1.2754
+B stéréologique : 1.2754
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.773389
+Porosité Optique théorique : 0.7539222113757245
+Porosité Optique stéréologique : 0.727956
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9588543314935003
+gG raytracing 0.9177086629870006
+B stéréologique : 1.2754
+B stéréologique : 1.2754
+SSA stéréologie : 44.340741
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 209.816019
+mu_s stereo : 4651.69887806504
+mu_s theo : 4631.077411455417
+mua théorique: 5.8838
+mua raytracing: 9.208
+mua raytracing: 6.8613
+mu_s' stereo : 511.68687658715436
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.05583430372048784
+MOPL stéréologique: 0.06760018704164371
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.773389
+Porosité Optique théorique : 0.7539222113757245
+Porosité Optique stéréologique : 0.727956
+alpha raytracing: 0.605
+alpha TARTES: 0.735
+alpha stéréologique: 0.7797
+alpha théorique: 0.7903
+ke TARTES: 89.15
+ke théorique: 89.9194
+ke stéréologique: 100.969
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:49:36
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:50:45
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:50:54
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:51:8
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 10:52:24
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 11:30:25
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 11:31:57
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 11:34:58
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 11:40:52
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:0:59
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:1:32
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:1:45
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:6:59
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:9:7
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:54:29
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:56:0
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:57:18
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 12:59:20
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.03775354932617067
+MOPL stéréologique: 0.047348858773617
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+alpha raytracing: 0.7588
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 13:41:3
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 14:24:38
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 14:26:49
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ke TARTES: 91.6569
+ke théorique: 92.4034
+ke stéréologique: 84.9227
+alpha raytracing: 0.7255
+alpha TARTES: 0.0683
+alpha stéréologique: 0.0931
+alpha théorique: 0.7852
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.814526
+Porosité Optique théorique : 0.7436716991081511
+Porosité Optique stéréologique : 0.765293
+g théorique 0.89
+gG théorique 0.78
+g raytracing -5.783139281901976
+gG raytracing -12.566278563803952
+B stéréologique : 1.3469
+B stéréologique : 1.3469
+SSA stéréologie : 0.514395
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 171.727507
+mu_s stereo : 44.1678854816325
+mu_s theo : 4631.077411455417
+mua théorique: 5.0854
+mua raytracing: 5.7852
+mua raytracing: 61.5035
+mu_s' stereo : 4.858467402979575
+mu_s' theo : 509.41851526009583
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 16:27:20
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 16:27:44
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 16:43:36
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/18 18:4:42
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/19 12:17:43
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/19 12:17:53
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 186.09873100000002
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 53.282904
+SSA théorique: 49.56875185882819
+mu_s stereo : 4957.940409197413
+mu_s theo : 4631.077411455417
+mu_s' stereo : 545.3734450117154
+mu_s' theo : 509.41851526009583
+ke TARTES: 92.6031
+ke théorique: 93.3405
+ke stéréologique: 92.9629
+alpha raytracing: 0.5765
+alpha TARTES: 0.7471
+alpha stéréologique: 0.7901
+alpha théorique: 0.7832
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.799005
+Porosité Optique théorique : 0.739805895158707
+Porosité Optique stéréologique : 0.743098
+B stéréologique : 1.3743
+B stéréologique : 1.3743
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.799005
+Porosité Optique théorique : 0.739805895158707
+Porosité Optique stéréologique : 0.743098
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.9391270282888148
+gG raytracing 0.8782540565776296
+B stéréologique : 1.3743
+B stéréologique : 1.3743
+SSA stéréologie : 53.282904
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 186.09873100000002
+mu_s stereo : 4957.940409197413
+mu_s theo : 4631.077411455417
+mua théorique: 5.6233
+mua raytracing: 17.1641
+mua raytracing: 6.7512
+mu_s' stereo : 545.3734450117154
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.07214931888849375
+MOPL stéréologique: 0.07346227840185529
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.799005
+Porosité Optique théorique : 0.739805895158707
+Porosité Optique stéréologique : 0.743098
+alpha raytracing: 0.5672
+alpha TARTES: 0.7471
+alpha stéréologique: 0.7901
+alpha théorique: 0.7832
+ke TARTES: 92.6031
+ke théorique: 93.3405
+ke stéréologique: 92.9629
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/19 12:20:26
+ 
+File Loaded 
+ 
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/19 13:30:55
+ 
+File Loaded 
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 185.20924100000002
+g théorique 0.89
+gG théorique 0.78
+SSA stéréologie : 4.984388
+SSA théorique: 49.56875185882819
+mu_s stereo : 461.57735916475406
+mu_s theo : 4631.077411455417
+mu_s' stereo : 50.77350950812294
+mu_s' theo : 509.41851526009583
+ke TARTES: 120.1757
+ke théorique: 120.5415
+ke stéréologique: 119.48
+alpha raytracing: 0.5623
+alpha TARTES: 0.3027
+alpha stéréologique: 0.3697
+alpha théorique: 0.7294
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.799966
+Porosité Optique théorique : 0.630294599360687
+Porosité Optique stéréologique : 0.635677
+B stéréologique : 2.292
+B stéréologique : 2.292
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.799966
+Porosité Optique théorique : 0.630294599360687
+Porosité Optique stéréologique : 0.635677
+g théorique 0.89
+gG théorique 0.78
+g raytracing 0.6331262285352302
+gG raytracing 0.2662524570704603
+B stéréologique : 2.292
+B stéréologique : 2.292
+SSA stéréologie : 4.984388
+SSA théorique: 49.56875185882819
+Densité théorique : 186.85471139740318
+Densité stéreologique : 185.20924100000002
+mu_s stereo : 461.57735916475406
+mu_s theo : 4631.077411455417
+mua théorique: 9.3335
+mua raytracing: 10.5255
+mua raytracing: 35.9007
+mu_s' stereo : 50.77350950812294
+mu_s' theo : 509.41851526009583
+MOPL raytracing: 0.030171519622032836
+MOPL stéréologique: 0.029875945065577187
+Porosité Physique théorique : 0.7962325938959616
+Porosité Physique stéréologique : 0.799966
+Porosité Optique théorique : 0.630294599360687
+Porosité Optique stéréologique : 0.635677
+alpha raytracing: 0.6758
+alpha TARTES: 0.3027
+alpha stéréologique: 0.3697
+alpha théorique: 0.7294
+ke TARTES: 120.1757
+ke théorique: 120.5415
+ke stéréologique: 119.48
+ 
+====================================================== 
+Simulation : test2
+Radius : 6.6e-05
+Delta : 0.000287
+Numrays : 10000
+Wavelength : 0.55
+Polarization : [1, 1, 0, 0]
+Time started 2020/11/19 14:32:55
+ 
+Densité théorique : 186.85471139740318
+Densité stéreologique : 185.20924100000002

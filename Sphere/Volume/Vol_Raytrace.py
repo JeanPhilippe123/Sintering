@@ -4,22 +4,77 @@ Auteur: Jean-Philippe Langelier
 Université Laval
 """
 import numpy as np
-import pandas as pd
 import os
 import time
-import psutil
 import dask.array as da
 import dask.dataframe as dd
-import os
+
+def retrieve_data(Sim,ZRDReader):
+    results = ZRDReader.GetResults();
+    dataReader = Sim.BatchRayTrace.ReadZRDData(results)
+    maxSegments = 1_000_000;
+    ZRDData = dataReader.InitializeOutput(maxSegments);
+
+    isFinished = False;
+    totalSegRead = 0;
+    totalRaysRead = 0;
+
+    start_read = time.time()
+    i=0
+    
+    data = da.from_array(np.array([[]]*17),chunks=[1,1])
+    while isFinished == False and ZRDData is not None:
+        readSegments = dataReader.ReadNextBlock(ZRDData);
+        if readSegments == 0:
+            isFinished = True;
+        else:
+            #Get the right data from the file
+            totalSegRead = totalSegRead + readSegments;
+            totalRaysRead = np.max(Sim.zosapi.LongToNumpy(ZRDData.RayNumber))
+            RayNumber = Sim.zosapi.LongToNumpy(ZRDData.RayNumber)[:readSegments]
+            Level = Sim.zosapi.LongToNumpy(ZRDData.Level)[:readSegments]
+            HitObject = Sim.zosapi.LongToNumpy(ZRDData.HitObject)[:readSegments]
+            InsideOf = Sim.zosapi.LongToNumpy(ZRDData.InsideOf)[:readSegments]
+            X =  Sim.zosapi.DoubleToNumpy(ZRDData.X)[:readSegments]
+            Y = Sim.zosapi.DoubleToNumpy(ZRDData.Y)[:readSegments]
+            Z =  Sim.zosapi.DoubleToNumpy(ZRDData.Z)[:readSegments]
+            N =  Sim.zosapi.DoubleToNumpy(ZRDData.N)[:readSegments]
+            Exr = Sim.zosapi.DoubleToNumpy(ZRDData.Exr)[:readSegments]
+            Exi = Sim.zosapi.DoubleToNumpy(ZRDData.Exi)[:readSegments]
+            Eyr = Sim.zosapi.DoubleToNumpy(ZRDData.Eyr)[:readSegments]
+            Eyi = Sim.zosapi.DoubleToNumpy(ZRDData.Eyi)[:readSegments]
+            Ezr = Sim.zosapi.DoubleToNumpy(ZRDData.Ezr)[:readSegments]
+            Ezi = Sim.zosapi.DoubleToNumpy(ZRDData.Ezi)[:readSegments]
+            Intensity = Sim.zosapi.DoubleToNumpy(ZRDData.Intensity)[:readSegments]
+            PathLen = Sim.zosapi.DoubleToNumpy(ZRDData.PathLen)[:readSegments]
+            Indice = Sim.zosapi.DoubleToNumpy(ZRDData.index)[:readSegments]
+            data = da.concatenate([data,[Level,HitObject,InsideOf,RayNumber,X,Y,Z,N,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,Indice]],axis=1).persist()
+            i+=1
+        if totalRaysRead >= maxSegments:
+            isFinished = True
+    
+    ZRDReader.Close();
+        
+    #Create DataFrame
+    headers = np.array(["segmentLevel", "hitObj", "insideOf", "numray",
+    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength", "Indice"])
+
+    print('----------------------------------------------------')
+    print('Rays read:                                 %i' % totalRaysRead);
+    print('Segments read:                             %i' % totalSegRead);
+    print('----------------------------------------------------')
+    end_read = time.time()
+    print('Time took for reading: ',round(end_read-start_read,2))
+    
+    #Create Dataframe from the retrieve data
+    data = data.transpose()
+    df = data.to_dask_dataframe(columns=headers)
+    return df
 
 # @profile
-def Shoot(Sim,Filter,numrays,path_parquet,nameZRD):
+def Shoot(Sim,Filter,numrays,path_parquet,nameZRD,path_metadata=None):
     
-    if Sim.diffuse_light == True:
-        diffuse_str = 'diffuse'
-    else:
-        diffuse_str = 'not_diffuse'
-    # # Open file
+    # Open file
     pathZMX = os.path.dirname(Sim.fileZMX)
     
     #Find indice of 'Source Object' and add the correct numrays for stereo
@@ -49,84 +104,20 @@ def Shoot(Sim,Filter,numrays,path_parquet,nameZRD):
     
     ZRDReader.RunAndWaitForCompletion()
     
-    results = ZRDReader.GetResults();
-    dataReader = Sim.BatchRayTrace.ReadZRDData(results)
-    maxSegments = 50000000; #50000000 is max
-    ZRDData = dataReader.InitializeOutput(maxSegments);
-
-    isFinished = False;
-    totalSegRead = 0;
-    totalRaysRead = 0;
-
-    start_read = time.time()
-    i=0
+    if path_metadata!=None:
+        #Write metadata
+        np.save(path_metadata,Sim.array_objects())
     
-    while isFinished == False and ZRDData is not None:
-        readSegments = dataReader.ReadNextBlock(ZRDData);
-        if readSegments == 0:
-            isFinished = True;
-        else:
-            #Get the right data from the file
-            totalSegRead = totalSegRead + readSegments;
-            RayNumber =  Sim.zosapi.LongToNumpy(ZRDData.RayNumber)[:totalSegRead]
-            # WlUM =  Sim.zosapi.LongToNumpy(ZRDData.WlUM)[:totalSegRead]
-            totalRaysRead = np.max(Sim.zosapi.LongToNumpy(ZRDData.RayNumber))
-            Level = Sim.zosapi.LongToNumpy(ZRDData.Level)[:totalSegRead]
-            # Parent = Sim.zosapi.LongToNumpy(ZRDData.Parent)[:totalSegRead]
-            HitObject = Sim.zosapi.LongToNumpy(ZRDData.HitObject)[:totalSegRead]
-            # HitFace = Sim.zosapi.LongToNumpy(ZRDData.HitFace)[:totalSegRead]
-            InsideOf = Sim.zosapi.LongToNumpy(ZRDData.InsideOf)[:totalSegRead]
-            # Status = Sim.zosapi.LongToNumpy(ZRDData.Status)[:totalSegRead]
-            X =  Sim.zosapi.DoubleToNumpy(ZRDData.X)[:totalSegRead]
-            Y = Sim.zosapi.DoubleToNumpy(ZRDData.Y)[:totalSegRead]
-            Z =  Sim.zosapi.DoubleToNumpy(ZRDData.Z)[:totalSegRead]
-            L =  Sim.zosapi.DoubleToNumpy(ZRDData.L)[:totalSegRead]
-            # M =  Sim.zosapi.DoubleToNumpy(ZRDData.M)[:totalSegRead]
-            # N =  Sim.zosapi.DoubleToNumpy(ZRDData.N)[:totalSegRead]
-            Exr =  Sim.zosapi.DoubleToNumpy(ZRDData.Exr)[:totalSegRead]
-            Exi =  Sim.zosapi.DoubleToNumpy(ZRDData.Exi)[:totalSegRead]
-            Eyr =  Sim.zosapi.DoubleToNumpy(ZRDData.Eyr)[:totalSegRead]
-            Eyi = Sim.zosapi.DoubleToNumpy(ZRDData.Eyi)[:totalSegRead]
-            Ezr = Sim.zosapi.DoubleToNumpy(ZRDData.Ezr)[:totalSegRead]
-            Ezi =  Sim.zosapi.DoubleToNumpy(ZRDData.Ezi)[:totalSegRead]
-            Intensity =  Sim.zosapi.DoubleToNumpy(ZRDData.Intensity)[:totalSegRead]
-            PathLen =  Sim.zosapi.DoubleToNumpy(ZRDData.PathLen)[:totalSegRead]
-            # index = Sim.zosapi.DoubleToNumpy(ZRDData.index)[:totalSegRead]
-            # startingPhase =  Sim.zosapi.DoubleToNumpy(ZRDData.startingPhase)[:totalSegRead]
-            i+=1
-        if totalRaysRead >= maxSegments:
-            isFinished = True
-    
-    ZRDReader.Close();
-    
-    #Create DataFrame
-    headers = np.array(["segmentLevel", "hitObj", "insideOf", "numray",
-    "x", "y", "z", "n", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength"])
-
-    if i>1:
-        print('-------------------------------------------------------')
-        print('LOOPS IN READING HIGHER THAN 1 VALUES PROBABLY CORRUPTED')
-        print('-------------------------------------------------------')
-    
-    print('----------------------------------------------------')
-    print('Filter:                                    %s' % Filter);
-    print('Rays read:                                 %i' % totalRaysRead);
-    print('Segments read:                             %i' % totalSegRead);
-    Mem_used = totalSegRead/maxSegments*100
-    print('Percentage of memory for segments use:     %f' % Mem_used);
-    print('----------------------------------------------------')
-    end_read = time.time()
-    print('Time took for reading: ',round(end_read-start_read,2))
+    #Retrieve Datas from simulation into a dataframe
+    df = retrieve_data(Sim,ZRDReader)
     
     start_write = time.time()
-    #Create Dataframe from the retrieve data
-    data = [Level,HitObject,InsideOf,RayNumber,X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen]
-    data = da.stack(data).transpose()
-    df = data.to_dask_dataframe(columns=headers)
     
-    #Divisions for partitions
-    div=[x for x in range(1,Sim.numrays+1)]+[Sim.numrays]
-    df = df.set_index('numray').repartition(divisions=div)
+    # df.repartition(npartitions=10,force=True)
+    df = df.set_index('numray', sorted=True, partition_size='100 MiB')
+    
+    # #Add the good index
+    df = df.persist()
     
     #Write to parquet
     df.to_parquet(path_parquet)
@@ -136,13 +127,20 @@ def Shoot(Sim,Filter,numrays,path_parquet,nameZRD):
     
     return path_parquet
 
-def Load_parquet(path_parquet):
-    #load_hdf and transform it into a dataframe with low memory usage
+def Load_parquet(path_parquet,name=''):
+    #Load_hdf and transform it into a dataframe with low memory usage
     start_load = time.time()
     
     df = dd.read_parquet(path_parquet)
-
+    df = df.persist()
+    
+    # df.repartition(npartitions=10,force=True)
+    # df = df.set_index('numray', partition_size='100 MiB')
+    
+    # #Add the good index
+    # df = df.persist()
+    
     end_load = time.time()
     
-    print("Time took for loading paquet file : ", round(end_load-start_load,2))
+    print("Time took for loading {} paquet file : ".format(name), round(end_load-start_load,2))
     return df

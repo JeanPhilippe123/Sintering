@@ -1,24 +1,17 @@
 To do:
-Je sais pas pourquoi mais dans le parquet il a seulement les 30 derniers segments... ou ben je suis pas capable de voir les autres...
-	-> À cause des chunks size..., donc devrait fonctionner correctement.
-Si non le problème de groupby semble régler...
+Faire la save du dataframe dans le parquet directement après avoir transférer to_dask_dataframe 
+comme ça on peux mieux investiguer le problème depuis la fonction load_parquet
 
+Essayer de voir comment que le live profile fonctionne
 Continuer à modifier le code vers Dask
 Investiguer la séparation de polarisation
 Comparer les plots de Vol_Simulation aux plots de Monte-Carlo 
-	-> Créer une façon de save les datas reliées aux plots du Monte-Carlo et de Vol_simulation 
+	-> Créer une façon de save les datas reliées aux plots du Monte-Carlo et de Vol_simulation
 	-> Superposer les plots un sur l'autre dans un autre fichier
 
 Pour la fibre d'émission:
 diamètre: 5.3 ± 1.0 µm
 NA: 0.12
-
-Bug:
-Reflectance vs temps... fonctionne pas pour calculer le MOPL
-Dans l'article ça parle de direct light, 
-mais je ne suis pas pas capable de confirmer le MOPL sur plusieurs longueur d'onde pour plusieurs medias poreux...
-Le début de la courbe devrait fitter car c'est les rayons qui prennent plus de 4000 interactions qui font diverger de la théorie techniquement...
-Si on veut vraiment on pourrait le faire avec une slab (minimise le temps de calcul et en plus on s'assure une meilleur précision sur la mesure)
 
 Step 1:
 Create Detector X

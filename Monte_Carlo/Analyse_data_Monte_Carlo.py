@@ -1,7 +1,9 @@
 """
 Auteur: Jean-Philippe Langelier 
 Étudiant à la maitrise 
-Université Laval"""
+Université Laval
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -10,12 +12,8 @@ import time as time
 import tartes
 import scipy.constants
 import scipy.optimize
-import concurrent.futures
-import os
-import psutil
-import matplotlib.colors as colors
-import dask.dataframe as dd
-import dask.array as da
+from dask.diagnostics import visualize
+from dask.diagnostics import Profiler, ResourceProfiler, CacheProfiler
 
 path_Vol_Raytrace = 'Z:\Sintering\Sphere\Volume'
 sys.path.insert(3,path_Vol_Raytrace)
@@ -23,6 +21,13 @@ import Vol_Raytrace
 path_RaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries'
 sys.path.insert(2,path_RaytraceDLL)
 import PythonNET_ZRDLoader as init_Zemax
+
+def profiler(func):
+    def wrapper(*args,**kwargs):
+        with Profiler() as prof, ResourceProfiler(dt=0.25) as rprof,CacheProfiler() as cprof:
+            func(*args,**kwargs)
+        visualize([prof, rprof, cprof])
+    return wrapper
 
 class simulation_MC:
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
@@ -59,6 +64,7 @@ class simulation_MC:
         
         self.name_ZRD = '_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".ZRD"
         self.path_parquet = os.path.join(self.pathZMX,'_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".parquet")
+        self.path_metadata = os.path.join(self.pathZMX,'_'.join([name,'metadata',str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".npy")
         self.path_ZRD = os.path.join(self.pathZMX,self.name_ZRD)
         
     def create_folder(self):
@@ -77,13 +83,23 @@ class simulation_MC:
         return Detector_obj
     
     def array_objects(self):
-        list_obj=[]
-        for i in range(1,self.TheNCE.NumberOfObjects+1):
-            Object = self.TheNCE.GetObjectAt(i)
-            ObjectType = Object.TypeName
-            ObjectMaterial = Object.Material 
-            list_obj += [[ObjectType,ObjectMaterial]]
-            array_obj = np.array(list_obj)
+        #Check for metadata
+        if os.path.exists(self.path_metadata):
+            array_obj = np.load(self.path_metadata)
+        #Check for Zemax open
+        elif hasattr(self, 'zosapi'):
+            list_obj=[]
+            for i in range(1,self.TheNCE.NumberOfObjects+1):
+                Object = self.TheNCE.GetObjectAt(i)
+                ObjectType = Object.TypeName
+                ObjectMaterial = Object.Material 
+                list_obj += [[ObjectType,ObjectMaterial]]
+                array_obj = np.array(list_obj)
+        #Else return error
+        else:
+            print('There\'s no metadata file to get array object from and ZosAPI is not open.\
+                  Please initialize Zemax')
+            sys.exit()
         return array_obj
     
     def Initialize_Zemax(self):
@@ -119,8 +135,8 @@ class simulation_MC:
         Source.SourcesData.Jy = self.jy
         Source.SourcesData.XPhase = self.phase_x
         Source.SourcesData.YPhase = self.phase_y
-        #Change radius of source to correspond with the zemax
 
+        #Change radius of source to correspond with the zemax
         Rectangular_obj = self.TheNCE.GetObjectAt(1)
         Rectangular_obj_physdata = Rectangular_obj.VolumePhysicsData
         Rectangular_obj_physdata.Model = self.ZOSAPI_NCE.VolumePhysicsModelType.DLLDefinedScattering
@@ -133,6 +149,7 @@ class simulation_MC:
         self.TheSystem.SaveAs(self.fileZMX)
         end = time.time()
         print('Fichier loader en ',end-start)
+        pass
     
     def shoot_rays(self):
         Source_obj = self.find_source_object()[0]
@@ -145,7 +162,7 @@ class simulation_MC:
         Source_object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = cosine
             
         print('Raytrace')
-        Vol_Raytrace.Shoot(self,'',self.numrays,self.path_parquet,self.name_ZRD)
+        Vol_Raytrace.Shoot(self,'',self.numrays,self.path_parquet,self.name_ZRD,self.path_metadata)
         pass    
     
     def Load_parquetfile(self): 
@@ -153,67 +170,67 @@ class simulation_MC:
         try:
             #Filter les rayons avec plus de 4000 interactions
             self.df = Vol_Raytrace.Load_parquet(self.path_parquet)
+
+            self.df = self.df.persist()
             
             #Change pathLength
             self.df['pathLength'] = np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
+            
             #Change intensity
             self.change_path_intensity()
             
-            #Groupby for last segment of each ray
-            df = self.df.groupby(self.df.index).agg({'hitObj':'last','segmentLevel':'last','intensity':'last'})
-            #Reflectance
-            filt_top_detector = df['hitObj'] == self.find_detector_object()[0]
-            df_top = df[filt_top_detector]
-            self.Reflectance = np.sum(df_top['intensity'])
-            self.numrays_Reflectance = df_top.shape[0]
-            #Transmitance
-            filt_down_detector = df['hitObj'] == self.find_detector_object()[1]
-            df_down = df[filt_down_detector]
-            self.Transmitance = np.sum(df_down['intensity'])
-            self.numrays_Transmitance = df_down.shape[0]
-            #Error (max_segments)
-            filt_error = df['segmentLevel'] == self.max_segments-1
-            df_error = df[filt_error]
-            self.Error = np.sum(df_error['intensity'])
-            self.numrays_Error = df_error.shape[0]
-            #Lost
-            filt_Lost = (~filt_top_detector)&(~filt_down_detector)&(~filt_error)
-            df_Lost = df[filt_Lost]
-            self.Lost = np.sum(df_Lost['intensity'])
-            self.numrays_Lost = df_Lost.shape[0]
-            #Absorb (considering total intensity is 1)
-            self.Absorb = np.abs(1-self.Reflectance-self.Transmitance-self.Error-self.Lost)
-            self.numrays_Absorb = self.numrays-self.numrays_Reflectance-self.numrays_Transmitance-self.numrays_Error-self.numrays_Lost
         except FileNotFoundError:
             print('The raytrace parquet file was not loaded, Please run raytrace')
             sys.exit()
-            pass
-        
+        pass
+    
+    def AOP(self):
+        df = self.df.groupby(self.df.index).agg({'hitObj':'last','segmentLevel':'last','intensity':'last'}).compute()
+        #Reflectance
+        filt_top_detector = df['hitObj'] == self.find_detector_object()[0]
+        df_top = df[filt_top_detector]
+        self.Reflectance = np.sum(df_top['intensity'])
+        self.numrays_Reflectance = df_top.shape[0]
+        #Transmitance
+        filt_down_detector = df['hitObj'] == self.find_detector_object()[1]
+        df_down = df[filt_down_detector]
+        self.Transmitance = np.sum(df_down['intensity'])
+        self.numrays_Transmitance = df_down.shape[0]
+        #Error (max_segments)
+        filt_error = df['segmentLevel'] == self.max_segments-1
+        df_error = df[filt_error]
+        self.Error = np.sum(df_error['intensity'])
+        self.numrays_Error = df_error.shape[0]
+        #Lost
+        filt_Lost = (~filt_top_detector)&(~filt_down_detector)&(~filt_error)
+        df_Lost = df[filt_Lost]
+        self.Lost = np.sum(df_Lost['intensity'])
+        self.numrays_Lost = df_Lost.shape[0]
+        #Absorb (considering total intensity is 1)
+        self.Absorb = np.abs(1-self.Reflectance-self.Transmitance-self.Error-self.Lost)
+        self.numrays_Absorb = self.numrays-self.numrays_Reflectance-self.numrays_Transmitance-self.numrays_Error-self.numrays_Lost
+        pass
+    
     def change_path_intensity(self):
         if not hasattr(self, 'optical_porosity_theo'): self.calculate_porosity()
-        #Calculate the intensity for each segments
         
-        filt_ice = ((self.df['segmentLevel'] != 0) & (self.df['segmentLevel'].astype('float').diff(-1) == -1))
+        #Calculate the intensity for each segments
+        detector_obj_1,detector_obj_2 = self.find_detector_object()
+        filt_ice = ((self.df['segmentLevel'] != 0) & (self.df['segmentLevel'].diff(-1) == -1))
         
         #Calculate new intensity
         self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         I_0 = 1./self.numrays
-        #Ponderate pathlength for ice only (absorbing media)
-        self.df['ponderation'] = 0
-        self.df['ponderation'] = self.df['ponderation'].mask(filt_ice, 1-self.optical_porosity_theo)
+     
+        #Create a ponderation for segment in material with optical density (absorbing media)
+        self.df = self.df.assign(pathLengthIce = (filt_ice.mul(1-self.optical_porosity_theo)).mul(self.df.pathLength))
         
-        temp_df=dd.from_pandas(pd.DataFrame(data = self.df['ponderation']*self.df['pathLength'], 
-                                            columns=['pond_pL'],index=self.df.index),
-                               npartitions=self.df.npartitions)
+        #Change pathLength for segment to cumulative pathLength
+        self.df['pathLengthIce'] = self.df.groupby('numray')['pathLengthIce'].cumsum()
         
         #Overwrite the intensity
-        meta = dd.utils.make_meta({'pond_pL': 'O'}, index=pd.Index([], 'f8'))
-        self.pl = temp_df.groupby(temp_df.index).apply(np.cumsum,meta=meta)
-        # self.intensity = I_0*np.exp(-self.gamma*self.pl)
-        # intensity_da = da.asarray(intensity,dtype='float32')
-        # self.df['intensity'] = dd.from_pandas(intensity_df,npartitions=self.df.npartitions)
-        sys.exit()
-        self.df = self.df.drop(columns = ['ponderation'])
+        self.df['intensity'] = I_0*np.exp(-self.gamma*self.df['pathLengthIce'])
+        self.df = self.df.persist()
         pass
 
     def calculate_porosity(self):
@@ -239,27 +256,10 @@ class simulation_MC:
         pass
     
     def calculate_alpha(self):
-        # filt_error = self.df['segmentLevel'] == self.max_segments-1
-        # df_error = self.df[filt_error]
-        # I_error = np.sum(df_error['intensity']*np.exp(-df_error['z']*self.ke_theo)/2)    
+        if not hasattr(self, 'Reflectance'): self.AOP()
         
-        self.alpha_rt = self.Reflectance #+ I_error
+        self.alpha_rt = self.Reflectance
         self.alpha_tartes = float(tartes.albedo(self.wlum*1E-6,self.SSA_theo,self.density_theo,g0=self.g_theo,B0=self.B_theo,dir_frac=self.tartes_dir_frac))
-
-    def up_irradiance_at_depth(self,depth):
-        filt_detector = self.df['z'] <= depth
-        df = self.df.loc[filt_detector]
-        filt = ((df['segmentLevel'].diff() != 1.0)
-                & (df['segmentLevel'] != 0))
-        df_filtered = df[filt]
-        return df_filtered
-    
-    def down_irradiance_at_depth(self,depth):
-        filt_detector = self.df['z'] >= depth
-        df = self.df.loc[filt_detector]
-        filt = df['segmentLevel'].diff() != 1.0 
-        df_filtered = df.loc[filt]
-        return df_filtered
     
     def calculate_g_theo(self):
         self.g_theo = 0.89
@@ -284,20 +284,15 @@ class simulation_MC:
             intensity = a*depth+b
             return intensity
         
-        def I_ke_raytracing(depth):
-            df = self.up_irradiance_at_depth(depth)
-            irradiance_down = sum(df['intensity']*np.abs(df['n']))
-            
-            df = self.down_irradiance_at_depth(depth)
-            irradiance_up = sum(df['intensity']*np.abs(df['n']))
-            # print(irradiance_down+irradiance_up)
-            return irradiance_down+irradiance_up
-        
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
         depths_fit = np.linspace(1/self.musp_theo,10/self.musp_theo,10)
-        intensity_rt = list(map(I_ke_raytracing,depths_fit))
-        self.ke_rt, self.b_rt = self.ke_raytracing(depths_fit,intensity_rt)
+        # depths_fit = [0.001]
+        # Irradiance_up_rt = np.array(list(map(self.Irradiance_up,depths_fit)))
+        # Irradiance_down_rt = np.array(list(map(self.Irradiance_down,depths_fit)))
+        # Irradiance_rt = Irradiance_up_rt + Irradiance_down_rt
+        Irradiance_rt = np.array(list(map(self.Irradiance,depths_fit)))
+        self.ke_rt, self.b_rt = self.ke_raytracing(depths_fit,Irradiance_rt)
         
     def calculate_ke_theo(self):
         if not hasattr(self, 'density_theo'): self.calculate_density()
@@ -337,23 +332,22 @@ class simulation_MC:
         
     def calculate_mus(self):
         self.mus_theo = self.density_theo*self.SSA_theo/2
-        
+    
     def calculate_MOPL(self):
         #Shoot rays for SSA
         if not hasattr(self, 'df'): self.Load_parquetfile()
         if not hasattr(self, 'musp_theo'): self.calculate_musp()
         
-        z_o = self.musp_theo**(-1)
-        D = (3*(self.mua_theo+self.musp_theo))**(-1)
-        self.MOPL_theo = self.neff_stereo*z_o/(2*np.sqrt(self.mua_theo*D))
+        #Approximation de Paterson
+        # z_o = self.musp_theo**(-1)
+        # D = (3*(self.mua_theo+self.musp_theo))**(-1)
+        # self.MOPL_theo = self.neff_stereo*z_o/(2*np.sqrt(self.mua_theo*D))
         
-        #Raytracing
+        #Keep rays that touch 
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
-        df_filt.insert(15,'OPL',np.nan)
-        df_filt['pathLength'] = np.sqrt((((df_filt[['x','y','z']].diff())**2).sum(1)))
         df_filt = df_filt[~(df_filt['hitObj'] == 2)]
         df_filt['OPL'] = df_filt['pathLength']*self.neff_stereo
         df_OPL = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last'})
@@ -375,8 +369,7 @@ class simulation_MC:
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
-        df_filt.insert(15,'time',np.nan)
-        df_filt['pathLength'] = np.sqrt((((df_filt[['x','y','z']].diff())**2).sum(1)))
+        
         df_filt = df_filt[~((df_filt['segmentLevel']==1)|(df_filt['hitObj']==3))]
         v_medium = scipy.constants.c/self.ice_index
         df_filt['time'] = df_filt['pathLength']/v_medium
@@ -415,7 +408,7 @@ class simulation_MC:
         pass
     
     def calculate_Stokes_of_rays(self,df):
-        if df.empty:
+        if len(df.index) == 0:
             #Return empty sequence
             return np.zeros(5)
         
@@ -466,7 +459,7 @@ class simulation_MC:
         XY_detector = 100/self.mus_theo
         bins = (np.linspace(-XY_detector,XY_detector,100),np.linspace(-XY_detector,XY_detector,100))
         
-        #Histogram of time vs intensity
+        #Histogram of x,y vs intensity
         I, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=I, bins=bins)
         Q, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=Q, bins=bins)
         U, x_bins, y_bins = np.histogram2d(df['x'], df['y'], weights=U, bins=bins)
@@ -528,7 +521,7 @@ class simulation_MC:
         
         #Calculate radius from source
         r = np.sqrt((df['x'])**2+(df['y'])**2)
-        df.insert(15,'radius',r)
+        df['radius'] = r
         
         #Calculate Stokes vs Radius
         bins = np.linspace(0,250/self.mus_theo,100)
@@ -594,7 +587,7 @@ class simulation_MC:
     
     def map_DOP_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df = self.df[filt_top_detector]
+        df = self.df[filt_top_detector].compute()
         
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
@@ -620,42 +613,64 @@ class simulation_MC:
         fig.suptitle('DOPs vs Depth')
         pass
     
+    def Irradiance(self,depth):    
+        def irradiance_at_depth(self,depth):
+            df_filtered = self.df.query('(z<= {} & z.shift() >= {})|(z>= {} & z.shift() <= {})'.format(depth,depth,depth,depth))
+            return df_filtered
+    
+        df = irradiance_at_depth(self,depth)
+        irradiance = df['intensity'].mul(df['n'].abs()).sum().compute()
+        return irradiance
+    
+    def Irradiance_up(self,depth):    
+        def up_irradiance_at_depth(self,depth):
+            df_filtered = self.df.query('z<= {} & z.shift() >= {}'.format(depth,depth))
+            return df_filtered
+    
+        df = up_irradiance_at_depth(self,depth)
+        irradiance_up = df['intensity'].mul(df['n'].abs()).sum().compute()
+        return irradiance_up
+    
+    def Irradiance_down(self,depth):
+        def down_irradiance_at_depth(self,depth):
+            df_filtered = self.df.query('z>= {} & z.shift() <= {}'.format(depth,depth))
+            return df_filtered
+        
+        df = down_irradiance_at_depth(self,depth)
+        irradiance_down = df['intensity'].mul(df['n'].abs()).sum().compute()
+        return irradiance_down
+    
+    # @profiler
     def plot_irradiances(self):
         if not hasattr(self, 'musp_theo'): self.calculate_musp()
         if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
+        if not hasattr(self, 'alpha_rt'): self.calculate_alpha()
         if not hasattr(self, 'ke_theo'): self.calculate_ke_theo()
         
         #Irradiance raytracing
-        def Irradiance_down(depth):
-            df = self.down_irradiance_at_depth(depth)
-            irradiance_down = sum(df['intensity']*np.abs(df['n']))
-            return irradiance_down
-        
-        def Irradiance_up(depth):
-            df = self.up_irradiance_at_depth(depth)
-            irradiance_up = sum(df['intensity']*np.abs(df['n']))
-            return irradiance_up
-        
         depth = np.linspace(-0.001,25/self.musp_theo,50)
-        irradiance_down_rt = np.array(list(map(Irradiance_down,depth)))
-        irradiance_up_rt = np.array(list(map(Irradiance_up,depth)))
+        irradiance_down_rt = np.array(list(map(self.Irradiance_down,depth)))
+        irradiance_up_rt = np.array(list(map(self.Irradiance_up,depth)))
+        irradiance_rt = np.array(list(map(self.Irradiance,depth)))
         
         #Irradiance TARTES
         if not hasattr(self, 'density_stereo'): self.calculate_density()
         if not hasattr(self, 'g_theo'): self.calculate_g()
         if not hasattr(self, 'SSA_theo'): self.calculate_SSA()
-        irradiance_down_tartes, irradiance_up_tartes = tartes.irradiance_profiles(
+        irradiance_up_tartes, irradiance_down_tartes = tartes.irradiance_profiles(
             self.wlum*1E-6, depth, self.SSA_theo, density=self.density_theo,
             g0=self.g_theo,B0=self.B_theo,dir_frac=self.tartes_dir_frac,totflux=0.75)
         
         #Plot irradiance down
         plt.figure()
-        plt.semilogy(depth,np.exp(-self.ke_rt*depth + self.b_rt),label='fit TARTES')
+        plt.semilogy(depth,np.exp(-self.ke_rt*depth + self.b_rt),label='fit raytracing')
         plt.semilogy(depth,np.exp(-self.ke_tartes*depth + self.b_tartes),label='fit TARTES')
         plt.semilogy(depth,irradiance_down_tartes+irradiance_up_tartes, label='irradiance TARTES')
+        plt.semilogy(depth,irradiance_down_tartes, label='irradiance down TARTES')
+        plt.semilogy(depth,irradiance_up_tartes, label='irradiance up TARTES')
         plt.semilogy(depth,irradiance_down_rt, label='downwelling irradiance raytracing')
         plt.semilogy(depth,irradiance_up_rt, label='upwelling irradiance raytracing')
-        plt.semilogy(depth,irradiance_down_rt+irradiance_up_rt, label='total irradiance raytracing')
+        plt.semilogy(depth,irradiance_rt, label='total irradiance raytracing')
         plt.xlabel('depth (m)')
         plt.ylabel('irradiance (W/m^2)')
         plt.legend()
@@ -704,39 +719,44 @@ class simulation_MC:
         if hasattr(self, 'Error'): print('Error raytracing: ' + str(round(self.Error,6)) + ', NumRays: ' +str(self.numrays_Error))
         if hasattr(self, 'Lost'): print('Lost raytracing: ' + str(round(self.Lost,6)) + ', NumRays: ' +str(self.numrays_Lost))
         if hasattr(self, 'Absorb'): print('Absorb raytracing: ' + str(round(self.Absorb,6)) + ', NumRays: ' +str(self.numrays_Absorb))
+    
+    def Close_Zemax(self):
+        self.TheSystem.SaveAs(self.fileZMX)
+        if hasattr(self, 'zosapi'): 
+            del self.zosapi
+            self.zosapi = None
         
     def __del__(self):
         try:
-            self.TheSystem.SaveAs(self.fileZMX)
-            del self.zosapi
-            self.zosapi = None
-        except Exception:
+            self.Close_Zemax()
+        except :
             pass
     
 plt.close('all')
 properties=[]
 if __name__ == '__main__':
-    for wlum in [1.0]:
-        print('Nombre de MB avalaible: ',psutil.virtual_memory()[1]/1E6)
-        sim = simulation_MC('test1', 3, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
-        sim.create_folder()
-        sim.Initialize_Zemax()
-        sim.Load_File()
-        sim.shoot_rays()
+    for wlum in [0.55,0.7,0.8,0.9,1.0]:
+        sim = simulation_MC('test1', 10_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
+        # sim.create_folder()
+        # sim.Initialize_Zemax()
+        # sim.Load_File()
+        # sim.shoot_rays()
+        # sim.Close_Zemax()
         sim.Load_parquetfile()
-        # print(psutil.virtual_memory()[2])
+        # sim.AOP()
         # sim.calculate_musp()
         # sim.calculate_ke_theo()
-        # sim.calculate_ke_rt()
         # sim.calculate_MOPL()
-        # sim.map_DOP_top_detector()
         # sim.map_stokes_reflectance()
         # sim.map_DOP_reflectance()
         # sim.plot_DOP_radius_reflectance()
         # sim.calculate_alpha()
         # sim.calculate_mua()
+        # sim.calculate_ke_rt()
+        # print(sim.ke_rt)
+        sim.plot_irradiances()
         # sim.properties()
-        # sim.plot_irradiances()
         # sim.plot_time_reflectance()
-        # properties += [[sim.mua_theo,sim.alpha_rt,sim.MOPL_theo,sim.MOPL_rt,sim.Error]]
         # del sim
+        
+        
