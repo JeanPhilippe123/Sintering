@@ -174,9 +174,10 @@ class simulation_MC:
             self.df = self.df.persist()
             
             #Change pathLength
-            self.df['pathLength'] = np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
-            
-            #Change intensity
+            filt = self.df['segmentLevel']==0
+            self.df['pathLength'] = (~filt)*np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
+            self.df.persist()
+            # #Change intensity
             self.change_path_intensity()
             
         except FileNotFoundError:
@@ -223,7 +224,7 @@ class simulation_MC:
         I_0 = 1./self.numrays
      
         #Create a ponderation for segment in material with optical density (absorbing media)
-        self.df = self.df.assign(pathLengthIce = (filt_ice.mul(1-self.optical_porosity_theo)).mul(self.df.pathLength))
+        self.df = self.df.assign(pathLengthIce = (filt_ice*(1-self.optical_porosity_theo)*(self.df.pathLength)))
         
         #Change pathLength for segment to cumulative pathLength
         self.df['pathLengthIce'] = self.df.groupby('numray')['pathLengthIce'].cumsum()
@@ -619,7 +620,7 @@ class simulation_MC:
             return df_filtered
     
         df = irradiance_at_depth(self,depth)
-        irradiance = df['intensity'].mul(df['n'].abs()).sum().compute()
+        irradiance = df['intensity'].mul(df['L'].abs()).sum().compute()
         return irradiance
     
     def Irradiance_up(self,depth):    
@@ -628,7 +629,7 @@ class simulation_MC:
             return df_filtered
     
         df = up_irradiance_at_depth(self,depth)
-        irradiance_up = df['intensity'].mul(df['n'].abs()).sum().compute()
+        irradiance_up = df['intensity'].mul(df['L'].abs()).sum().compute()
         return irradiance_up
     
     def Irradiance_down(self,depth):
@@ -637,7 +638,7 @@ class simulation_MC:
             return df_filtered
         
         df = down_irradiance_at_depth(self,depth)
-        irradiance_down = df['intensity'].mul(df['n'].abs()).sum().compute()
+        irradiance_down = df['intensity'].mul(df['L'].abs()).sum().compute()
         return irradiance_down
     
     # @profiler
@@ -736,13 +737,13 @@ class simulation_MC:
 plt.close('all')
 properties=[]
 if __name__ == '__main__':
-    for wlum in [0.55,0.7,0.8,0.9,1.0]:
-        sim = simulation_MC('test1', 10_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
-        # sim.create_folder()
-        # sim.Initialize_Zemax()
-        # sim.Load_File()
-        # sim.shoot_rays()
-        # sim.Close_Zemax()
+    for wlum in [1.0]:
+        sim = simulation_MC('test1', 100_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
+        sim.create_folder()
+        sim.Initialize_Zemax()
+        sim.Load_File()
+        sim.shoot_rays()
+        sim.Close_Zemax()
         sim.Load_parquetfile()
         # sim.AOP()
         # sim.calculate_musp()
@@ -756,10 +757,11 @@ if __name__ == '__main__':
         # sim.calculate_mua()
         # sim.calculate_ke_rt()
         # print(sim.ke_rt)
+        sim.time(1)
         sim.plot_irradiances()
+        sim.time(2)
         # sim.properties()
-        sim.properties()
-        sim.plot_irradiances()
+        # sim.properties()
         # sim.plot_time_reflectance()
         # del sim
         

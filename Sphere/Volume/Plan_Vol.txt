@@ -1,4 +1,6 @@
 To do:
+Probablement un problème avec mes filtres fonction query car les rayons à la fin on dirait qu'il surestime mon raytracing...
+
 Faire la save du dataframe dans le parquet directement après avoir transférer to_dask_dataframe 
 comme ça on peux mieux investiguer le problème depuis la fonction load_parquet
 

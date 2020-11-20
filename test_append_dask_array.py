@@ -13,4 +13,4 @@ for i in range(0,5):
     da2 = da.arange((i),chunks=(1))
     da3 = da.arange((i),chunks=(1))+4
     da4 = da.arange((i),chunks=(1))+10
-    data = da.concatenate([data,[da2,da3,da4]],axis=1)#.compute()
+    data = da.concatenate([data,[da2,da3,da4]],axis=1)
