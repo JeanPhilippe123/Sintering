@@ -4,7 +4,7 @@ Created on Mon Nov 30 16:15:51 2020
 
 @author: jplan58
 """
-import Vol_Simulation as Sphere
+import Monte_Carlo_Class as MC
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     for shape in shapes:
         for wlum in wlums:
             for pol in pol_vector:
-                sim = Sphere.simulation_MC('test3_mc', 10_000, shape[0], shape[1], 0.89, wlum, pol, diffuse_light=False)
+                sim = MC.simulation_MC('test3_mc', 10_000, shape[0], shape[1], 0.89, wlum, pol, diffuse_light=False)
                 print(sim.inputs)
                 sim.create_directory()
                 sim.Initialize_Zemax()

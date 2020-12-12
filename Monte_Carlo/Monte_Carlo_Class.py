@@ -15,9 +15,9 @@ import scipy.optimize
 from dask.diagnostics import visualize
 from dask.diagnostics import Profiler, ResourceProfiler, CacheProfiler
 
-path_Vol_Raytrace = 'Z:\Sintering\Sphere\Volume'
-sys.path.insert(3,path_Vol_Raytrace)
-import Vol_Raytrace
+path_Sphere_Raytrace = 'Z:\Sintering\Sphere\Volume'
+sys.path.insert(3,path_Sphere_Raytrace)
+import Sphere_Raytrace
 path_RaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries'
 sys.path.insert(2,path_RaytraceDLL)
 import PythonNET_ZRDLoader as init_Zemax
@@ -35,6 +35,7 @@ class simulation_MC:
     pice = 917
     
     def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False):
+        self.inputs = [name,numrays,radius,Delta,g,wlum,pol,Random_pol,diffuse_light]
         self.name = name
         self.numrays = numrays
         self.wlum = wlum
@@ -51,25 +52,49 @@ class simulation_MC:
         self.g_theo = g
         self.gG_theo = self.g_theo*2-1
         self.jx,self.jy,self.phase_x,self.phase_y = np.array(pol)
-        self.pathZMX = os.path.join(self.path,'Simulations', self.name)
+        self.pathDatas = os.path.join(self.path,'Simulations',self.name)
+        self.path_plot = os.path.join(self.pathDatas,'Results_plots')
         self.Random_pol=Random_pol
         self.diffuse_light = diffuse_light
-        self.neff_stereo = 1.06
+        self.neff_theo = 1.06
         if self.diffuse_light == True:
             self.tartes_dir_frac = 0
             self.diffuse_str = 'diffuse'
         else:
             self.tartes_dir_frac = 1
             self.diffuse_str = 'not_diffuse'
+            
+        self.properties_string = '_'.join([name,str(numrays),str(radius),str(Delta),str(self.B_theo),str(g),str(tuple(pol)),self.diffuse_str])
+        self.name_ZRD = self.properties_string + ".ZRD"
         
-        self.name_ZRD = '_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".ZRD"
-        self.path_parquet = os.path.join(self.pathZMX,'_'.join([name,str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".parquet")
-        self.path_metadata = os.path.join(self.pathZMX,'_'.join([name,'metadata',str(round(self.mus_theo,4)),str(self.B_theo),str(round(self.physical_porosity_theo,4)),str(g),str(tuple(pol)),str(self.numrays),self.diffuse_str])+ ".npy")
-        self.path_ZRD = os.path.join(self.pathZMX,self.name_ZRD)
+        self.path_parquet = os.path.join(self.pathDatas,'_'.join([self.properties_string,str(self.wlum)]) + "_.parquet")
+        self.path_metadata = os.path.join(self.pathDatas,'_'.join([self.properties_string,'metadata'])+ ".npy")
+        self.path_ZRD = os.path.join(self.pathDatas,self.name_ZRD)
+        path_ZMX = os.path.dirname(os.path.dirname(self.pathDatas))
+        self.fileZMX = os.path.join(path_ZMX, 'test_MC.zmx')
         
-    def create_folder(self):
-        if not os.path.exists(self.pathZMX):
-            os.makedirs(self.pathZMX)
+        self.add_properties_to_dict('radius',self.radius)
+        self.add_properties_to_dict('Delta',self.Delta)
+        self.add_properties_to_dict('B_theo',self.B_theo)
+        self.add_properties_to_dict('Pol',pol)
+        self.add_properties_to_dict('Diffuse_light',self.diffuse_light)
+        self.add_properties_to_dict('neff_theo',self.neff_theo)
+        self.add_properties_to_dict('numrays',self.numrays)
+        self.add_properties_to_dict('wlum',self.wlum)
+        self.add_properties_to_dict('Random_pol',self.Random_pol)
+        
+        self.create_directory()
+        
+    def add_properties_to_dict(self,key,value):
+        if not hasattr(self,'dict_properties'):
+            self.dict_properties = {key:value}
+        else:
+            self.dict_properties[key] = value
+        
+    def create_directory(self):
+        if not os.path.exists(self.pathDatas):
+            os.makedirs(self.pathDatas)
+            os.makedirs(self.path_plot)
             print("Le répertoire " + str(self.name) +  " a été créé")
         else:
             print("Le répertoire " + str(self.name) +  " existe déjà")
@@ -81,7 +106,11 @@ class simulation_MC:
     def find_detector_object(self):
         Detector_obj = np.where(self.array_objects() == np.array(['Detector Rectangle']))[0] + 1
         return Detector_obj
-    
+
+    def update_metadata(self):
+        #Write metadata
+        np.save(self.path_metadata,self.array_objects())
+        
     def array_objects(self):
         #Check for metadata
         if os.path.exists(self.path_metadata):
@@ -112,10 +141,8 @@ class simulation_MC:
         self.ZOSAPI = self.zosapi.ZOSAPI
         self.ZOSAPI_NCE = self.ZOSAPI.Editors.NCE
         
-        #Create File for non-sticky (ns)
-        self.fileZMX = os.path.join(self.pathZMX, 'test_MC.zmx')
-        
     def Load_File(self):
+        self.Initialize_Zemax()
         start = time.time()
         self.TheSystem.LoadFile(self.fileZMX,False)
         self.TheNCE = self.TheSystem.NCE
@@ -149,6 +176,8 @@ class simulation_MC:
         self.TheSystem.SaveAs(self.fileZMX)
         end = time.time()
         print('Fichier loader en ',end-start)
+
+        self.update_metadata()
         pass
     
     def shoot_rays(self):
@@ -162,28 +191,37 @@ class simulation_MC:
         Source_object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = cosine
             
         print('Raytrace')
-        Vol_Raytrace.Shoot(self,'',self.numrays,self.path_parquet,self.name_ZRD,self.path_metadata)
+        
+        #Change path parquet to the real wavelength used during the raytrace
+        path_parquet_list = self.path_parquet.split('_')
+        path_parquet_list[-2] = '1.0'
+        path_parquet = '_'.join(path_parquet_list)
+        Sphere_Raytrace.Shoot(self,'',self.numrays,path_parquet,self.name_ZRD)
         pass    
     
     def Load_parquetfile(self): 
         #Try loading the ray file
-        try:
-            #Filter les rayons avec plus de 4000 interactions
-            self.df = Vol_Raytrace.Load_parquet(self.path_parquet)
-
-            self.df = self.df.persist()
-            
+        #Check if file at the specified wavlength exist..
+        path_parquet_list = self.path_parquet.split('_')
+        path_parquet_list[-2] = '1.0'
+        path_parquet = '_'.join(path_parquet_list)
+        #If not creates it
+        if os.path.exists(self.path_parquet):
+            self.df = Sphere_Raytrace.Load_parquet(self.path_parquet)
+        #Check if file at 1.0 um has already been done
+        elif os.path.exists(path_parquet):
+            #Load File at another wavelength
+            self.df = Sphere_Raytrace.Load_parquet(path_parquet)
             #Change pathLength
             filt = self.df['segmentLevel']==0
             self.df['pathLength'] = (~filt)*np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
-            self.df.persist()
-            # #Change intensity
+            #Change intensity
             self.change_path_intensity()
-            
-        except FileNotFoundError:
+            #Save changes in new path
+            self.df.to_parquet(self.path_parquet)
+            self.df = Sphere_Raytrace.Load_parquet(self.path_parquet)
+        else:
             print('The raytrace parquet file was not loaded, Please run raytrace')
-            sys.exit()
-        pass
     
     def AOP(self):
         df = self.df.groupby(self.df.index).agg({'hitObj':'last','segmentLevel':'last','intensity':'last'}).compute()
@@ -210,6 +248,15 @@ class simulation_MC:
         #Absorb (considering total intensity is 1)
         self.Absorb = np.abs(1-self.Reflectance-self.Transmitance-self.Error-self.Lost)
         self.numrays_Absorb = self.numrays-self.numrays_Reflectance-self.numrays_Transmitance-self.numrays_Error-self.numrays_Lost
+
+        self.add_properties_to_dict('Reflectance',self.Reflectance)
+        self.add_properties_to_dict('numrays_Reflectance',self.numrays_Reflectance)
+        self.add_properties_to_dict('Transmitance',self.Transmitance)
+        self.add_properties_to_dict('numrays_Transmitance',self.numrays_Transmitance)
+        self.add_properties_to_dict('Error',self.Error)
+        self.add_properties_to_dict('numrays_Error',self.numrays_Error)
+        self.add_properties_to_dict('Lost',self.Lost)
+        self.add_properties_to_dict('numrays_Lost',self.numrays_Lost)
         pass
     
     def change_path_intensity(self):
@@ -231,7 +278,7 @@ class simulation_MC:
         
         #Overwrite the intensity
         self.df['intensity'] = I_0*np.exp(-self.gamma*self.df['pathLengthIce'])
-        self.df = self.df.persist()
+        # self.df = self.df.persist()
         pass
 
     def calculate_porosity(self):
@@ -243,7 +290,9 @@ class simulation_MC:
         
         #====================Porosité optique théorique====================
         self.optical_porosity_theo = porosity/(porosity+self.B_theo*(1-porosity))
-    
+        self.add_properties_to_dict('physical_porosity_theo',self.physical_porosity_theo)
+        self.add_properties_to_dict('optical_porosity_theo',self.optical_porosity_theo)
+        
     def calculate_mua(self):
         #Calculate mua theorique
         self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
@@ -251,9 +300,12 @@ class simulation_MC:
         #Calculate mua with Tartes
         if hasattr(self,'ke_tartes') == False: return
         self.mua_tartes = -self.ke_tartes*np.log(self.alpha_tartes)/4
+        self.add_properties_to_dict('mua_theo',self.mua_theo)
+        self.add_properties_to_dict('mua_tartes',self.mua_tartes)
         
     def calculate_musp(self):
         self.musp_theo = self.mus_theo*(1-self.g_theo)
+        self.add_properties_to_dict('musp_theo',self.musp_theo)
         pass
     
     def calculate_alpha(self):
@@ -261,10 +313,14 @@ class simulation_MC:
         
         self.alpha_rt = self.Reflectance
         self.alpha_tartes = float(tartes.albedo(self.wlum*1E-6,self.SSA_theo,self.density_theo,g0=self.g_theo,B0=self.B_theo,dir_frac=self.tartes_dir_frac))
+        self.add_properties_to_dict('alpha_rt',self.alpha_rt)
+        self.add_properties_to_dict('alpha_tartes',self.alpha_tartes)
     
     def calculate_g_theo(self):
         self.g_theo = 0.89
         self.gG_theo = self.g_theo*2-1
+        self.add_properties_to_dict('g_theo',self.g_theo)
+        self.add_properties_to_dict('gG_theo',self.gG_theo)
     
     def calculate_g_rt(self):
         if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
@@ -272,8 +328,10 @@ class simulation_MC:
         
         #g calculé avec ke et alpha raytracing
         #Équation Quentin Libois 3.3 thèse
-        self.g_rt = 1+8*self.ke_rt/(3*self.density_stereo*np.log(self.alpha_rt)*self.SSA_stereo)
+        self.g_rt = 1+8*self.ke_rt/(3*self.density_theo*np.log(self.alpha_rt)*self.SSA_theo)
         self.gG_rt = self.g_rt*2-1
+        self.add_properties_to_dict('g_rt',self.g_rt)
+        self.add_properties_to_dict('gG_rt',self.gG_rt)
         
     def ke_raytracing(self,depths_fit,intensity):
         [a,b], pcov=scipy.optimize.curve_fit(lambda x,a,b: a*x+b, depths_fit, np.log(intensity))
@@ -287,21 +345,21 @@ class simulation_MC:
         
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
-        depths_fit = np.linspace(1/self.musp_theo,10/self.musp_theo,10)
-        # depths_fit = [0.001]
-        # Irradiance_up_rt = np.array(list(map(self.Irradiance_up,depths_fit)))
-        # Irradiance_down_rt = np.array(list(map(self.Irradiance_down,depths_fit)))
-        # Irradiance_rt = Irradiance_up_rt + Irradiance_down_rt
-        Irradiance_rt = np.array(list(map(self.Irradiance,depths_fit)))
-        self.ke_rt, self.b_rt = self.ke_raytracing(depths_fit,Irradiance_rt)
+        depths = np.linspace(2/self.musp_theo,10/self.musp_theo,10)
+        Irradiance_rt = self.df.map_partitions(self.Irradiance,depths,meta=list)
+        Irradiance_rt = Irradiance_rt.compute().sum(axis=0)
+        self.ke_rt, self.b_rt = self.ke_raytracing(depths,Irradiance_rt)
         
+        self.add_properties_to_dict('ke_rt',self.ke_rt)
+        self.add_properties_to_dict('b_rt',self.b_rt)
+    
     def calculate_ke_theo(self):
         if not hasattr(self, 'density_theo'): self.calculate_density()
         if not hasattr(self, 'g_theo'): self.calculate_g_theo()
         if not hasattr(self, 'SSA_theo'): self.calculate_SSA()
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
-        depths_fit = np.linspace(1/self.musp_theo,10/self.musp_theo,10)
+        depths_fit = np.linspace(2/self.musp_theo,25/self.musp_theo,10)
         
         #ke TARTES
         down_irr_profile, up_irr_profile = tartes.irradiance_profiles(
@@ -313,6 +371,9 @@ class simulation_MC:
         #Imaginay part of the indice of refraction
         self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.ke_theo = self.density_theo*np.sqrt(3*self.B_theo*self.gamma/(4*self.pice)*self.SSA_theo*(1-self.gG_theo))
+        self.add_properties_to_dict('ke_tartes',self.ke_tartes)
+        self.add_properties_to_dict('b_tartes',self.b_tartes)
+        self.add_properties_to_dict('ke_theo',self.ke_theo)
         pass
     
     def calculate_density(self):
@@ -324,15 +385,18 @@ class simulation_MC:
             volcube=self.Delta**3
             DensityRatio = volsphere*4/volcube
         self.density_theo = DensityRatio*self.pice
+        self.add_properties_to_dict('density_theo',self.density_theo)
     
     def calculate_SSA(self):
         #====================SSA théorique====================
         vol_sphere = 4*np.pi*self.radius**3/3
         air_sphere = 4*np.pi*self.radius**2
         self.SSA_theo = air_sphere/(vol_sphere*self.pice)
+        self.add_properties_to_dict('SSA_theo',self.SSA_theo)
         
     def calculate_mus(self):
         self.mus_theo = self.density_theo*self.SSA_theo/2
+        self.add_properties_to_dict('mus_theo',self.mus_theo)
     
     def calculate_MOPL(self):
         #Shoot rays for SSA
@@ -342,7 +406,7 @@ class simulation_MC:
         #Approximation de Paterson
         # z_o = self.musp_theo**(-1)
         # D = (3*(self.mua_theo+self.musp_theo))**(-1)
-        # self.MOPL_theo = self.neff_stereo*z_o/(2*np.sqrt(self.mua_theo*D))
+        # self.MOPL_theo = self.neff_theo*z_o/(2*np.sqrt(self.mua_theo*D))
         
         #Keep rays that touch 
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
@@ -350,20 +414,14 @@ class simulation_MC:
         df_filt = self.df.loc[df_top.index]
         
         df_filt = df_filt[~(df_filt['hitObj'] == 2)]
-        df_filt['OPL'] = df_filt['pathLength']*self.neff_stereo
+        df_filt['OPL'] = df_filt['pathLength']*self.neff_theo
         df_OPL = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last'})
         self.MOPL_rt = np.average(df_OPL['OPL'],weights=df_OPL['intensity'])
+        self.add_properties_to_dict('MOPL_rt',self.MOPL_rt)
 
-    def time(self,text):
-        t = time.localtime()
-        self.date = str(t.tm_year)+"/"+str(t.tm_mon)+"/"+str(t.tm_mday)
-        self.ctime = str(t.tm_hour)+":"+str(t.tm_min)+":"+str(t.tm_sec)
-        print('Date : ',self.date,', Time : ',self.ctime,' ',text)
-        
     def plot_time_reflectance(self):
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         if not hasattr(self, 'mua_rt'): self.calculate_mua()
-        #if not hasattr(self, 'neff_rt'): self.calculate_neff()
         
         #Raytracing
         #Add a line of time for each segment
@@ -386,7 +444,7 @@ class simulation_MC:
         z_o = self.musp_theo**(-1)
         D = (3*(self.mua_theo+self.musp_theo))**(-1)
         t_theo = np.linspace(1E-16,1E-8,10000)
-        c = scipy.constants.c/self.neff_stereo
+        c = scipy.constants.c/self.neff_theo
         R_theo = (4*np.pi*D*c)**(-1/2)*z_o*t_theo**(-(3/2))*np.exp(-self.mua_theo*c*t_theo)*np.exp(-z_o**2/(4*D*c*t_theo))
         
         #Normalize
@@ -398,14 +456,18 @@ class simulation_MC:
         t_theo_offset = t_theo[(list(R_theo)).index(max(R_theo))]
         t_diff = t_rt_offset-t_theo_offset
         t_theo = t_theo+t_diff
-        # np.average(t_theo*scipy.constants.c/self.neff_stereo,weights=R_theo)
+        # np.average(t_theo*scipy.constants.c/self.neff_theo,weights=R_theo)
         
         #Plot reflectance vs time
         plt.figure()
-        plt.plot(bins[:-1],R_rt)
+        plt.plot(t_rt,R_rt)
         plt.plot(t_theo,R_theo)
         #plt.xlim(1E-16,1E-12)
         plt.show()
+        
+        #Save Datas to npy file
+        path_npy = os.path.join(self.path_plot,'DOPs_time_reflectance.npy')
+        self.create_npy(path_npy,t_rt=t_rt,R_rt=R_rt)
         pass
     
     def calculate_Stokes_of_rays(self,df):
@@ -480,10 +542,78 @@ class simulation_MC:
         DOPC=np.true_divide(np.sqrt(V**2), I, out=np.zeros_like(np.sqrt(V**2)), where=I!=0)
         
         return np.array([I,DOPL,DOP45,DOPC]),x_bins,y_bins
+    
+    def plot_MOPL_radius_reflectance(self):
+        filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
+        df_top = self.df[filt_top_detector]
+        df_filt = self.df.loc[df_top.index]
+        
+        #Calculate OPL for each ray
+        df_filt['OPL'] = df_filt['pathLength']*self.neff_theo
+        df_OPL = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last','x':'last','y':'last'}).compute()
+        df_OPL['radius'] = np.sqrt((df_OPL['x'])**2+(df_OPL['y'])**2)
+        
+        #Calculate MOPL
+        bins = np.linspace(0,250/self.mus_theo,100)
+        nrays, radius = np.histogram(df_OPL['radius'], bins=bins)
+        OPL_bins, radius = np.histogram(df_OPL['radius'], weights=df_OPL['intensity']*df_OPL['OPL'], bins=bins)
 
+        #Calculate MOPL
+        plt.figure()
+        
+        MOPL = OPL_bins/nrays
+        radius = radius[:-1]
+        plt.plot(radius,MOPL)
+        plt.title('MOPL vs radius')
+        plt.ylabel('MOPL (m)')
+        plt.xlabel('Radius (m)')
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_MOPL_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_MOPL_radius_reflectance.npy')
+        self.create_npy(path_npy,radius=radius,MOPL=MOPL)
+        
+    def plot_lair_radius_reflectance(self):
+        if not hasattr(self, 'optical_porosity_theo'): self.calculate_porosity()
+        filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
+        df_top = self.df[filt_top_detector]
+        df_filt = self.df.loc[df_top.index]
+        
+        #Calculate OPL for each ray
+        df_filt = df_filt[~(df_filt['hitObj'] == 2)]
+        df_filt['lair'] = df_filt['pathLength']*self.neff_theo
+        df_lair = df_filt.groupby(df_filt.index).agg({'lair':sum,'intensity':'last','x':'last','y':'last'}).compute()
+        
+        #Calculate lair
+        df_lair['lair'] = df_lair['lair']/(1+self.ice_index*(1-self.optical_porosity_theo)/self.optical_porosity_theo)
+        
+        #Calculate Radius for each ray
+        df_lair['radius'] = np.sqrt((df_lair['x'])**2+(df_lair['y'])**2)
+        
+        #Calculate MOPL
+        bins = np.linspace(0,250/self.mus_theo,100)
+        nrays, radius = np.histogram(df_lair['radius'], bins=bins)
+        lair_bins, radius = np.histogram(df_lair['radius'], weights=df_lair['intensity']*df_lair['lair'], bins=bins)
+
+        #Calculate MOPL
+        plt.figure()
+        
+        lair = lair_bins/nrays
+        radius = radius[:-1]
+        plt.plot(radius,lair)
+        plt.title('lair vs radius')
+        plt.ylabel('lair (m)')
+        plt.xlabel('Radius (m)')
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_lair_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_lair_radius_reflectance.npy')
+        self.create_npy(path_npy,radius=radius,lair=lair)
+        return
+        
     def plot_DOP_radius_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df = self.df[filt_top_detector]
+        df = self.df[filt_top_detector].compute()
         
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
@@ -514,7 +644,12 @@ class simulation_MC:
         ax[0,1].set_title('DOPL')
         ax[1,0].set_title('DOP45')
         ax[1,1].set_title('DOPC')
-        fig.suptitle('DOPs vs Depth')
+        fig.suptitle('DOPs vs Radius Reflectance')
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_DOPs_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_DOPs_radius_reflectance.npy')
+        self.create_npy(path_npy,df_DOP=df_DOP)
         pass
     
     def calculate_DOP_vs_radius(self,df):
@@ -560,7 +695,7 @@ class simulation_MC:
     
     def map_stokes_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df = self.df[filt_top_detector]
+        df = self.df[filt_top_detector].compute()
         
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
@@ -583,7 +718,12 @@ class simulation_MC:
         ax[0,1].set_title('DOPL')
         ax[1,0].set_title('DOP45')
         ax[1,1].set_title('DOPC')
-        fig.suptitle('DOPs vs Depth')
+        fig.suptitle('Map Stokes Reflectance')
+        
+        #Save data to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_Stokes_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_Stokes_reflectance.npy')
+        self.create_npy(path_npy,x=x,y=y,array_Stokes=array_Stokes)
         pass
     
     def map_DOP_reflectance(self):
@@ -611,54 +751,57 @@ class simulation_MC:
         ax[0,1].set_title('DOPL')
         ax[1,0].set_title('DOP45')
         ax[1,1].set_title('DOPC')
-        fig.suptitle('DOPs vs Depth')
+        fig.suptitle('Map DOP Reflectance')
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_Map_DOP_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_DOP_reflectance.npy')
+        self.create_npy(path_npy,x=x,y=y,array_DOPs=array_DOPs)
         pass
     
-    def Irradiance(self,depth):    
-        def irradiance_at_depth(self,depth):
-            df_filtered = self.df.query('(z<= {} & z.shift() >= {})|(z>= {} & z.shift() <= {})'.format(depth,depth,depth,depth))
-            return df_filtered
+    def Irradiance(self,df,depths):
+        def Irradiance_at_depth(df,depth):    
+            df = df.query('((z<= {} & z.shift() >= {})|(z>= {} & z.shift() <= {}))&(segmentLevel!=0)'.format(depth,depth,depth,depth))
+            irradiance = df['intensity'].mul(df['L'].abs()).sum()
+            return irradiance
+        Irradiance = lambda depth: Irradiance_at_depth(df,depth)
+        Irradiance_rt=np.array(list(map(Irradiance,depths)))
+        return np.array([Irradiance_rt])
+
+    def Irradiance_up(self,df,depths):
+        def Irradiance_up_at_depth(df,depth):    
+            df = df.query('((z<= {} & z.shift() >= {})&(segmentLevel!=0))'.format(depth,depth))
+            irradiance_up = df['intensity'].mul(df['L'].abs()).sum()
+            return irradiance_up
+        Irradiance_up = lambda depth: Irradiance_up_at_depth(df,depth)
+        Irradiance_up_rt=np.array(list(map(Irradiance_up,depths)))
+        return np.array([Irradiance_up_rt])
     
-        df = irradiance_at_depth(self,depth)
-        irradiance = df['intensity'].mul(df['L'].abs()).sum().compute()
-        return irradiance
+
+    def Irradiance_down(self,df,depths):
+        def Irradiance_down_at_depth(df,depth):
+            df = df.query('(z>= {} & z.shift() <= {})&(segmentLevel!=0)'.format(depth,depth))
+            irradiance_down = df['intensity'].mul(df['L'].abs()).sum()
+            return irradiance_down
+        Irradiance_down = lambda depth: Irradiance_down_at_depth(df,depth)
+        Irradiance_down_rt=np.array(list(map(Irradiance_down,depths)))
+        return np.array([Irradiance_down_rt])
     
-    def Irradiance_up(self,depth):    
-        def up_irradiance_at_depth(self,depth):
-            df_filtered = self.df.query('z<= {} & z.shift() >= {}'.format(depth,depth))
-            return df_filtered
-    
-        df = up_irradiance_at_depth(self,depth)
-        irradiance_up = df['intensity'].mul(df['L'].abs()).sum().compute()
-        return irradiance_up
-    
-    def Irradiance_down(self,depth):
-        def down_irradiance_at_depth(self,depth):
-            df_filtered = self.df.query('z>= {} & z.shift() <= {}'.format(depth,depth))
-            return df_filtered
-        
-        df = down_irradiance_at_depth(self,depth)
-        irradiance_down = df['intensity'].mul(df['L'].abs()).sum().compute()
-        return irradiance_down
-    
-    # @profiler
     def plot_irradiances(self):
         if not hasattr(self, 'musp_theo'): self.calculate_musp()
         if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
-        if not hasattr(self, 'alpha_rt'): self.calculate_alpha()
-        if not hasattr(self, 'ke_theo'): self.calculate_ke_theo()
+        if not hasattr(self, 'ke_tartes'): self.calculate_ke_theo()
         
         #Irradiance raytracing
         depth = np.linspace(-0.001,25/self.musp_theo,50)
-        irradiance_down_rt = np.array(list(map(self.Irradiance_down,depth)))
-        irradiance_up_rt = np.array(list(map(self.Irradiance_up,depth)))
-        irradiance_rt = np.array(list(map(self.Irradiance,depth)))
+        Irradiance_rt = self.df.map_partitions(self.Irradiance,depth,meta=list).compute().sum(axis=0)
+        Irradiance_up_rt = self.df.map_partitions(self.Irradiance_up,depth,meta=list).compute().sum(axis=0)
+        Irradiance_down_rt = self.df.map_partitions(self.Irradiance_down,depth,meta=list).compute().sum(axis=0)
         
         #Irradiance TARTES
-        if not hasattr(self, 'density_stereo'): self.calculate_density()
+        if not hasattr(self, 'density_theo'): self.calculate_density()
         if not hasattr(self, 'g_theo'): self.calculate_g()
         if not hasattr(self, 'SSA_theo'): self.calculate_SSA()
-        if not hasattr(self, 'alpha_rt'): self.calculate_alpha()
         irradiance_up_tartes, irradiance_down_tartes = tartes.irradiance_profiles(
             self.wlum*1E-6, depth, self.SSA_theo, density=self.density_theo,
             g0=self.g_theo,B0=self.B_theo,dir_frac=self.tartes_dir_frac,totflux=0.75)
@@ -670,58 +813,43 @@ class simulation_MC:
         plt.semilogy(depth,irradiance_down_tartes+irradiance_up_tartes, label='irradiance TARTES')
         plt.semilogy(depth,irradiance_down_tartes, label='irradiance down TARTES')
         plt.semilogy(depth,irradiance_up_tartes, label='irradiance up TARTES')
-        plt.semilogy(depth,irradiance_down_rt, label='downwelling irradiance raytracing')
-        plt.semilogy(depth,irradiance_up_rt, label='upwelling irradiance raytracing')
-        plt.semilogy(depth,irradiance_rt, label='total irradiance raytracing')
+        plt.semilogy(depth,Irradiance_down_rt, label='downwelling irradiance raytracing')
+        plt.semilogy(depth,Irradiance_up_rt, label='upwelling irradiance raytracing')
+        plt.semilogy(depth,Irradiance_rt, label='total irradiance raytracing')
         plt.xlabel('depth (m)')
         plt.ylabel('irradiance (W/m^2)')
         plt.legend()
-        plt.title(self.name + '_numrays_' + str(self.numrays) + '_wlum_' + str(self.wlum) + '_alpha_' + str(round(self.alpha_rt,4)) + '_' + str(round(self.alpha_tartes,4)))
-        plt.savefig(os.path.join(self.pathZMX,self.name + '_wlum_' + str(self.numrays) + '_wlum_' + str(self.wlum) + '_alpha_ ' + str(round(self.alpha_rt,4))+'_' + str(round(self.alpha_tartes,4))+'.png'),format='png')
         
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_plot_irradiances.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_plot_irradiances.npy')
+        self.create_npy(path_npy,depth=depth,
+                        irradiance_down_tartes=irradiance_down_tartes,
+                        irradiance_up_tartes=irradiance_up_tartes,
+                        Irradiance_rt=Irradiance_rt,
+                        Irradiance_down_rt=Irradiance_down_rt,
+                        Irradiance_up_rt=Irradiance_up_rt)
+ 
+    def time(self,text):
+        t = time.localtime()
+        self.date = str(t.tm_year)+"/"+str(t.tm_mon)+"/"+str(t.tm_mday)
+        self.ctime = str(t.tm_hour)+":"+str(t.tm_min)+":"+str(t.tm_sec)
+        print('Date : ',self.date,', Time : ',self.ctime,' ',text)
+        
+    def export_properties(self):
+        path_npy = os.path.join(self.path_plot,self.properties_string+'_properties.npy')
+        np.save(path_npy,self.dict_properties)
+        
+    def create_npy(self,path,**kwargs):
+        #Create File for simulation
+        np.save(path,kwargs)
+        pass
+    
     def properties(self):
         print('\n----------------------------------------------------\n')
-        if hasattr(self, 'path_parquet'): print('Simulation path parquet file: ', self.path_parquet)
-        if hasattr(self, 'path_stereo_parquet'): print('Simulation path parquet file: ', self.path_stereo_parquet)
-        if hasattr(self, 'fileZMX'): print('Simulation path ZMX files: ', self.fileZMX)
-        if hasattr(self, 'B_stereo'): print('Le B stéréologique: ' + str(round(self.B_stereo,4)))
-        if hasattr(self, 'B_theo'): print('Le B théorique: ' + str(round(self.B_theo,4)))
-        if hasattr(self, 'g_theo'): print('Le g théorique: ' + str(round(self.g_theo,4)))
-        if hasattr(self, 'gG_theo'): print('Le gG théorique: ' + str(round(self.gG_theo,4)))
-        if hasattr(self, 'g_rt'): print('Le g raytracing: ' + str(round(self.g_rt,4)))
-        if hasattr(self, 'gG_rt'): print('Le gG raytracing: ' + str(round(self.gG_rt,4)))
-        if hasattr(self, 'SSA_stereo'): print('La ù stéréologie: ' + str(round(self.SSA_stereo,4)))
-        if hasattr(self, 'SSA_theo'): print('La SSA théorique: ' + str(round(self.SSA_theo,4)))
-        if hasattr(self, 'density_theo'): print('La densité théorique: ' + str(round(self.density_theo,4)))
-        if hasattr(self, 'density_stereo'): print('La densité stéréologique: ' + str(round(self.density_stereo,4)))
-        if hasattr(self, 'physical_porosity_theo'): print('La porosité physique théorique: ' + str(round(self.physical_porosity_theo,5)))
-        if hasattr(self, 'physical_porosity_stereo'): print('La porosité physique stéréologique: ' + str(round(self.physical_porosity_stereo,5)))
-        if hasattr(self, 'optical_porosity_theo'): print('La porosité optique théorique: ' + str(round(self.optical_porosity_theo,5)))
-        if hasattr(self, 'optical_porosity_stereo'): print('La porosité optique stéréologique: ' + str(round(self.optical_porosity_stereo,5)))
-        if hasattr(self, 'mus_theo'): print('La mus théorique: ' + str(round(self.mus_theo,4)))
-        if hasattr(self, 'mus_stereo'): print('La mus stéréologie: ' + str(round(self.mus_stereo,4)))
-        if hasattr(self, 'musp_theo'): print('La musp théorique: ' + str(round(self.musp_theo,4)))
-        if hasattr(self, 'musp_stereo'): print('La musp stéréologie: ' + str(round(self.musp_stereo,4)))
-        if hasattr(self, 'mua_theo'): print('mua théorique: ' + str(round(self.mua_theo,6)))
-        if hasattr(self, 'mua_tartes'): print('mua tartes: ' + str(round(self.mua_tartes,6)))
-        if hasattr(self, 'alpha_theo'): print('alpha théorique: ' + str(round(self.alpha_theo,6)))
-        if hasattr(self, 'alpha_stereo'): print('alpha stéréologique: ' + str(round(self.alpha_stereo,6)))
-        if hasattr(self, 'alpha_rt'): print('alpha raytracing: ' + str(round(self.alpha_rt,6)))
-        if hasattr(self, 'alpha_tartes'): print('alpha TARTES: ' + str(round(self.alpha_tartes,6)))
-        if hasattr(self, 'ke_stereo'): print('ke stéréologique: ' + str(round(self.ke_stereo,6)))
-        if hasattr(self, 'ke_theo'): print('ke théorique: ' + str(round(self.ke_theo,6)))
-        if hasattr(self, 'ke_rt'): print('ke raytracing: ' + str(round(self.ke_rt,6)))
-        if hasattr(self, 'ke_tartes'): print('ke TARTES: ' + str(round(self.ke_tartes,6)))
-        if hasattr(self, 'MOPL_theo'): print('La MOPL stéréologique: ' + str(round(self.MOPL_theo,6)))
-        if hasattr(self, 'MOPL_rt'): print('La MOPL raytracing: ' + str(round(self.MOPL_rt,6)))
-        if hasattr(self, 'neff_stereo'): print('Le neff stéréologique: ' + str(round(self.neff_stereo,6)))
-        if hasattr(self, 'neff_rt'): print('Le neff raytracing: ' + str(round(self.neff_rt,6)))
-        if hasattr(self, 'Reflectance'): print('Reflectance raytracing: ' + str(round(self.Reflectance,6)) + ', NumRays: ' +str(self.numrays_Reflectance))
-        if hasattr(self, 'Transmitance'): print('Transmitance raytracing: ' + str(round(self.Transmitance,6)) + ', NumRays: ' +str(self.numrays_Transmitance))
-        if hasattr(self, 'Error'): print('Error raytracing: ' + str(round(self.Error,6)) + ', NumRays: ' +str(self.numrays_Error))
-        if hasattr(self, 'Lost'): print('Lost raytracing: ' + str(round(self.Lost,6)) + ', NumRays: ' +str(self.numrays_Lost))
-        if hasattr(self, 'Absorb'): print('Absorb raytracing: ' + str(round(self.Absorb,6)) + ', NumRays: ' +str(self.numrays_Absorb))
-    
+        for key in self.dict_properties.keys():
+            print(key,' : ',self.dict_properties[key])
+        
     def Close_Zemax(self):
         self.TheSystem.SaveAs(self.fileZMX)
         if hasattr(self, 'zosapi'): 
@@ -733,36 +861,30 @@ class simulation_MC:
             self.Close_Zemax()
         except :
             pass
-    
-plt.close('all')
-properties=[]
+
 if __name__ == '__main__':
+    plt.close('all')
+    properties=[]
     for wlum in [1.0]:
-        sim = simulation_MC('test1', 100_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
-        sim.create_folder()
-        sim.Initialize_Zemax()
+        sim = simulation_MC('test1', 10_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
         sim.Load_File()
         sim.shoot_rays()
         sim.Close_Zemax()
         sim.Load_parquetfile()
-        # sim.AOP()
-        # sim.calculate_musp()
-        # sim.calculate_ke_theo()
-        # sim.calculate_MOPL()
-        # sim.map_DOP_top_detector()
-        # sim.map_stokes_reflectance()
-        # sim.map_DOP_reflectance()
-        # sim.plot_DOP_radius_reflectance()
-        # sim.calculate_alpha()
-        # sim.calculate_mua()
-        # sim.calculate_ke_rt()
-        # print(sim.ke_rt)
-        sim.time(1)
-        sim.plot_irradiances()
-        sim.time(2)
-        # sim.properties()
-        # sim.properties()
+        sim.AOP()
+        sim.calculate_musp()
+        sim.calculate_ke_theo()
+        sim.calculate_MOPL()
+        sim.calculate_alpha()
+        sim.calculate_mua()
+        sim.calculate_ke_rt()
         # sim.plot_time_reflectance()
-        # del sim
-        
-        
+        sim.map_stokes_reflectance()
+        sim.map_DOP_reflectance()
+        sim.plot_DOP_radius_reflectance()
+        sim.plot_irradiances()
+        sim.plot_MOPL_radius_reflectance()
+        sim.plot_lair_radius_reflectance()
+        sim.properties()
+        sim.export_properties()
+        del sim

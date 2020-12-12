@@ -8,6 +8,7 @@
 *.dirlock
 *.lock
 *.xml
+*.ZRD
 
 #Spyder project
 .spyproject/
