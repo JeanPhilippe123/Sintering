@@ -40,6 +40,7 @@ class Sphere_Simulation:
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
     
     def __init__(self,name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol=False,diffuse_light=False):
+        self.inputs = [name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol,diffuse_light]
         '''
         \r name = Nom donné à la simulation \r
         radius = Rayon des sphères \r
@@ -79,7 +80,8 @@ class Sphere_Simulation:
         
         #Create path
         self.properties_string = '_'.join([name,str(numrays),str(radius),str(Delta),str(tuple(pol)),self.diffuse_str])
-        self.properties_string_stereo = '_'.join([name,str(numrays_stereo),str(radius),str(Delta)])
+        self.properties_string_plot = '_'.join([self.properties_string,str(self.wlum)])
+        self.properties_string_stereo = '_'.join([name,'stereo',str(numrays_stereo),str(radius),str(Delta)])
        
         #ZRD paths
         self.name_ZRD = self.properties_string + ".ZRD"
@@ -185,19 +187,13 @@ class Sphere_Simulation:
         return filt_ice, filt_air, filt_inter_ice
     
     def Create_filter_raytracing(self):
-        # #Create filter that only consider rays touching spheres
-        # list_ice_filter = []
-        # Sphere_ice_obj = self.find_ice_object()
-        # detector_obj = np.where(self.array_objects() == np.array(['Detector Rectangle']))[0]+ 1
-        # for i in Sphere_ice_obj:
-        #     list_ice_filter += ["H"+str(i)]
-        self.filter_raytracing = ""#"Z|(("+"|".join(list_ice_filter)+")&(" + "L"+str(detector_obj[0]) + "|" + "L"+str(detector_obj[1]) + "))"
+        self.filter_raytracing = ""
     
     def calculate_depth_guess(self):
         #Guess Ke so it can calculate depth required
         #Preselected depth
         depth = np.arange(0.00, self.Depth, 0.0001)  # from 0 to 1m depth every 0.1mm
-        wl = np.array([self.wlum*1E-06])  # in m
+        wl = np.array([1.0*1E-06])  # in m
         
         #Calculate pre-theorical SSA, density, g and B
         #Density
@@ -728,7 +724,7 @@ class Sphere_Simulation:
         print('Raytrace')
         
         path_parquet_list = self.path_parquet.split('_')
-        path_parquet_list[-2] = '1.0'
+        path_parquet_list[-1] = '1.0.parquet'
         path_parquet = '_'.join(path_parquet_list)
         Sphere_Raytrace.Shoot(self,self.filter_raytracing,self.numrays,path_parquet,self.name_ZRD)
         pass
@@ -770,11 +766,11 @@ class Sphere_Simulation:
         if os.path.exists(self.path_stereo_parquet):
             self.df_stereo = Sphere_Raytrace.Load_parquet(self.path_stereo_parquet)
         else:
-            print('The raytrace parquet file was not loaded, Please run raytrace')
+            print('The raytrace stereo parquet file was not loaded, Please run raytrace')
             sys.exit()
 
         path_parquet_list = self.path_parquet.split('_')
-        path_parquet_list[-2] = '1.0'
+        path_parquet_list[-1] = '1.0.parquet'
         path_parquet = '_'.join(path_parquet_list)
         #If not creates it
         if os.path.exists(self.path_parquet):
@@ -794,7 +790,6 @@ class Sphere_Simulation:
         else:
             print('The raytrace parquet file was not loaded, Please run raytrace')
             sys.exit()
-            
         pass
     
     def AOP(self):
@@ -886,7 +881,6 @@ class Sphere_Simulation:
             volcube=self.DeltaX*self.DeltaY*self.DeltaZ
             DensityRatio = volsphere*4/volcube
         self.density_theo = DensityRatio*self.pice
-        
         
         #====================Densité physique stéréologie====================
         #Shoot rays for SSA if not already done
@@ -1154,7 +1148,7 @@ class Sphere_Simulation:
 
     def Irradiance_up(self,df,depths):
         def Irradiance_up_at_depth(df,depth):    
-            df = df.query('((z<= {} & z.shift() >= {})&(segmentLevel!=0))'.format(depth,depth))
+            df = df.query('(z<= {} & z.shift() >= {})&(segmentLevel!=0)'.format(depth,depth))
             irradiance_up = df['intensity'].mul(df['L'].abs()).sum()
             return irradiance_up
         Irradiance_up = lambda depth: Irradiance_up_at_depth(df,depth)
@@ -1167,29 +1161,38 @@ class Sphere_Simulation:
             irradiance_down = df['intensity'].mul(df['L'].abs()).sum()
             return irradiance_down
         Irradiance_down = lambda depth: Irradiance_down_at_depth(df,depth)
-        Irradiance_down_rt=np.array(list(map(Irradiance_down,depths)))
+        Irradiance_down_rt=np.array(list(map(Irradiance_down,depths)),dtype=object)
         return np.array([Irradiance_down_rt])
     
-    def transmitance_at_depth(self,depth):
-        filt_detector = self.df['z'] >= depth
-        df_filtered = self.df[filt_detector][~self.df[filt_detector].index.duplicated(keep='first')]
-        return df_filtered
+    def Transmitance_at_depth(self,df,depth):
+        df_filt = df[df['z'] >= depth]
+        df = df_filt[~df_filt.index.duplicated(keep='first')]
+        return df
     
-    def calculate_DOP_vs_depth(self,depth):
-        df = self.transmitance_at_depth(depth)
-        [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+    def DOPs_at_depths(self,df,depths):
+        """depths: list
+        df: dataframe"""
         
-        I=np.mean(I)
-        Q=np.mean(Q)
-        U=np.mean(U)
-        V=np.mean(V)
+        def Stokes(self,df,depth):
+            df = self.Transmitance_at_depth(df,depth)
+            [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+            I=np.mean(I)
+            Q=np.mean(Q)
+            U=np.mean(U)
+            V=np.mean(V)
+            return np.array([I,Q,U,V])
+        
+        Stokes_lam = lambda depth: Stokes(self,df,depth)
+        Stokes_datas=np.array(list(map(Stokes_lam,depths)))
+        return np.array([Stokes_datas])
+    
+    def calculate_DOP(self,I,Q,U,V):
         
         DOP=np.sqrt(Q**2+U**2+V**2)/I
         DOPLT=np.sqrt(Q**2+U**2)/I
         DOPL=np.sqrt(Q**2)/I
         DOP45=np.sqrt(U**2)/I
         DOPC=np.sqrt(V**2)/I
-        
         return np.array([DOP, DOPLT, DOPL, DOP45, DOPC])
     
     def calculate_DOP_vs_radius(self,df):
@@ -1199,9 +1202,10 @@ class Sphere_Simulation:
         df['radius'] = np.sqrt((df['x']-self.XY_half_width)**2+(df['y']-self.XY_half_width)**2)
         
         #Calculate Stokes vs Radius
-        bins = np.linspace(0,self.XY_half_width,100)
+        bins = np.linspace(0,0.1,100)
         
         #Histogram of time vs intensity
+        n_rays, radius = np.histogram(df['radius'], bins=bins)
         I, radius = np.histogram(df['radius'], weights=I, bins=bins)
         Q, radius = np.histogram(df['radius'], weights=Q, bins=bins)
         U, radius = np.histogram(df['radius'], weights=U, bins=bins)
@@ -1220,6 +1224,7 @@ class Sphere_Simulation:
         DOP45=np.sqrt(U**2)/I_df
         DOPC=np.sqrt(V**2)/I_df
         
+        df_DOP.insert(len(df_DOP.columns),'numberRays',n_rays)
         df_DOP.insert(len(df_DOP.columns),'DOP',DOP)
         df_DOP.insert(len(df_DOP.columns),'DOPLT',DOPLT)
         df_DOP.insert(len(df_DOP.columns),'DOPL',DOPL)
@@ -1260,7 +1265,7 @@ class Sphere_Simulation:
     def calculate_Stokes_of_rays(self,df):
         if len(df.index) == 0:
             #Return empty sequence
-            return np.zeros(5)
+            return np.zeros(4)
         
         #Vecteur de polarization dans le plan othogonaux
         Ex = np.array(df['exr']+complex(0,1)*df['exi'])
@@ -1307,6 +1312,10 @@ class Sphere_Simulation:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
+        #Change pathLength
+        filt = self.df['segmentLevel']==0
+        self.df['pathLength'] = (~filt)*np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
+
         #Calculate OPL for each ray
         df_filt['OPL'] = df_filt['pathLength']*df_filt['Indice']
         df_OPL = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last','x':'last','y':'last'}).compute()
@@ -1314,7 +1323,7 @@ class Sphere_Simulation:
         
         #Calculate MOPL
         bins = np.linspace(0,250/self.mus_theo,100)
-        nrays, radius = np.histogram(df_OPL['radius'], bins=bins)
+        nrays, radius = np.histogram(df_OPL['radius'], weights=df_OPL['intensity'], bins=bins)
         OPL_bins, radius = np.histogram(df_OPL['radius'], weights=df_OPL['intensity']*df_OPL['OPL'], bins=bins)
 
         #Calculate MOPL
@@ -1328,9 +1337,9 @@ class Sphere_Simulation:
         plt.xlabel('Radius (m)')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_MOPL_radius_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_MOPL_radius_reflectance.npy')
-        self.create_npy(path_npy,radius=radius,MOPL=MOPL)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_MOPL_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_MOPL_radius_reflectance.npy')
+        self.create_npy(path_npy,df_OPL=df_OPL)
         
     def plot_lair_radius_reflectance(self):
         if not hasattr(self, 'optical_porosity_theo'): self.calculate_porosity()
@@ -1342,15 +1351,12 @@ class Sphere_Simulation:
         df_filt['lair'] = (df_filt['insideOf']==0.0)*df_filt['pathLength']
         df_lair = df_filt.groupby(df_filt.index).agg({'lair':sum,'intensity':'last','x':'last','y':'last'}).compute()
         
-        #Calculate lair
-        df_lair['lair'] = df_lair['lair']/(1+self.ice_index*(1-self.optical_porosity_theo)/self.optical_porosity_theo)
-        
         #Calculate Radius for each ray
         df_lair['radius'] = np.sqrt((df_lair['x']-self.XY_half_width)**2+(df_lair['y']-self.XY_half_width)**2)
         
         #Calculate MOPL
         bins = np.linspace(0,250/self.mus_theo,100)
-        nrays, radius = np.histogram(df_lair['radius'], bins=bins)
+        nrays, radius = np.histogram(df_lair['radius'], weights=df_lair['intensity'], bins=bins)
         lair_bins, radius = np.histogram(df_lair['radius'], weights=df_lair['intensity']*df_lair['lair'], bins=bins)
 
         #Calculate MOPL
@@ -1364,20 +1370,26 @@ class Sphere_Simulation:
         plt.xlabel('Radius (m)')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_lair_radius_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_lair_radius_reflectance.npy')
-        self.create_npy(path_npy,radius=radius,lair=lair)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_lair_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_lair_radius_reflectance.npy')
+        self.create_npy(path_npy,df_lair=df_lair)
         return
         
     def plot_DOP_transmitance(self):
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
-        depth = np.linspace(0,self.Depth,100)
-        DOPs = np.array(list(map(self.calculate_DOP_vs_depth,depth))) 
-        ax[0,0].plot(depth,DOPs[:,0]) #DOP
-        ax[0,1].plot(depth,DOPs[:,2]) #DOPL
-        ax[1,0].plot(depth,DOPs[:,3]) #DOP45
-        ax[1,1].plot(depth,DOPs[:,4]) #DOPC
+        depths = np.linspace(0,25/self.musp_theo,100)
+        # Stokes_data = self.DOPs_at_depths(self.df.compute(),depths)
+        Stokes = self.df.map_partitions(self.DOPs_at_depths,depths,meta=list).compute()
+        
+        # Mean all the partitions results together
+        [I,Q,U,V] = Stokes.swapaxes(0,1).mean(axis=1).transpose()
+        
+        DOPs = self.calculate_DOP(I, Q, U, V)
+        ax[0,0].plot(depths,DOPs[0]) #DOP
+        ax[0,1].plot(depths,DOPs[2]) #DOPL
+        ax[1,0].plot(depths,DOPs[3]) #DOP45
+        ax[1,1].plot(depths,DOPs[4]) #DOPC
         
         #Set limits
         ax[0,0].set_ylim(0,1.0)
@@ -1393,19 +1405,19 @@ class Sphere_Simulation:
         fig.suptitle('DOPs vs Depth')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_plot_DOP_transmitance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_plot_DOP_transmitance.npy')
-        self.create_npy(path_npy,depth=depth,DOPs=DOPs)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_DOP_transmitance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_DOP_transmitance.npy')
+        self.create_npy(path_npy,depths=depths,DOPs=DOPs)
     
-    def plot_DOP_radius_top_detector(self):
+    def plot_DOP_radius_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df = self.df[filt_top_detector]
+        df = self.df[filt_top_detector].compute()
         
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
         #return dataframe with dops colummns
         df_DOP =  self.calculate_DOP_vs_radius(df)
-        ax[0,0].plot(df_DOP['radius'],df_DOP['intensity']) #Intensity
+        ax[0,0].plot(df_DOP['radius'],df_DOP['numberRays']/df_DOP['numberRays'].max()) #Intensity
         ax[0,1].plot(df_DOP['radius'],df_DOP['DOPL']) #DOPL
         ax[1,0].plot(df_DOP['radius'],df_DOP['DOP45']) #DOP45
         ax[1,1].plot(df_DOP['radius'],df_DOP['DOPC']) #DOPC
@@ -1423,18 +1435,18 @@ class Sphere_Simulation:
         fig.suptitle('DOP plot')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_plot_DOP_radius_top_detector.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_plot_DOP_radius_top_detector.npy')
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_DOPs_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_DOPs_radius_reflectance.npy')
         self.create_npy(path_npy,df_DOP=df_DOP)
         pass
         
     def map_stokes_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df = self.df[filt_top_detector]
+        df = self.df[filt_top_detector].compute()
         
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
-        #return dataframe with dops colummns
+        #Return dataframe with dops colummns
         array_Stokes, x_bins, y_bins =  self.calculate_Stokes_xy(df)
         x, y = np.meshgrid(x_bins, y_bins)
         intensity = ax[0,0].pcolormesh(x, y, array_Stokes[0])
@@ -1456,14 +1468,16 @@ class Sphere_Simulation:
         fig.suptitle('Map Stokes Reflectance')
 
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_stokes_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_stokes_reflectance.npy')
-        self.create_npy(path_npy,x=x,y=y,array_Stokes=array_Stokes)
+        #Calculate Stokes for each ray
+        [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_map_stokes_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_map_stokes_reflectance.npy')
+        self.create_npy(path_npy,x_bins=x,y_bins=y,array_Stokes_bins=array_Stokes,x=df['x'],y=df['y'],array_Stokes=[I,Q,U,V])
         pass
     
     def map_DOP_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df = self.df[filt_top_detector]
+        df = self.df[filt_top_detector].compute()
         
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
@@ -1489,9 +1503,11 @@ class Sphere_Simulation:
         fig.suptitle('Map DOPs Reflectance')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_DOP_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_DOP_reflectance.npy')
-        self.create_npy(path_npy,x=x,y=y,array_DOPs=array_DOPs)
+        #Calculate Stokes for each ray
+        [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_map_DOP_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_map_DOP_reflectance.npy')
+        self.create_npy(path_npy,x_bins=x,y_bins=y,array_DOPs_bins=array_DOPs,x=df['x'],y=df['y'],array_Stokes=[I,Q,U,V])
         pass
     
     def plot_time_reflectance(self):
@@ -1540,52 +1556,18 @@ class Sphere_Simulation:
         plt.xlim(1E-12,max(t_rt)/2)
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_plot_time_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_plot_time_reflectance.npy')
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_time_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_time_reflectance.npy')
         self.create_npy(path_npy,t_rt=t_rt,R_rt=R_rt,t_theo=t_theo,R_theo=R_theo)
         pass
     
-    def map_top_detector(self):
-        filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        df_top_detector = self.df[filt_top_detector].compute()
-        df_top_detector.plot(x='x',y='y',kind='scatter')
-        print('Numrays top detector',len(df_top_detector))
-        
-        #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_top_detector.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_top_detector.npy')
-        self.create_npy(path_npy,df_top_detector=df_top_detector)
-        pass
-    
-    def map_down_detector(self):
-        filt_down_detector = self.df['hitObj'] == self.find_detector_object()[1]
-        df_down_detector = self.df[filt_down_detector].compute()
-        df_down_detector.plot(x='x',y='y',kind='scatter')
-        print('Numrays down detector',len(df_down_detector))
-
-        #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_top_detector.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_top_detector.npy')
-        self.create_npy(path_npy,df_down_detector=df_down_detector)
-              
-    def map_detector(self,depth):
-        df = self.transmitance_at_depth(self.df,depth)
-        df.plot(x='x', y='y', kind='scatter').compute()
-        print('Numrays on detector',len(df))
-
-        #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_detector.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_detector.npy')
-        self.create_npy(path_npy,df=df)
-        pass
-        
     def plot_irradiances(self):
         if not hasattr(self, 'musp_theo'): self.calculate_musp()
         if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
         if not hasattr(self, 'ke_tartes'): self.calculate_ke_theo()
         
         #Irradiance raytracing
-        depth = np.linspace(-0.001,25/self.musp_theo,50)
+        depth = np.linspace(-0.001,0.1,50)
         Irradiance_rt = self.df.map_partitions(self.Irradiance,depth,meta=list).compute().sum(axis=0)
         Irradiance_up_rt = self.df.map_partitions(self.Irradiance_up,depth,meta=list).compute().sum(axis=0)
         Irradiance_down_rt = self.df.map_partitions(self.Irradiance_down,depth,meta=list).compute().sum(axis=0)
@@ -1613,8 +1595,8 @@ class Sphere_Simulation:
         plt.legend()
 
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_plot_irradiances.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_plot_irradiances.npy')
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_irradiances.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_irradiances.npy')
         self.create_npy(path_npy,depth=depth,
                         irradiance_down_tartes=irradiance_down_tartes,
                         irradiance_up_tartes=irradiance_up_tartes,
@@ -1629,7 +1611,7 @@ class Sphere_Simulation:
         print('Date : ',self.date,', Time : ',self.ctime,' ',text)
         
     def export_properties(self):
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_properties.npy')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_properties.npy')
         np.save(path_npy,self.dict_properties)
         
     def create_npy(self,path,**kwargs):
@@ -1658,26 +1640,26 @@ plt.close('all')
 # simulation(name, radius, delta, numrays, numrays_stereo, wlum, pol)
 properties=[]
 if __name__ == '__main__':
-    for wlum in [1.0]:
+    for wlum in [0.8]:
         # sim = simulation('test1', [65E-6], 287E-6, 1000, 100, wlum, [1,1,0,0], diffuse_light=False)
-        sim = Sphere_Simulation('test3', 66E-6, 287E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
-        # sim = simulation('test1', [36.32E-6], 220E-6, 1000, 1000, 1.0, [1,1,0,90], diffuse_light=True)
+        # sim = Sphere_Simulation('test3_sphere', 66E-6, 287E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
+        sim = Sphere_Simulation('test3_sphere', 88E-6, 347.7E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
         # sim.Load_File()
-        sim.create_ZMX()
-        sim.create_source()
-        sim.create_detectors()
-        sim.create_snow()
+        # sim.create_ZMX()
+        # sim.create_source()
+        # sim.create_detectors()
+        # sim.create_snow()
         # sim.shoot_rays_stereo()
         # sim.shoot_rays()
         # sim.Close_Zemax()
-        # sim.Load_parquetfile()
+        sim.Load_parquetfile()
         # sim.AOP()
         # sim.calculate_g_theo()
         # sim.calculate_g_rt()
         # sim.calculate_B()
         # sim.calculate_SSA()
         # sim.calculate_density()
-        # sim.calculate_mus()
+        sim.calculate_mus()
         # sim.calculate_mua()
         # sim.calculate_musp()
         # sim.calculate_MOPL()
@@ -1687,10 +1669,11 @@ if __name__ == '__main__':
         # sim.calculate_ke_theo()
         # sim.calculate_ke_rt()
         # sim.map_stokes_reflectance()
-        # sim.plot_DOP_radius_top_detector()
+        # sim.plot_DOP_radius_reflectance()
         # sim.map_DOP_reflectance()
+        # sim.plot_DOP_transmitance()
         # sim.plot_irradiances()
-        # sim.plot_MOPL_radius_reflectance()
-        # sim.plot_lair_radius_reflectance()
-        # sim.properties()
-        # sim.export_properties()
+        sim.plot_MOPL_radius_reflectance()
+        sim.plot_lair_radius_reflectance()
+        sim.properties()
+        sim.export_properties()

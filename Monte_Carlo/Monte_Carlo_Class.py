@@ -65,6 +65,7 @@ class simulation_MC:
             self.diffuse_str = 'not_diffuse'
             
         self.properties_string = '_'.join([name,str(numrays),str(radius),str(Delta),str(self.B_theo),str(g),str(tuple(pol)),self.diffuse_str])
+        self.properties_string_plot = '_'.join([self.properties_string,str(self.wlum)])
         self.name_ZRD = self.properties_string + ".ZRD"
         
         self.path_parquet = os.path.join(self.pathDatas,'_'.join([self.properties_string,str(self.wlum)]) + "_.parquet")
@@ -473,7 +474,7 @@ class simulation_MC:
     def calculate_Stokes_of_rays(self,df):
         if len(df.index) == 0:
             #Return empty sequence
-            return np.zeros(5)
+            return np.zeros(4)
         
         #Vecteur de polarization dans le plan othogonaux
         Ex = np.array(df['exr']+complex(0,1)*df['exi'])
@@ -548,6 +549,10 @@ class simulation_MC:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
+        #Change pathLength
+        filt = df_filt['segmentLevel']==0
+        df_filt['pathLength'] = (~filt)*np.sqrt((((df_filt[['x','y','z']].diff())**2).sum(1)))
+
         #Calculate OPL for each ray
         df_filt['OPL'] = df_filt['pathLength']*self.neff_theo
         df_OPL = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last','x':'last','y':'last'}).compute()
@@ -555,7 +560,7 @@ class simulation_MC:
         
         #Calculate MOPL
         bins = np.linspace(0,250/self.mus_theo,100)
-        nrays, radius = np.histogram(df_OPL['radius'], bins=bins)
+        nrays, radius = np.histogram(df_OPL['radius'], weights=df_OPL['intensity'], bins=bins)
         OPL_bins, radius = np.histogram(df_OPL['radius'], weights=df_OPL['intensity']*df_OPL['OPL'], bins=bins)
 
         #Calculate MOPL
@@ -569,9 +574,9 @@ class simulation_MC:
         plt.xlabel('Radius (m)')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_MOPL_radius_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_MOPL_radius_reflectance.npy')
-        self.create_npy(path_npy,radius=radius,MOPL=MOPL)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_MOPL_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_MOPL_radius_reflectance.npy')
+        self.create_npy(path_npy,df_OPL=df_OPL)
         
     def plot_lair_radius_reflectance(self):
         if not hasattr(self, 'optical_porosity_theo'): self.calculate_porosity()
@@ -579,20 +584,24 @@ class simulation_MC:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
+        #Change pathLength
+        filt = df_filt['segmentLevel']==0
+        df_filt['pathLength'] = (~filt)*np.sqrt((((df_filt[['x','y','z']].diff())**2).sum(1)))
+
         #Calculate OPL for each ray
         df_filt = df_filt[~(df_filt['hitObj'] == 2)]
-        df_filt['lair'] = df_filt['pathLength']*self.neff_theo
-        df_lair = df_filt.groupby(df_filt.index).agg({'lair':sum,'intensity':'last','x':'last','y':'last'}).compute()
+        df_filt['OPL'] = df_filt['pathLength']*self.neff_theo
+        df_lair = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last','x':'last','y':'last'}).compute()
         
         #Calculate lair
-        df_lair['lair'] = df_lair['lair']/(1+self.ice_index*(1-self.optical_porosity_theo)/self.optical_porosity_theo)
+        df_lair['lair'] = df_lair['OPL']/(1+self.ice_index*(1-self.optical_porosity_theo)/self.optical_porosity_theo)
         
         #Calculate Radius for each ray
         df_lair['radius'] = np.sqrt((df_lair['x'])**2+(df_lair['y'])**2)
         
         #Calculate MOPL
         bins = np.linspace(0,250/self.mus_theo,100)
-        nrays, radius = np.histogram(df_lair['radius'], bins=bins)
+        nrays, radius = np.histogram(df_lair['radius'], weights=df_lair['intensity'], bins=bins)
         lair_bins, radius = np.histogram(df_lair['radius'], weights=df_lair['intensity']*df_lair['lair'], bins=bins)
 
         #Calculate MOPL
@@ -606,11 +615,76 @@ class simulation_MC:
         plt.xlabel('Radius (m)')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_lair_radius_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_lair_radius_reflectance.npy')
-        self.create_npy(path_npy,radius=radius,lair=lair)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_lair_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_lair_radius_reflectance.npy')
+        self.create_npy(path_npy,df_lair=df_lair)
         return
+    
+    def plot_DOP_transmitance(self):
+        if not hasattr(self, 'musp_stereo'): self.calculate_musp()
+        #Plot datas
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        depths = np.linspace(0,25/self.musp_theo,100)
+        # Stokes_data = self.DOPs_at_depths(self.df.compute(),depths)
+        Stokes = self.df.map_partitions(self.DOPs_at_depths,depths,meta=list).compute()
         
+        # Mean all the partitions results together
+        [I,Q,U,V] = Stokes.swapaxes(0,1).mean(axis=1).transpose()
+        
+        DOPs = self.calculate_DOP(I, Q, U, V)
+        ax[0,0].plot(depths,DOPs[0]) #DOP
+        ax[0,1].plot(depths,DOPs[2]) #DOPL
+        ax[1,0].plot(depths,DOPs[3]) #DOP45
+        ax[1,1].plot(depths,DOPs[4]) #DOPC
+        
+        #Set limits
+        ax[0,0].set_ylim(0,1.0)
+        ax[0,1].set_ylim(0,1.0)
+        ax[1,0].set_ylim(0,1.0)
+        ax[1,1].set_ylim(0,1.0)
+        
+        #Set titles
+        ax[0,0].set_title('DOP')
+        ax[0,1].set_title('DOPL')
+        ax[1,0].set_title('DOP45')
+        ax[1,1].set_title('DOPC')
+        fig.suptitle('DOPs vs Depth')
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_DOP_transmitance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_DOP_transmitance.npy')
+        self.create_npy(path_npy,depths=depths,DOPs=DOPs)
+    
+    def Transmitance_at_depth(self,df,depth):
+        df_filt = df[df['z'] >= depth]
+        df = df_filt[~df_filt.index.duplicated(keep='first')]
+        return df
+    
+    def DOPs_at_depths(self,df,depths):
+        """depths: list
+        df: dataframe"""
+        
+        def Stokes(self,df,depth):
+            df = self.Transmitance_at_depth(df,depth)
+            [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+            I=np.mean(I)
+            Q=np.mean(Q)
+            U=np.mean(U)
+            V=np.mean(V)
+            return np.array([I,Q,U,V])
+        
+        Stokes_lam = lambda depth: Stokes(self,df,depth)
+        Stokes_datas=np.array(list(map(Stokes_lam,depths)))
+        return np.array([Stokes_datas])
+    
+    def calculate_DOP(self,I,Q,U,V):
+        DOP=np.sqrt(Q**2+U**2+V**2)/I
+        DOPLT=np.sqrt(Q**2+U**2)/I
+        DOPL=np.sqrt(Q**2)/I
+        DOP45=np.sqrt(U**2)/I
+        DOPC=np.sqrt(V**2)/I
+        return np.array([DOP, DOPLT, DOPL, DOP45, DOPC])
+    
     def plot_DOP_radius_reflectance(self):
         filt_top_detector = self.df['hitObj'] == self.find_detector_object()[0]
         df = self.df[filt_top_detector].compute()
@@ -620,7 +694,6 @@ class simulation_MC:
         #return dataframe with dops colummns
         df_DOP = self.calculate_DOP_vs_radius(df)
         ax[0,0].plot(df_DOP['radius'],df_DOP['numberRays']/df_DOP['numberRays'].max()) #Intensity
-        # ax[0,0].plot(df_DOP['radius'],df_DOP['intensity']/df_DOP['intensity'].max()) #Intensity
         ax[0,1].plot(df_DOP['radius'],df_DOP['DOPL']) #DOPL
         ax[1,0].plot(df_DOP['radius'],df_DOP['DOP45']) #DOP45
         ax[1,1].plot(df_DOP['radius'],df_DOP['DOPC']) #DOPC
@@ -647,8 +720,8 @@ class simulation_MC:
         fig.suptitle('DOPs vs Radius Reflectance')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_DOPs_radius_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_DOPs_radius_reflectance.npy')
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_DOPs_radius_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_DOPs_radius_reflectance.npy')
         self.create_npy(path_npy,df_DOP=df_DOP)
         pass
     
@@ -660,7 +733,7 @@ class simulation_MC:
         df['radius'] = r
         
         #Calculate Stokes vs Radius
-        bins = np.linspace(0,250/self.mus_theo,100)
+        bins = np.linspace(0,0.1,100)
         
         #Histogram of time vs intensity
         n_rays, radius = np.histogram(df['radius'], bins=bins)
@@ -678,9 +751,9 @@ class simulation_MC:
         #Calculate DOPs
         DOP=np.sqrt(Q**2+U**2+V**2)/I_df
         DOPLT=np.sqrt(Q**2+U**2)/I_df
-        DOPL=Q/I_df
-        DOP45=U/I_df
-        DOPC=V/I_df
+        DOPL=np.sqrt(Q**2)/I_df
+        DOP45=np.sqrt(U**2)/I_df
+        DOPC=np.sqrt(V**2)/I_df
         
         df_DOP.insert(len(df_DOP.columns),'numberRays',n_rays)
         df_DOP.insert(len(df_DOP.columns),'DOP',DOP)
@@ -721,9 +794,10 @@ class simulation_MC:
         fig.suptitle('Map Stokes Reflectance')
         
         #Save data to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_map_Stokes_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_Stokes_reflectance.npy')
-        self.create_npy(path_npy,x=x,y=y,array_Stokes=array_Stokes)
+        [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_map_Stokes_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_map_Stokes_reflectance.npy')
+        self.create_npy(path_npy,x_bins=x,y_bins=y,array_Stokes_bins=array_Stokes,x=df['x'],y=df['y'],array_Stokes=[I,Q,U,V])
         pass
     
     def map_DOP_reflectance(self):
@@ -754,9 +828,10 @@ class simulation_MC:
         fig.suptitle('Map DOP Reflectance')
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_Map_DOP_reflectance.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_map_DOP_reflectance.npy')
-        self.create_npy(path_npy,x=x,y=y,array_DOPs=array_DOPs)
+        [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_map_DOP_reflectance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_map_DOP_reflectance.npy')
+        self.create_npy(path_npy,x_bins=x,y_bins=y,array_DOPs_bins=array_DOPs,x=df['x'],y=df['y'],array_Stokes=[I,Q,U,V])
         pass
     
     def Irradiance(self,df,depths):
@@ -792,8 +867,12 @@ class simulation_MC:
         if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
         if not hasattr(self, 'ke_tartes'): self.calculate_ke_theo()
         
+        #Change pathLength
+        filt = self.df['segmentLevel']==0
+        self.df['pathLength'] = (~filt)*np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
+        
         #Irradiance raytracing
-        depth = np.linspace(-0.001,25/self.musp_theo,50)
+        depth = np.linspace(-0.001,0.1,50)
         Irradiance_rt = self.df.map_partitions(self.Irradiance,depth,meta=list).compute().sum(axis=0)
         Irradiance_up_rt = self.df.map_partitions(self.Irradiance_up,depth,meta=list).compute().sum(axis=0)
         Irradiance_down_rt = self.df.map_partitions(self.Irradiance_down,depth,meta=list).compute().sum(axis=0)
@@ -821,8 +900,8 @@ class simulation_MC:
         plt.legend()
         
         #Save Datas to npy file
-        plt.savefig(os.path.join(self.path_plot,self.properties_string+'_plot_irradiances.png'),format='png')
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_plot_irradiances.npy')
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_irradiances.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_irradiances.npy')
         self.create_npy(path_npy,depth=depth,
                         irradiance_down_tartes=irradiance_down_tartes,
                         irradiance_up_tartes=irradiance_up_tartes,
@@ -837,7 +916,7 @@ class simulation_MC:
         print('Date : ',self.date,', Time : ',self.ctime,' ',text)
         
     def export_properties(self):
-        path_npy = os.path.join(self.path_plot,self.properties_string+'_properties.npy')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_properties.npy')
         np.save(path_npy,self.dict_properties)
         
     def create_npy(self,path,**kwargs):
@@ -866,25 +945,27 @@ if __name__ == '__main__':
     plt.close('all')
     properties=[]
     for wlum in [1.0]:
-        sim = simulation_MC('test1', 10_000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
-        sim.Load_File()
-        sim.shoot_rays()
-        sim.Close_Zemax()
+        sim = simulation_MC('test3_mc', 10_000, 66E-6, 287E-6, 0.89, wlum, [1,0,0,0], diffuse_light=False)
+        # sim.Initialize_Zemax()
+        # sim.Load_File()
+        # sim.shoot_rays()
+        # sim.Close_Zemax()
         sim.Load_parquetfile()
-        sim.AOP()
-        sim.calculate_musp()
-        sim.calculate_ke_theo()
-        sim.calculate_MOPL()
-        sim.calculate_alpha()
-        sim.calculate_mua()
-        sim.calculate_ke_rt()
+        # sim.AOP()
+        # sim.calculate_musp()
+        # sim.calculate_ke_theo()
+        # sim.calculate_MOPL()
+        # sim.calculate_alpha()
+        # sim.calculate_mua()
+        # sim.calculate_ke_rt()
         # sim.plot_time_reflectance()
-        sim.map_stokes_reflectance()
-        sim.map_DOP_reflectance()
-        sim.plot_DOP_radius_reflectance()
-        sim.plot_irradiances()
-        sim.plot_MOPL_radius_reflectance()
+        # sim.plot_DOP_transmitance()
+        # sim.map_stokes_reflectance()
+        # sim.map_DOP_reflectance()
+        # sim.plot_DOP_radius_reflectance()
+        # sim.plot_irradiances()
+        # sim.plot_MOPL_radius_reflectance()
         sim.plot_lair_radius_reflectance()
-        sim.properties()
-        sim.export_properties()
-        del sim
+        # sim.properties()
+        # sim.export_properties()
+        # del sim
