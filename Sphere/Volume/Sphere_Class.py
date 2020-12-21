@@ -260,7 +260,7 @@ class Sphere_Simulation:
         self.TheSystem.SystemData.NonSequentialData.MaximumSegmentsPerRay = self.max_segments
         self.TheSystem.SystemData.NonSequentialData.MaximumNestedTouchingObjects = 8
         self.TheSystem.SystemData.NonSequentialData.SimpleRaySplitting = True
-        self.TheSystem.SystemData.NonSequentialData.MaximumSourceFileRaysInMemory = 10000000
+        self.TheSystem.SystemData.NonSequentialData.MaximumSourceFileRaysInMemory = 1000000
         self.TheSystem.SystemData.NonSequentialData.GlueDistanceInLensUnits = 1.0000E-10
         self.TheSystem.SaveAs(self.fileZMX)
         print('Fichier Créer')

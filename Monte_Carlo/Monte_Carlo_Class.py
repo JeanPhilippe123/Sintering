@@ -169,7 +169,6 @@ class simulation_MC:
         Rectangular_obj_physdata = Rectangular_obj.VolumePhysicsData
         Rectangular_obj_physdata.Model = self.ZOSAPI_NCE.VolumePhysicsModelType.DLLDefinedScattering
         self.calculate_mua()
-        print(Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.GetParameterName(2))
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.MeanPath = 1/(self.mus_theo+self.mua_theo)
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.g = self.g_theo
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(0,1-self.mua_theo/(self.mus_theo+self.mua_theo))

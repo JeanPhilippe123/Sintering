@@ -6,6 +6,8 @@
 *.pyc
 *.parquet
 *.dirlock
+*.zmx
+*.ZDA
 *.lock
 *.xml
 *.ZRD
