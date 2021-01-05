@@ -18,6 +18,9 @@ pathRaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries\Raytrace.DLL'
 sys.path.insert(1,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
 import PythonNET_ZRDLoaderFull as init_Zemax
 import Sphere_Raytrace
+pathRaytraceDLL = 'Z:\Sintering\Glass Catalog'
+sys.path.insert(2,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
+import Glass_Catalog
 import matplotlib
 import math
 import random
@@ -39,7 +42,7 @@ class Sphere_Simulation:
     
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
     
-    def __init__(self,name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol=False,diffuse_light=False):
+    def __init__(self,name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol=False,source_radius=None,diffuse_light=False,sphere_material='MY_ICE.ZTG'):
         self.inputs = [name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol,diffuse_light]
         '''
         \r name = Nom donné à la simulation \r
@@ -52,8 +55,15 @@ class Sphere_Simulation:
         '''
         self.name = name
         self.radius = np.array(radius)
-        self.source_radius = self.radius*10
+        
+        #Same radius as in laboratory
+        if source_radius==None:        
+            self.source_radius = 10*self.radius
+        else:
+            self.source_radius = source_radius
+        
         self.numrays = numrays
+        self.sphere_material = sphere_material
         self.DeltaX = Delta
         self.DeltaY = self.DeltaX
         self.DeltaZ = self.DeltaY
@@ -66,7 +76,11 @@ class Sphere_Simulation:
         self.Depth = self.calculate_depth_guess()
         self.XY_half_width = self.Depth
         self.diffuse_light = diffuse_light
-        self.ice_index,self.ice_complex = tartes.refice2016(self.wlum*1E-6)
+        
+        mat = Glass_Catalog.Material(sphere_material)
+        self.index_real,self.index_imag = mat.get_refractive_index(self.wlum)
+        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
+        
         self.pathDatas = os.path.join(self.path,'Simulations',self.name)
         self.path_plot = os.path.join(self.pathDatas,'Results_plots')
         if self.diffuse_light == True:
@@ -116,7 +130,7 @@ class Sphere_Simulation:
 
         #Create directory for storing simulations datas
         self.create_directory()
-        
+    
     def add_properties_to_dict(self,key,value):
         if not hasattr(self,'dict_properties'):
             self.dict_properties = {key:value}
@@ -140,7 +154,7 @@ class Sphere_Simulation:
                 self.TheNCE.RemoveObjectAt(i)
 
     def find_ice_object(self):
-        ice_obj = np.where(self.array_objects() == np.array(['MY_ICE.ZTG']))[0] + 1
+        ice_obj = np.where(self.array_objects() == np.array([self.sphere_material]))[0] + 1
         return ice_obj
 
     def find_source_object(self):
@@ -219,7 +233,11 @@ class Sphere_Simulation:
             return intensity
         
         def ke_raytracing(depths_fit,intensity):
-            [a,b],pcov=scipy.optimize.curve_fit(lambda x,a,b: a*x+b, depths_fit, np.log(intensity))
+            log_intensity = np.log(intensity)
+            #Check for nan
+            filt_nan = (log_intensity == log_intensity)
+            
+            [a,b],pcov=scipy.optimize.curve_fit(lambda x,a,b: a*x+b, depths_fit[filt_nan], log_intensity[filt_nan])
             I_rt_fit=a*depths_fit+b
             return depths_fit, I_rt_fit, -a
                 
@@ -369,7 +387,7 @@ class Sphere_Simulation:
         Object = self.TheNCE.GetObjectAt(1)
         Type = Object.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.Sphere)
         Object.ChangeType(Type)
-        Object.Material = 'MY_ICE.ZTG'
+        Object.Material = self.sphere_material
         Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).DoubleValue = self.radius
         Object.XPosition = sphere_XPosition
         Object.YPosition = 0
@@ -644,7 +662,7 @@ class Sphere_Simulation:
         positions = np.transpose(np.concatenate((pos,pos_xy,pos_xz,pos_yz),axis=1)).reshape(4*self.NumArrayY*self.NumArrayX*self.NumArrayZ,3)
         return positions
     
-    def create_snow(self):
+    def create_medium(self):
         self.create_model_sphere()
         self.update_metadata()
         self.Array_positions, self.NumObjectPerArray,self.DeltaArray = self.get_arrays_info()
@@ -754,7 +772,7 @@ class Sphere_Simulation:
         #Rechange les grains d'air en neige
         for i in Sphere_ice_obj:
             Object = self.TheNCE.GetObjectAt(i)
-            Object.Material = 'MY_ICE.ZTG'
+            Object.Material = self.sphere_material
         
         self.TheSystem.SaveAs(self.fileZMX)
     
@@ -837,7 +855,6 @@ class Sphere_Simulation:
         filt_ice = ((self.df['segmentLevel'] != 0) & (self.df['segmentLevel'].diff(-1) == -1))
         
         #Calculate new intensity
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         I_0 = 1./self.numrays
      
         #Create a ponderation for segment in material with optical density (absorbing media)
@@ -961,7 +978,7 @@ class Sphere_Simulation:
         df_top = self.df[filt_top_detector]
         df_filt = self.df.loc[df_top.index]
         
-        df_filt['OPL'] = df_filt['pathLength']*self.ice_index
+        df_filt['OPL'] = df_filt['pathLength']*self.index_real
         df_OPL = df_filt.groupby(df_filt.index).agg({'OPL':sum, 'intensity':'last'})
         self.MOPL_rt = np.average(df_OPL['OPL'],weights=df_OPL['intensity'])
         
@@ -969,7 +986,7 @@ class Sphere_Simulation:
         filt_ice_rt, filt_air_rt, filt_inter_ice_rt = self.filter_ice_air(self.df)
         df_filt = self.df[filt_air_rt].groupby(self.df[filt_air_rt].index).agg({'pathLength':sum,'intensity':'last'})
         l_air_mean = np.average(df_filt['pathLength'],weights=df_filt['intensity'])
-        self.MOPL_stereo = (self.ice_index*l_air_mean)/self.optical_porosity_stereo-(self.ice_index-1)*l_air_mean
+        self.MOPL_stereo = (self.index_real*l_air_mean)/self.optical_porosity_stereo-(self.index_real-1)*l_air_mean
 
         self.add_properties_to_dict('MOPL_rt',self.MOPL_rt)
         self.add_properties_to_dict('MOPL_stereo',self.MOPL_stereo)
@@ -1068,7 +1085,6 @@ class Sphere_Simulation:
 
         #ke stéréologique
         #Imaginay part of the indice of refraction
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.ke_stereo = self.density_stereo*np.sqrt(3*self.B_stereo*self.gamma/(4*self.pice)*self.SSA_theo*(1-self.gG_theo))
         
         #ke théorique
@@ -1103,7 +1119,6 @@ class Sphere_Simulation:
         self.alpha_tartes = float(tartes.albedo(self.wlum*1E-6,self.SSA_stereo,self.density_theo,g0=self.g_theo,B0=self.B_stereo,dir_frac=self.tartes_dir_frac))
         
         #alpha stéréologique
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.alpha_stereo = np.exp(-4*np.sqrt(2*self.B_stereo*self.gamma/(3*self.pice*self.SSA_stereo*(1-self.g_theo))))
 
         #alpha théorique
@@ -1123,7 +1138,6 @@ class Sphere_Simulation:
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
         #Calculate mua theorique
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
         self.mua_stereo = self.B_stereo*self.gamma*(1-self.physical_porosity_stereo)
         
         #Calculate mua with raytracing
@@ -1640,26 +1654,27 @@ plt.close('all')
 # simulation(name, radius, delta, numrays, numrays_stereo, wlum, pol)
 properties=[]
 if __name__ == '__main__':
-    for wlum in [0.8]:
+    for wlum in [0.76]:
         # sim = simulation('test1', [65E-6], 287E-6, 1000, 100, wlum, [1,1,0,0], diffuse_light=False)
         # sim = Sphere_Simulation('test3_sphere', 66E-6, 287E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
-        sim = Sphere_Simulation('test3_sphere', 88E-6, 347.7E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
+        # sim = Sphere_Simulation('test3_sphere', 88E-6, 347.7E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
+        sim = Sphere_Simulation('test3_sphere_B270', 150E-6, 425E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False, sphere_material='B270')
         # sim.Load_File()
         # sim.create_ZMX()
         # sim.create_source()
         # sim.create_detectors()
-        # sim.create_snow()
+        # sim.create_medium()
         # sim.shoot_rays_stereo()
         # sim.shoot_rays()
         # sim.Close_Zemax()
-        sim.Load_parquetfile()
+        # sim.Load_parquetfile()
         # sim.AOP()
         # sim.calculate_g_theo()
         # sim.calculate_g_rt()
         # sim.calculate_B()
         # sim.calculate_SSA()
         # sim.calculate_density()
-        sim.calculate_mus()
+        # sim.calculate_mus()
         # sim.calculate_mua()
         # sim.calculate_musp()
         # sim.calculate_MOPL()
@@ -1673,7 +1688,7 @@ if __name__ == '__main__':
         # sim.map_DOP_reflectance()
         # sim.plot_DOP_transmitance()
         # sim.plot_irradiances()
-        sim.plot_MOPL_radius_reflectance()
-        sim.plot_lair_radius_reflectance()
-        sim.properties()
-        sim.export_properties()
+        # sim.plot_MOPL_radius_reflectance()
+        # sim.plot_lair_radius_reflectance()
+        # sim.properties()
+        # sim.export_properties()

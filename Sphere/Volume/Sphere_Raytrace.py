@@ -71,6 +71,7 @@ def retrieve_data(self,ZRDReader,path_parquet):
             Indice = self.zosapi.DoubleToNumpy(ZRDData.index)[:readSegments]
             data = da.stack([RayNumber,Level,HitObject,InsideOf,X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,Indice])
             df_i = dd.from_dask_array(data.transpose(),columns=headers).set_index('numray',sorted=True).repartition(npartitions=12)
+            
             print(i)
             if i==0:
                 df_i.to_parquet(path_parquet)
@@ -125,7 +126,8 @@ def Shoot(self,Filter,numrays,path_parquet,nameZRD):
     
     #Retrieve Datas from simulation into a dataframe
     retrieve_data(self,ZRDReader,path_parquet)
-
+    # Remove_MSP_errors(self)
+    
     ZRDReader.Close()
 
     start_write = time.time()
@@ -135,7 +137,23 @@ def Shoot(self,Filter,numrays,path_parquet,nameZRD):
     
     return path_parquet
 
-def Load_parquet(path_parquet,name=''):
+def Remove_MSP_errors(self):
+    print('Removing MSP errors')
+    start_MSP = time.time()
+    
+    df = Load_parquet(self.path_parquet,print_statement=False)
+    index_error = df.query('(intensity.diff()>0.)&(segmentLevel != 0)').index.drop_duplicates()
+    if list(index_error) == 0:
+        print('No MSP errors')
+    else:
+        df = df.loc[list(df.index.drop_duplicates().compute().difference(index_error))]
+        df.to_parquet(self.path_parquet)
+    
+    end_MSP = time.time()
+    print('Time took for removing MSP errors:',round(end_MSP-start_MSP,2))
+    return df
+    
+def Load_parquet(path_parquet,name='',print_statement=True):
     #Load_hdf and transform it into a dataframe with low memory usage
     start_load = time.time()
     
@@ -144,5 +162,6 @@ def Load_parquet(path_parquet,name=''):
     
     end_load = time.time()
     
-    print("Time took for loading {} parquet file : ".format(name), round(end_load-start_load,2))
+    if print_statement == True:
+        print("Time took for loading {} parquet file : ".format(name), round(end_load-start_load,2))
     return df

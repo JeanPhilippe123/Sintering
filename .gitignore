@@ -12,6 +12,7 @@
 *.xml
 *.ZRD
 *.png 
+*.html
 
 #Spyder project
 .spyproject/

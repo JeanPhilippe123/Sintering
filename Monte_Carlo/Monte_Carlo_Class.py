@@ -18,9 +18,14 @@ from dask.diagnostics import Profiler, ResourceProfiler, CacheProfiler
 path_Sphere_Raytrace = 'Z:\Sintering\Sphere\Volume'
 sys.path.insert(3,path_Sphere_Raytrace)
 import Sphere_Raytrace
+
 path_RaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries'
 sys.path.insert(2,path_RaytraceDLL)
 import PythonNET_ZRDLoader as init_Zemax
+
+pathRaytraceDLL = 'Z:\Sintering\Glass Catalog'
+sys.path.insert(1,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
+import Glass_Catalog
 
 def profiler(func):
     def wrapper(*args,**kwargs):
@@ -34,21 +39,33 @@ class simulation_MC:
     max_segments = 4000
     pice = 917
     
-    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False):
+    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False,source_radius=None,sphere_material='MY_ICE.ZTG'):
         self.inputs = [name,numrays,radius,Delta,g,wlum,pol,Random_pol,diffuse_light]
         self.name = name
         self.numrays = numrays
         self.wlum = wlum
         self.radius = radius
-        self.radius_source = self.radius*10        
+        
+        #Same radius as in laboratory
+        if source_radius==None:        
+            self.source_radius = 10*self.radius
+        else:
+            self.source_radius = source_radius 
+            
         self.Delta = Delta
         self.calculate_density()
         self.calculate_SSA()
         self.calculate_mus()
         self.B_theo = 1.2521
-        self.physical_porosity_theo = 0.80536
+        self.calculate_porosity()
+
+        mat = Glass_Catalog.Material(sphere_material)
+        self.index_real,self.index_imag = mat.get_refractive_index(self.wlum)
+        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
+
         self.ice_index,self.ice_complex = tartes.refice2016(self.wlum*1E-6)
         self.calculate_mua()
+        self.calculate_neff()
         self.g_theo = g
         self.gG_theo = self.g_theo*2-1
         self.jx,self.jy,self.phase_x,self.phase_y = np.array(pol)
@@ -56,7 +73,6 @@ class simulation_MC:
         self.path_plot = os.path.join(self.pathDatas,'Results_plots')
         self.Random_pol=Random_pol
         self.diffuse_light = diffuse_light
-        self.neff_theo = 1.06
         if self.diffuse_light == True:
             self.tartes_dir_frac = 0
             self.diffuse_str = 'diffuse'
@@ -72,7 +88,7 @@ class simulation_MC:
         self.path_metadata = os.path.join(self.pathDatas,'_'.join([self.properties_string,'metadata'])+ ".npy")
         self.path_ZRD = os.path.join(self.pathDatas,self.name_ZRD)
         path_ZMX = os.path.dirname(os.path.dirname(self.pathDatas))
-        self.fileZMX = os.path.join(path_ZMX, 'test_MC.zmx')
+        self.fileZMX = os.path.join(path_ZMX, 'test_MC_msp.zmx')
         
         self.add_properties_to_dict('radius',self.radius)
         self.add_properties_to_dict('Delta',self.Delta)
@@ -155,8 +171,8 @@ class simulation_MC:
         Source_obj = self.find_source_object()[0]
         Source = self.TheNCE.GetObjectAt(Source_obj)
         
-        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.radius_source #X Half width
-        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.radius_source #Y Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.source_radius #X Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.source_radius #Y Half width
         
         Source.SourcesData.RandomPolarization = self.Random_pol
         Source.SourcesData.Jx = self.jx
@@ -164,14 +180,28 @@ class simulation_MC:
         Source.SourcesData.XPhase = self.phase_x
         Source.SourcesData.YPhase = self.phase_y
 
-        #Change radius of source to correspond with the zemax
         Rectangular_obj = self.TheNCE.GetObjectAt(1)
         Rectangular_obj_physdata = Rectangular_obj.VolumePhysicsData
         Rectangular_obj_physdata.Model = self.ZOSAPI_NCE.VolumePhysicsModelType.DLLDefinedScattering
         self.calculate_mua()
+        
+        #Change MSP
+        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4p1.dll'
+        #MeanPath
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.MeanPath = 1/(self.mus_theo+self.mua_theo)
-        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.g = self.g_theo
+        #Transmission
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(0,1-self.mua_theo/(self.mus_theo+self.mua_theo))
+        #Radius (um)
+        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(1,self.radius*1E6)
+        #ice index
+        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(2,self.ice_index)
+
+        # #For normal Monte-Carlo
+        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.MeanPath = 1/(self.mus_theo+self.mua_theo)
+        # #Transmission
+        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(0,1-self.mua_theo/(self.mus_theo+self.mua_theo))
+        # #g
+        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(1,self.g_theo)
         
         self.TheSystem.SaveAs(self.fileZMX)
         end = time.time()
@@ -222,14 +252,16 @@ class simulation_MC:
             self.df = Sphere_Raytrace.Load_parquet(self.path_parquet)
         else:
             print('The raytrace parquet file was not loaded, Please run raytrace')
-    
+        
     def AOP(self):
         df = self.df.groupby(self.df.index).agg({'hitObj':'last','segmentLevel':'last','intensity':'last'}).compute()
+        
         #Reflectance
         filt_top_detector = df['hitObj'] == self.find_detector_object()[0]
         df_top = df[filt_top_detector]
         self.Reflectance = np.sum(df_top['intensity'])
         self.numrays_Reflectance = df_top.shape[0]
+        
         #Transmitance
         filt_down_detector = df['hitObj'] == self.find_detector_object()[1]
         df_down = df[filt_down_detector]
@@ -240,11 +272,13 @@ class simulation_MC:
         df_error = df[filt_error]
         self.Error = np.sum(df_error['intensity'])
         self.numrays_Error = df_error.shape[0]
+        
         #Lost
         filt_Lost = (~filt_top_detector)&(~filt_down_detector)&(~filt_error)
         df_Lost = df[filt_Lost]
         self.Lost = np.sum(df_Lost['intensity'])
         self.numrays_Lost = df_Lost.shape[0]
+        
         #Absorb (considering total intensity is 1)
         self.Absorb = np.abs(1-self.Reflectance-self.Transmitance-self.Error-self.Lost)
         self.numrays_Absorb = self.numrays-self.numrays_Reflectance-self.numrays_Transmitance-self.numrays_Error-self.numrays_Lost
@@ -292,6 +326,11 @@ class simulation_MC:
         self.optical_porosity_theo = porosity/(porosity+self.B_theo*(1-porosity))
         self.add_properties_to_dict('physical_porosity_theo',self.physical_porosity_theo)
         self.add_properties_to_dict('optical_porosity_theo',self.optical_porosity_theo)
+
+    def calculate_neff(self):
+        porosity = self.physical_porosity_theo
+        self.neff_theo = (porosity + self.ice_index*self.B_theo*(1-porosity))/(porosity + self.B_theo*(1-porosity))
+        pass        
         
     def calculate_mua(self):
         #Calculate mua theorique
@@ -700,10 +739,10 @@ class simulation_MC:
         #Add rectangle
         max_y_Iplot = ax[0,0].get_ylim()[1]
         alpha=0.2
-        ax[0,0].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=max_y_Iplot,alpha=alpha))
-        ax[0,1].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=1.,alpha=alpha))
-        ax[1,0].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=1.,alpha=alpha))
-        ax[1,1].add_patch(plt.Rectangle((0,0),width=self.radius_source,height=1.,alpha=alpha))
+        ax[0,0].add_patch(plt.Rectangle((0,0),width=self.source_radius,height=max_y_Iplot,alpha=alpha))
+        ax[0,1].add_patch(plt.Rectangle((0,0),width=self.source_radius,height=1.,alpha=alpha))
+        ax[1,0].add_patch(plt.Rectangle((0,0),width=self.source_radius,height=1.,alpha=alpha))
+        ax[1,1].add_patch(plt.Rectangle((0,0),width=self.source_radius,height=1.,alpha=alpha))
         
         #Set limits
         # ax[0,0].set_ylim(0,1.0)
@@ -944,27 +983,26 @@ if __name__ == '__main__':
     plt.close('all')
     properties=[]
     for wlum in [1.0]:
-        sim = simulation_MC('test3_mc', 10_000, 66E-6, 287E-6, 0.89, wlum, [1,0,0,0], diffuse_light=False)
-        # sim.Initialize_Zemax()
-        # sim.Load_File()
-        # sim.shoot_rays()
-        # sim.Close_Zemax()
+        sim = simulation_MC('test3_mc_B270', 1000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False, sphere_material='B270')
+        sim.Load_File()
+        sim.shoot_rays()
+        sim.Close_Zemax()
         sim.Load_parquetfile()
-        # sim.AOP()
-        # sim.calculate_musp()
-        # sim.calculate_ke_theo()
-        # sim.calculate_MOPL()
-        # sim.calculate_alpha()
-        # sim.calculate_mua()
-        # sim.calculate_ke_rt()
-        # sim.plot_time_reflectance()
-        # sim.plot_DOP_transmitance()
-        # sim.map_stokes_reflectance()
-        # sim.map_DOP_reflectance()
-        # sim.plot_DOP_radius_reflectance()
-        # sim.plot_irradiances()
-        # sim.plot_MOPL_radius_reflectance()
+        sim.AOP()
+        sim.calculate_musp()
+        sim.calculate_ke_theo()
+        sim.calculate_MOPL()
+        sim.calculate_alpha()
+        sim.calculate_mua()
+        sim.calculate_ke_rt()
+        sim.plot_time_reflectance()
+        sim.plot_DOP_transmitance()
+        sim.map_stokes_reflectance()
+        sim.map_DOP_reflectance()
+        sim.plot_DOP_radius_reflectance()
+        sim.plot_irradiances()
+        sim.plot_MOPL_radius_reflectance()
         sim.plot_lair_radius_reflectance()
-        # sim.properties()
-        # sim.export_properties()
+        sim.properties()
+        sim.export_properties()
         # del sim

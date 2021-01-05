@@ -17,18 +17,18 @@ if __name__ == '__main__':
     # radius=[88E-6,176E-6,88E-6,88E-6]
     # deltas=[382.66E-6,765.33E-6,347.7E-6,482.1E-6]
     shapes = zip(radius,deltas)
-    # wlums=[1.0,0.8,0.9]
+    # wlums=[1.0]
     wlums=[0.8,0.9]
-    pol_vector = [[1,0,0,0]]
+    # pol_vector = [[1,0,0,0]]
     # pol_vector = [[1,1,0,90]]
-    # pol_vector = [[1,1,0,90],[1,0,0,0]]
+    pol_vector = [[1,1,0,90],[1,0,0,0]]
     properties_predict=[]
     
     #Simulating for choseen parameters
     for shape in shapes:
         for wlum in wlums:
             for pol in pol_vector:
-                sim = MC.simulation_MC('test3_mc', 100_000, shape[0], shape[1], 0.89, wlum, pol, diffuse_light=False)
+                sim = MC.simulation_MC('test3_mc_msp', 100_000, shape[0], shape[1], 0.89, wlum, pol, diffuse_light=False)
                 print(sim.inputs)
                 sim.create_directory()
                 # sim.Load_File()
