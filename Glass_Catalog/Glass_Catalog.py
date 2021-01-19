@@ -11,7 +11,7 @@ import numpy as np
 import scipy.interpolate
 
 class Material:
-    def __init__(self,Material,folder='Z:\Sintering\Glass Catalog'):
+    def __init__(self,Material,folder='Z:\Sintering\Glass_Catalog'):
         self.datafile = open(os.path.join(folder,str(Material)+'.txt'), 'r')
         
     def parse_file(self):

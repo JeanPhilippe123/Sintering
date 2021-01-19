@@ -43,7 +43,7 @@ def retrieve_data(self,ZRDReader,path_parquet):
     i=0
     
     headers = np.array(["numray","segmentLevel", "hitObj", "insideOf",
-    "x", "y", "z", "L", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength", "Indice"])
+    "x", "y", "z", "L", "N", "M", "exr", "exi", "eyr", "eyi", "ezr", "ezi", "intensity", "pathLength", "Indice"])
     while isFinished == False and ZRDData is not None:
         readSegments = dataReader.ReadNextBlock(ZRDData);
         if readSegments == 0:
@@ -60,6 +60,8 @@ def retrieve_data(self,ZRDReader,path_parquet):
             Y = self.zosapi.DoubleToNumpy(ZRDData.Y)[:readSegments]
             Z =  self.zosapi.DoubleToNumpy(ZRDData.Z)[:readSegments]
             L =  self.zosapi.DoubleToNumpy(ZRDData.L)[:readSegments]
+            N =  self.zosapi.DoubleToNumpy(ZRDData.N)[:readSegments]
+            M =  self.zosapi.DoubleToNumpy(ZRDData.M)[:readSegments]
             Exr = self.zosapi.DoubleToNumpy(ZRDData.Exr)[:readSegments]
             Exi = self.zosapi.DoubleToNumpy(ZRDData.Exi)[:readSegments]
             Eyr = self.zosapi.DoubleToNumpy(ZRDData.Eyr)[:readSegments]
@@ -69,7 +71,7 @@ def retrieve_data(self,ZRDReader,path_parquet):
             Intensity = self.zosapi.DoubleToNumpy(ZRDData.Intensity)[:readSegments]
             PathLen = self.zosapi.DoubleToNumpy(ZRDData.PathLen)[:readSegments]
             Indice = self.zosapi.DoubleToNumpy(ZRDData.index)[:readSegments]
-            data = da.stack([RayNumber,Level,HitObject,InsideOf,X,Y,Z,L,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,Indice])
+            data = da.stack([RayNumber,Level,HitObject,InsideOf,X,Y,Z,L,N,M,Exr,Exi,Eyr,Eyi,Ezr,Ezi,Intensity,PathLen,Indice])
             df_i = dd.from_dask_array(data.transpose(),columns=headers).set_index('numray',sorted=True).repartition(npartitions=12)
             
             print(i)
@@ -128,7 +130,10 @@ def Shoot(self,Filter,numrays,path_parquet,nameZRD):
     retrieve_data(self,ZRDReader,path_parquet)
     # Remove_MSP_errors(self)
     
-    ZRDReader.Close()
+    try:
+        ZRDReader.Close()
+    except :
+        pass
 
     start_write = time.time()
     

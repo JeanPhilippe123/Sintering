@@ -37,14 +37,14 @@ def profiler(func):
 class simulation_MC:
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
     max_segments = 4000
-    pice = 917
     
-    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False,source_radius=None,sphere_material='MY_ICE.ZTG'):
+    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False,source_radius=None,sphere_material='MY_ICE.ZTG',p_material=917):
         self.inputs = [name,numrays,radius,Delta,g,wlum,pol,Random_pol,diffuse_light]
         self.name = name
         self.numrays = numrays
         self.wlum = wlum
         self.radius = radius
+        self.p_material = p_material
         
         #Same radius as in laboratory
         if source_radius==None:        
@@ -63,7 +63,7 @@ class simulation_MC:
         self.index_real,self.index_imag = mat.get_refractive_index(self.wlum)
         self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
 
-        self.ice_index,self.ice_complex = tartes.refice2016(self.wlum*1E-6)
+        # self.index_real,self.index_imag = tartes.refice2016(self.wlum*1E-6)
         self.calculate_mua()
         self.calculate_neff()
         self.g_theo = g
@@ -99,6 +99,12 @@ class simulation_MC:
         self.add_properties_to_dict('numrays',self.numrays)
         self.add_properties_to_dict('wlum',self.wlum)
         self.add_properties_to_dict('Random_pol',self.Random_pol)
+        
+        #Printing starting time
+        t = time.localtime()
+        self.date = str(t.tm_year)+"/"+str(t.tm_mon)+"/"+str(t.tm_mday)
+        self.ctime = str(t.tm_hour)+":"+str(t.tm_min)+":"+str(t.tm_sec)
+        print('Date : ',self.date,', Time : ',self.ctime)
         
         self.create_directory()
         
@@ -185,22 +191,21 @@ class simulation_MC:
         Rectangular_obj_physdata.Model = self.ZOSAPI_NCE.VolumePhysicsModelType.DLLDefinedScattering
         self.calculate_mua()
         
+        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'Henyey-Greenstein-bulk.dll'
         #Change MSP
-        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4p1.dll'
+        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4p2.dll'
+        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4.dll'
+        
         #MeanPath
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.MeanPath = 1/(self.mus_theo+self.mua_theo)
         #Transmission
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(0,1-self.mua_theo/(self.mus_theo+self.mua_theo))
-        #Radius (um)
+        # #Radius (um)
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(1,self.radius*1E6)
-        #ice index
-        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(2,self.ice_index)
-
-        # #For normal Monte-Carlo
-        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.MeanPath = 1/(self.mus_theo+self.mua_theo)
-        # #Transmission
-        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(0,1-self.mua_theo/(self.mus_theo+self.mua_theo))
-        # #g
+        # #ice index
+        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(2,self.index_real)
+        
+        # g
         # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(1,self.g_theo)
         
         self.TheSystem.SaveAs(self.fileZMX)
@@ -219,7 +224,6 @@ class simulation_MC:
             cosine = 100.
         cosine
         Source_object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = cosine
-            
         print('Raytrace')
         
         #Change path parquet to the real wavelength used during the raytrace
@@ -267,6 +271,7 @@ class simulation_MC:
         df_down = df[filt_down_detector]
         self.Transmitance = np.sum(df_down['intensity'])
         self.numrays_Transmitance = df_down.shape[0]
+        
         #Error (max_segments)
         filt_error = df['segmentLevel'] == self.max_segments-1
         df_error = df[filt_error]
@@ -301,7 +306,7 @@ class simulation_MC:
         filt_ice = ((self.df['segmentLevel'] != 0) & (self.df['segmentLevel'].diff(-1) == -1))
         
         #Calculate new intensity
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
         I_0 = 1./self.numrays
      
         #Create a ponderation for segment in material with optical density (absorbing media)
@@ -319,7 +324,7 @@ class simulation_MC:
         #====================Porosité physique théorique====================
         if not hasattr(self, 'density_theo'): self.calculate_density()
             
-        porosity = 1-self.density_theo/self.pice
+        porosity = 1-self.density_theo/self.p_material
         self.physical_porosity_theo = porosity
         
         #====================Porosité optique théorique====================
@@ -329,12 +334,12 @@ class simulation_MC:
 
     def calculate_neff(self):
         porosity = self.physical_porosity_theo
-        self.neff_theo = (porosity + self.ice_index*self.B_theo*(1-porosity))/(porosity + self.B_theo*(1-porosity))
+        self.neff_theo = (porosity + self.index_real*self.B_theo*(1-porosity))/(porosity + self.B_theo*(1-porosity))
         pass        
         
     def calculate_mua(self):
         #Calculate mua theorique
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
         self.mua_theo = self.B_theo*self.gamma*(1-self.physical_porosity_theo)
         #Calculate mua with Tartes
         if hasattr(self,'ke_tartes') == False: return
@@ -384,7 +389,7 @@ class simulation_MC:
         
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
-        depths = np.linspace(2/self.musp_theo,10/self.musp_theo,10)
+        depths = np.linspace(2/self.musp_theo,25/self.musp_theo,10)
         Irradiance_rt = self.df.map_partitions(self.Irradiance,depths,meta=list)
         Irradiance_rt = Irradiance_rt.compute().sum(axis=0)
         self.ke_rt, self.b_rt = self.ke_raytracing(depths,Irradiance_rt)
@@ -403,13 +408,14 @@ class simulation_MC:
         #ke TARTES
         down_irr_profile, up_irr_profile = tartes.irradiance_profiles(
             self.wlum*1E-6,depths_fit,self.SSA_theo,self.density_theo,g0=self.g_theo,B0=self.B_theo,dir_frac=self.tartes_dir_frac,totflux=0.75)
+        
         # plt.plot(depths_fit,np.exp(-self.ke_rt*depths_fit + b),label='fit raytracing')
         self.ke_tartes, self.b_tartes = self.ke_raytracing(depths_fit, down_irr_profile+up_irr_profile)
 
         #ke théorique
         #Imaginay part of the indice of refraction
-        self.gamma = 4*np.pi*self.ice_complex/(self.wlum*1E-6)
-        self.ke_theo = self.density_theo*np.sqrt(3*self.B_theo*self.gamma/(4*self.pice)*self.SSA_theo*(1-self.gG_theo))
+        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
+        self.ke_theo = self.density_theo*np.sqrt(3*self.B_theo*self.gamma/(4*self.p_material)*self.SSA_theo*(1-self.gG_theo))
         self.add_properties_to_dict('ke_tartes',self.ke_tartes)
         self.add_properties_to_dict('b_tartes',self.b_tartes)
         self.add_properties_to_dict('ke_theo',self.ke_theo)
@@ -423,14 +429,14 @@ class simulation_MC:
             volsphere=4*np.pi*self.radius**3/3
             volcube=self.Delta**3
             DensityRatio = volsphere*4/volcube
-        self.density_theo = DensityRatio*self.pice
+        self.density_theo = DensityRatio*self.p_material
         self.add_properties_to_dict('density_theo',self.density_theo)
     
     def calculate_SSA(self):
         #====================SSA théorique====================
         vol_sphere = 4*np.pi*self.radius**3/3
         air_sphere = 4*np.pi*self.radius**2
-        self.SSA_theo = air_sphere/(vol_sphere*self.pice)
+        self.SSA_theo = air_sphere/(vol_sphere*self.p_material)
         self.add_properties_to_dict('SSA_theo',self.SSA_theo)
         
     def calculate_mus(self):
@@ -469,7 +475,7 @@ class simulation_MC:
         df_filt = self.df.loc[df_top.index]
         
         df_filt = df_filt[~((df_filt['segmentLevel']==1)|(df_filt['hitObj']==3))]
-        v_medium = scipy.constants.c/self.ice_index
+        v_medium = scipy.constants.c/self.index_real
         df_filt['time'] = df_filt['pathLength']/v_medium
         
         #Time for each ray
@@ -632,7 +638,7 @@ class simulation_MC:
         df_lair = df_filt.groupby(df_filt.index).agg({'OPL':sum,'intensity':'last','x':'last','y':'last'}).compute()
         
         #Calculate lair
-        df_lair['lair'] = df_lair['OPL']/(1+self.ice_index*(1-self.optical_porosity_theo)/self.optical_porosity_theo)
+        df_lair['lair'] = df_lair['OPL']/(1+self.index_real*(1-self.optical_porosity_theo)/self.optical_porosity_theo)
         
         #Calculate Radius for each ray
         df_lair['radius'] = np.sqrt((df_lair['x'])**2+(df_lair['y'])**2)
@@ -983,7 +989,8 @@ if __name__ == '__main__':
     plt.close('all')
     properties=[]
     for wlum in [1.0]:
-        sim = simulation_MC('test3_mc_B270', 1000, 66E-6, 287E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False, sphere_material='B270')
+        sim = simulation_MC('test4_mc', 10_000, 150E-6, 700E-6, 0.78, wlum, [1,1,0,90], diffuse_light=False)
+        # sim = simulation_MC('test4_mc', 10_000, 88E-6, 382.66E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
         sim.Load_File()
         sim.shoot_rays()
         sim.Close_Zemax()

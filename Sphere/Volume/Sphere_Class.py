@@ -42,7 +42,7 @@ class Sphere_Simulation:
     
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
     
-    def __init__(self,name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol=False,source_radius=None,diffuse_light=False,sphere_material='MY_ICE.ZTG'):
+    def __init__(self,name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol=False,source_radius=None,diffuse_light=False,sphere_material='MY_ICE.ZTG',p_material=917):
         self.inputs = [name,radius,Delta,numrays,numrays_stereo,wlum,pol,Random_pol,diffuse_light]
         '''
         \r name = Nom donné à la simulation \r
@@ -55,6 +55,7 @@ class Sphere_Simulation:
         '''
         self.name = name
         self.radius = np.array(radius)
+        self.p_material = p_material
         
         #Same radius as in laboratory
         if source_radius==None:        
@@ -79,7 +80,8 @@ class Sphere_Simulation:
         
         mat = Glass_Catalog.Material(sphere_material)
         self.index_real,self.index_imag = mat.get_refractive_index(self.wlum)
-        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
+        # self.index_real, self.index_imag = tartes.refice2016(self.wlum*1E-6)
+        # self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
         
         self.pathDatas = os.path.join(self.path,'Simulations',self.name)
         self.path_plot = os.path.join(self.pathDatas,'Results_plots')
@@ -248,7 +250,7 @@ class Sphere_Simulation:
         ke_guess = ke_guess
         
         #To imitate semi-infinite we must lost at max 0.1% on the z axis in transmitance
-        intensity_max = 0.0001
+        intensity_max = 0.001
         Init_intensity = 1
         depth_min = -np.log(intensity_max/Init_intensity)/ke_guess
         return depth_min
@@ -1038,16 +1040,20 @@ class Sphere_Simulation:
         
         #Calculate B stereological
         self.B_stereo = (l_Ice_p/l_Ice_stereo).compute()
-
+        
         #Calculate B raytracing
         if not hasattr(self, 'ke_theo'): self.calculate_ke_theo()
+        if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
         if not hasattr(self, 'alpha_rt'): self.calculate_alpha()
         if not hasattr(self, 'optical_porosity_stereo'): self.calculate_porosity()
-
+        
         self.B_theo = -self.ke_theo*np.log(self.alpha_theo)/(4*(1-self.physical_porosity_theo)*self.gamma)
-
+        
+        self.B_rt = -self.ke_rt*np.log(self.alpha_rt)/(4*(1-self.physical_porosity_stereo)*self.gamma)
+        
         self.add_properties_to_dict('B_stereo',self.B_stereo)
         self.add_properties_to_dict('B_theo',self.B_theo)
+        self.add_properties_to_dict('B_rt',self.B_rt)
         pass
 
     def ke_raytracing(self,depths_fit,intensity):
@@ -1062,7 +1068,7 @@ class Sphere_Simulation:
         
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
-        depths = np.linspace(2/self.musp_theo,10/self.musp_theo,10)
+        depths = np.linspace(2/self.musp_theo,50/self.musp_theo,10)
         Irradiance_rt = self.df.map_partitions(self.Irradiance,depths,meta=list)
         Irradiance_rt = Irradiance_rt.compute().sum(axis=0)
         self.ke_rt, self.b_rt = self.ke_raytracing(depths,Irradiance_rt)
@@ -1654,11 +1660,11 @@ plt.close('all')
 # simulation(name, radius, delta, numrays, numrays_stereo, wlum, pol)
 properties=[]
 if __name__ == '__main__':
-    for wlum in [0.76]:
+    for wlum in [1.0]:
         # sim = simulation('test1', [65E-6], 287E-6, 1000, 100, wlum, [1,1,0,0], diffuse_light=False)
-        # sim = Sphere_Simulation('test3_sphere', 66E-6, 287E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
+        sim = Sphere_Simulation('test3_sphere', 66E-6, 287E-6, 10_000, 1_000, wlum, [1,1,0,90], diffuse_light=True)
         # sim = Sphere_Simulation('test3_sphere', 88E-6, 347.7E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
-        sim = Sphere_Simulation('test3_sphere_B270', 150E-6, 425E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False, sphere_material='B270')
+        # sim = Sphere_Simulation('test3_sphere_B270', 150E-6, 425E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False, sphere_material='B270')
         # sim.Load_File()
         # sim.create_ZMX()
         # sim.create_source()
