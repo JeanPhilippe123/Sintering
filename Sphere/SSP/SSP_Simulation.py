@@ -15,6 +15,7 @@ pathRaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries\Raytrace.DLL'
 sys.path.insert(1,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
 import PythonNET_ZRDLoaderFull as init_Zemax
 import matplotlib
+import miepython
 
 pathRaytraceDLL = 'Z:\Sintering\Glass_Catalog'
 sys.path.insert(2,os.path.realpath(pathRaytraceDLL))
@@ -56,6 +57,8 @@ class simulation:
         
         mat = Glass_Catalog.Material(self.sphere_material)
         self.index_real,self.index_imag = mat.get_refractive_index(self.wlum)
+        self.index = complex(self.index_real,self.index_imag)
+        self.size_parameter = 2*np.pi*self.radius/(self.wlum*1E-6)
         # self.index_real, self.index_imag = tartes.refice2016(self.wlum*1E-6)
         # self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
         
@@ -91,7 +94,7 @@ class simulation:
         print('Date : ',self.date,', Time : ',self.ctime)
    
     def find_source_object(self):
-        Source_obj = np.where(self.array_objects() == np.array(['Source Ellipse']))[0] + 1
+        Source_obj = np.where(self.array_objects() == np.array(['Source DLL']))[0] + 1
         return Source_obj
     
     def find_detector_object(self):
@@ -160,6 +163,7 @@ class simulation:
         self.TheSystem.MakeNonSequential()
         self.TheSystem.SystemData.Units.LensUnits = self.ZOSAPI.SystemData.ZemaxSystemUnits.Meters
         self.TheSystem.SystemData.Wavelengths.GetWavelength(1).Wavelength = self.wlum
+        self.TheSystem.SystemData.Polarization.Method = self.ZOSAPI.SystemData.PolarizationMethod.ZAxisMethod
         self.TheSystem.SystemData.NonSequentialData.MaximumIntersectionsPerRay = 4000
         self.TheSystem.SystemData.NonSequentialData.MaximumSegmentsPerRay = 4000
         self.TheSystem.SystemData.NonSequentialData.MaximumNestedTouchingObjects = 8
@@ -205,13 +209,13 @@ class simulation:
         
         Source_source = self.TheNCE.GetObjectAt(1)
         
-        Type_Source_source = Source_source.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.SourceEllipse)
-        Source_source.ChangeType(Type_Source_source)
-        # Type_Source_source = Source_source.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.SourceDLL)
+        # Type_Source_source = Source_source.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.SourceEllipse)
         # Source_source.ChangeType(Type_Source_source)
-        # Source_source.Comment = 'intern_sphere.dll'
-        Source_source.XPosition = self.Source_radius/2
-        Source_source.ZPosition = -self.Source_radius*1.1
+        Type_Source_source = Source_source.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.SourceDLL)
+        Source_source.ChangeType(Type_Source_source)
+        # Source_source.Comment = 'line_ponderate_source.dll'
+        Source_source.Comment = 'intern_sphere_line_v22.dll'
+        # Source_source.ZPosition = -self.Source_radius*1.1
         # Source_source.TiltAboutX = 0
         # Source_source.TiltAboutY = 0
         # Source_source.TiltAboutZ = 0
@@ -222,13 +226,13 @@ class simulation:
         Source_source.SourcesData.XPhase = self.phase_x
         Source_source.SourcesData.YPhase = self.phase_y
 
-        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).IntegerValue = 100 #Layout Rays
-        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.Source_radius/2
-        # Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.Source_radius
-        # Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.Source_radius*3 #Radius
+        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).IntegerValue = 10000 #Layout Rays
+        # Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.Source_radius
+        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.Source_radius*3 #Radius
+        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.Source_radius  #Apparent maximum radius
         # Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.Source_radius+self.Source_radius-self.Delta #Apparent maximum radius
-        # Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par8).DoubleValue = 180
-        # Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = 180
+        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par8).DoubleValue = 360
+        Source_source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = 180
         Source_source.DrawData.DoNotDrawObject = True
 
         self.delete_null()
@@ -244,10 +248,10 @@ class simulation:
         Object.Material = 'ABSORB'
             
         Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par2).DoubleValue = self.Source_radius*100 #Radius
-        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par3).IntegerValue = 10
-        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par4).IntegerValue = 12
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par3).IntegerValue = 10 #Pixel radial
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par4).IntegerValue = 12 #Pixel angulaire
         
-        self.delete_null()
+        self.delete_null() 
         self.update_metadata()
         self.TheSystem.SaveAs(self.fileZMX)
         pass
@@ -386,6 +390,8 @@ class simulation:
         self.add_properties_to_dict('SSA_theo',self.SSA_theo)
         
     def calculate_B(self):
+        if not hasattr(self, 'l_Ice_stereo'): self.calculate_SSA()
+        
         self.filt_ice, self.filt_inter_ice = self.filter_ice_air(self.df)
         #Length of ice per rays
         numrays = self.df.index[-1]
@@ -397,56 +403,66 @@ class simulation:
         
     def calculate_g(self):
         #Return angles vs Intensity
-        df_angles = self.pol_phase_function() #angles
+        filt_source = self.df['hitObj'] == self.find_source_object()[0]
+        filt_detector = self.df['hitObj'] == self.find_detector_object()[0]
+        Source = self.df.loc[filt_source]
+        Detector = self.df.loc[filt_detector]
+        
+        df_angles = self.pol_phase_function(Source,Detector) #angles
         filt_notna = df_angles['Angle'].notna()
         self.gG = np.average(np.cos(df_angles[filt_notna]['Angle']),weights=df_angles[filt_notna]['intensity'])
         self.g = (self.gG+1)/2
+        
+        Qext, Qsca, Qback, g = miepython.mie(self.index,self.size_parameter)
+        self.g_mie = g[0]
         self.add_properties_to_dict('g',self.g)
+        self.add_properties_to_dict('g mie',self.g_mie)
         self.add_properties_to_dict('gG',self.gG)
         
-    def pol_phase_function(self):
-        def basis_change(self):
+    def pol_phase_function(self,Source,Detector):
+        def basis_change(df):
             #Correction à la polarisation pour que les axes de polarisations (changement de base
             #Vectors
-            v1=np.array([self.L,self.M,self.N])
-            v2=np.cross([self.L_source,self.M_source,self.N_source],v1)
-            v3=np.cross(v1,v2)
+            v1=np.array([df.L,df.M,df.N])
+            v2=np.cross([df.L_source,df.M_source,df.N_source],v1,axis=0)
+            v3=np.cross(v1,v2,axis=0)
             
             #Normalise
-            v1=v1/np.linalg.norm(v1)
-            v2=v2/np.linalg.norm(v2)
-            v3=v3/np.linalg.norm(v3)
+            v1=v1/np.linalg.norm(v1,axis=0)
+            v2=v2/np.linalg.norm(v2,axis=0)
+            v3=v3/np.linalg.norm(v3,axis=0)
             
-            #Matrice de changement de base pour des vecteurs (i,j,k) vers (x,y,z)
+            #Matrice de changement de base pour des vecteurs (i,j,k) (sphérique) vers (x,y,z) (cartésien)
             spherical_to_cartesian=np.array([v2,v3,v1]).transpose()
             
-            #New Basis
+            #Matrice de changement de base pour des vecteur (x,y,z) (cartésien) vers (i,j,k) (sphérique)
             cartesian_to_spherical=np.linalg.inv(spherical_to_cartesian)
             
             #Changement de base de b2i vers polV
-            Ex=complex(self.exr,self.exi)
-            Ey=complex(self.eyr,self.eyi)
-            Ez=complex(self.ezr,self.ezi)
-            jones_vector = np.array([Ex,Ey,Ez])
-            pol=np.dot(cartesian_to_spherical,jones_vector)
+            Ex=df.exr+1j*df.exi
+            Ey=df.eyr+1j*df.eyi
+            Ez=df.ezr+1j*df.ezi
+            jones_vector = np.array([Ex,Ey,Ez]).transpose()
+            pol=np.zeros([len(jones_vector),3],dtype=complex)
+            for i in range(0,len(jones_vector)):
+                pol[i]=np.dot(cartesian_to_spherical[i],jones_vector[i])
             # print(cartesian_to_spherical)
             # print(pol)
             return pol
         
-        filt_source = self.df['hitObj'] == self.find_source_object()[0]
-        filt_detector = self.df['hitObj'] == self.find_detector_object()[0]
-        
-        Source = self.df.loc[filt_source]
-        Detector = self.df.loc[filt_detector]
-        cos_angle = np.sum(Source[['L','M','N']]*Detector[['L','M','N']],axis=1)
-        
-        df_angles = pd.DataFrame(np.arccos(round(cos_angle,7))) #round -> Remove float inacurracy
-        df_angles.columns = ['Angle']
-        df_angles['intensity'] = self.df.loc[filt_detector,['intensity']]
+        df_angles = pd.DataFrame()
+        df_angles['mu'] = np.sum(Source[['L','M','N']]*Detector[['L','M','N']],axis=1)
+        df_angles['Angle'] = np.arccos(round(df_angles.mu,7)) #round -> Remove float inacurracy
+        df_angles['intensity'] = Detector['intensity']
         
         Source = Source.rename(columns={'L':'L_source','N':'N_source','M':'M_source'})
         df = Detector.join(Source[['L_source','M_source','N_source']])
-        pol = np.array(df.apply(basis_change,axis=1).tolist()).transpose()
+        
+        start = time.time()
+        pol = basis_change(df).transpose()
+        # pol = np.array(df.apply(basis_change,axis=1).tolist()).transpose()
+        end = time.time()
+        print(end-start)
         
         df_angles['Ex'] = pol[0]
         df_angles['Ey'] = pol[1]
@@ -497,71 +513,117 @@ class simulation:
         U=I45-Im45
         V=Icd-Icg
 
-        df['I'] = I
-        df['Q'] = Q
-        df['U'] = U
-        df['V'] = V
+        df['I'] = list(I)
+        df['Q'] = list(Q)
+        df['U'] = list(U)
+        df['V'] = list(V)
         return df
     
     def calculate_DOP(self,Stokes):
         [I,Q,U,V] = Stokes
-        DOP=np.sqrt(Q**2+U**2+V**2)/I
-        DOPLT=np.sqrt(Q**2+U**2)/I
-        DOPL=Q/I
-        DOP45=U/I
-        DOPC=V/I
+        #Create Dataframe for the DOPs
+        df_DOP = pd.DataFrame(data=np.transpose([I]),columns = ['intensity'])
+
+        #Remove division by 0 by filter NaNs (Q,U and V are 0 anyway)
+        I_df = df_DOP['intensity'] #Remove divide by zero exception with using df instead of array
+        
+        DOP=np.sqrt(Q**2+U**2+V**2)/I_df
+        DOPLT=np.sqrt(Q**2+U**2)/I_df
+        DOPL=Q/I_df
+        DOP45=U/I_df
+        DOPC=V/I_df
         return [DOP, DOPLT, DOPL, DOP45, DOPC]
     
+    def calculate_hist_stokes(self,df,bins):
+        I, mu = np.histogram(df['mu'], bins=np.linspace(-1,1,bins), weights=df['I'])
+        Q, mu = np.histogram(df['mu'], bins=np.linspace(-1,1,bins), weights=df['Q'])
+        U, mu = np.histogram(df['mu'], bins=np.linspace(-1,1,bins), weights=df['U'])
+        V, angle = np.histogram(df['mu'], bins=np.linspace(-1,1,bins), weights=df['V'])
+        return mu[:-1], [I,Q,U,V]
     
-    def get_stokes(self,bins,degree=True):
-        def calculate_hist_stokes(df,bins):
-            I, angle = np.histogram(df['Angle'], bins=np.linspace(0,np.pi,bins), weights=df['I'])
-            Q, angle = np.histogram(df['Angle'], bins=np.linspace(0,np.pi,bins), weights=df['Q'])
-            U, angle = np.histogram(df['Angle'], bins=np.linspace(0,np.pi,bins), weights=df['U'])
-            V, angle = np.histogram(df['Angle'], bins=np.linspace(0,np.pi,bins), weights=df['V'])
-            return angle[:-1], [I,Q,U,V]
-        
+    def get_stokes(self,bins):
         if not hasattr(self, 'df_stokes'):
-            df = self.pol_phase_function()
+            filt_source = self.df['hitObj'] == self.find_source_object()[0]
+            filt_detector = self.df['hitObj'] == self.find_detector_object()[0]
+            Source = self.df.loc[filt_source]
+            Detector = self.df.loc[filt_detector]
+            
+            df = self.pol_phase_function(Source,Detector)
             self.df_stokes = self.calculate_Stokes_of_rays(df)
             self.df_stokes.dropna(inplace=True)
         
         #Calulate Stokes
-        angle, Stokes = calculate_hist_stokes(self.df_stokes,bins)
+        mu, Stokes = self.calculate_hist_stokes(self.df_stokes,bins)
         
-        #Rad to degrees
-        if degree==True:
-            angle = np.degrees(angle)
-            
-        return angle, Stokes
+        return mu, Stokes
     
     def plot_phase_function_stokes(self,bins=100):
-        angle, [I,Q,U,V] = self.get_stokes(bins)
+        if not hasattr(self, 'g'): self.calculate_g()
+        
+        mu, [I,Q,U,V] = self.get_stokes(bins)
         fig, ax = plt.subplots(nrows=2,ncols=2)
         [[ax_I,ax_Q],[ax_U,ax_V]] = ax
         fig.suptitle('Phase function (Stokes)')
         
-        ax_I.plot(angle,I)
-        ax_Q.plot(angle,Q)
-        ax_U.plot(angle,U)
-        ax_V.plot(angle,V)
-        # ax_I.set_yscale('log')
-        # ax_Q.set_yscale('log')
-        # ax_U.set_yscale('log')
-        # ax_V.set_yscale('log')
+        ax_I.plot(mu,I)
+        ax_Q.plot(mu,Q)
+        ax_U.plot(mu,U)
+        ax_V.plot(mu,V)
         
+    def plot_intensities(self,bins=100):
+        if not hasattr(self, 'g'): self.calculate_g()
+            
+        fig,ax = plt.subplots()
+        mu,I_rt = self._plot_rt_intensity(ax,bins)
+        mu,[I_mie,I_par_mie,I_per_mie] = self._plot_mie_intensity(ax,bins)
+        mu,I_hg = self._plot_hg_intensity(self.g,ax,bins)
+        ax.legend()
+
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_intensities.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_intensities.npy')
+        self.create_npy(path_npy,mu=mu,I_rt=I_rt,I_par_mie=I_par_mie,I_per_mie=I_per_mie,I_mie=I_mie,I_hg=I_hg)
+        return
+        
+    def _plot_rt_intensity(self,ax,bins):
+        mu, [I,_,_,_] = self.get_stokes(bins)
+
+        ax.plot(mu,I,label = 'Intensity Raytracing')
+        return mu,I
+        
+    def _plot_mie_intensity(self,ax,bins):
+        mu,[I_par,I_per],[S11,_,_,_] = self.miepython_intensities(bins=bins)
+        I = (I_par+I_per)/2
+        
+        #Normalize
+        ax.semilogy(mu,I_par, label = 'Mie Ipar')
+        ax.semilogy(mu,I_per, label = 'Mie Iper')
+        ax.semilogy(mu,I, label = 'Mie S11')
+        return mu,[I,I_par,I_per]
+    
+    def _plot_hg_intensity(self,g,ax,bins):
+        def hg(g,cosangle):
+            return (1/(4*np.pi))*(1-g**2)/(1+g**2-2*g*cosangle)**(3/2)
+        
+        mu = np.linspace(-1,1,bins)
+        intensity_hg = hg(g,mu)
+        
+        ax.semilogy(mu,intensity_hg, label = 'Henyey-Greenstein')
+        return mu,intensity_hg
+
     def plot_phase_function_DOP(self,bins=100):
-        angle, Stokes = self.get_stokes(bins)
+        mu, Stokes = self.get_stokes(bins)
         DOPs = self.calculate_DOP(Stokes)
         DOP, DOPLT, DOPL, DOP45, DOPC = DOPs
         
         fig, ax = plt.subplots(nrows=2,ncols=2)
         [[ax_DOP,ax_DOPL],[ax_DOP45,ax_DOPC]] = ax
         fig.suptitle('Phase function (DOPs)')
-        ax_DOP.plot(angle,DOP)
-        ax_DOPL.plot(angle,DOPL)
-        ax_DOP45.plot(angle,DOP45)
-        ax_DOPC.plot(angle,DOPC)
+
+        ax_DOP.plot(mu,DOP)
+        ax_DOPL.plot(mu,DOPL)
+        ax_DOP45.plot(mu,DOP45)
+        ax_DOPC.plot(mu,DOPC)
 
         ax_DOP.set_ylim(-1,1)
         ax_DOPL.set_ylim(-1,1)
@@ -569,10 +631,104 @@ class simulation:
         ax_DOPC.set_ylim(-1,1)
         
         #Save Datas to npy file
-        # plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_phase_function.png'),format='png')
-        # path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_phase_function.npy')
-        # self.create_npy(path_npy,df_angles=df_angles)
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_phase_function_DOP.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_phase_function_DOP.npy')
+        self.create_npy(path_npy,mu=mu,DOP=DOP,DOPL=DOPL,DOP45=DOP45,DOPC=DOPC)
+        
+    def plot_scattering_matrix_mie(self,bins=100):
+        mu, [_, _], [S11,S12,S33,S34] = self.miepython_intensities(bins)
+
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        [[ax_S11,ax_S12],[ax_S33,ax_S34]] = ax
+        fig.suptitle('Scattering matrix mie (DOPs)')
+        
+        ax_S11.semilogy(mu,S11)
+        ax_S12.plot(mu,S12/S11)
+        ax_S33.plot(mu,S33/S11)
+        ax_S34.plot(mu,S34/S11)
+        ax_S11.set_title('S11',x=0.2,y=0.8)
+        ax_S12.set_title('S12',x=0.2,y=0.8)
+        ax_S33.set_title('S33',x=0.2,y=0.8)
+        ax_S34.set_title('S34',x=0.2,y=0.8)
     
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_scattering_matrix_mie.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_scattering_matrix_mie.npy')
+        self.create_npy(path_npy,mu=mu,S11=S11,S12=S12,S33=S33,S34=S34)
+        
+    def miepython_intensities(self,bins):
+        bins -= 1 
+        
+        mu = np.linspace(-1,1,bins)
+        x = 2*np.pi*self.radius[0]/(self.wlum*1E-6)
+        S1,S2 = miepython.mie_S1_S2(self.index, x, mu)
+        qext, qsca , qback, g = miepython.mie(self.index,x)
+        # norm = np.sqrt(qext * x**2 * np.pi)
+        S1_ = S1
+        S2_ = S2
+        
+        S11 = (abs(S2_)**2+abs(S1_)**2)/2
+        S12 = (abs(S2_)**2-abs(S1_)**2)/2
+        S33 = (S2_*S1_.conjugate()).real
+        S34 = (S2_*S1_.conjugate()).imag
+        
+        return mu,[abs(S1)**2,abs(S2)**2],[S11,S12,S33,S34]
+    
+    def plot_DOPs_source(self):
+        filt_source = self.df.hitObj == self.find_source_object()[0]
+        df_source = self.df.loc[filt_source]
+        
+        #Calculate Source output polarization
+        df = df_source.assign(mu = np.sum(df_source[['L','M','N']]*[0,0,1],axis=1))
+        df['Ex'] = df.exr+1j*df.exi
+        df['Ey'] = df.eyr+1j*df.eyi
+        df['Ez'] = df.ezr+1j*df.ezi
+        
+        print('Pol',df['exr'].mean(),df['eyr'].mean(),df['ezr'].mean())
+        print('Angle',df['L'].mean(),df['M'].mean(),df['N'].mean())
+        
+        # Detector
+        # Detector = df_source
+        # Detector.L = 0
+        # Detector.M = 0
+        # Detector.N = 1
+        
+        # df = self.pol_phase_function(df_source,Detector)
+        df = self.calculate_Stokes_of_rays(df)
+        mu,Stokes = self.calculate_hist_stokes(df,100)
+        DOP = self.calculate_DOP(Stokes)
+        
+        plt.figure()
+        plt.plot(mu,DOP[0],label='DOP')
+        plt.plot(mu,DOP[1],label='DOPLT')
+        plt.plot(mu,DOP[2],label='DOPL')
+        plt.plot(mu,DOP[3],label='DOP45')
+        plt.plot(mu,DOP[4],label='DOPC')
+        plt.legend()
+        return
+    
+    def plot_source_output(self):
+        filt_source = self.df['hitObj'] == self.find_source_object()[0]
+        df_source = self.df[filt_source]
+        
+        bins = np.linspace(-self.Source_radius,self.Source_radius,100)
+        num_x,x = np.histogram(df_source['x'],bins=bins)
+        num_y,y = np.histogram(df_source['y'],bins=bins)
+        
+        fig, ax = plt.subplots(2,1,sharex=True)
+        ax[0].plot(x[:-1]/self.Source_radius,num_x,label='x')
+        ax[1].plot(y[:-1]/self.Source_radius,num_y,label='y')
+        ax[0].set_xlabel('x coordinate normalized')
+        ax[0].set_ylabel('% of rays')
+        ax[1].set_xlabel('y coordinate normalized')
+        ax[1].set_ylabel('% of rays')
+        plt.legend()
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_source_output.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_source_output.npy')
+        self.create_npy(path_npy,x=x[:-1],y=y[:-1],num_x=num_x,num_y=num_y,source_radius=self.Source_radius)
+
     def add_properties_to_dict(self,key,value):
         if not hasattr(self,'dict_properties'):
             self.dict_properties = {key:value}
@@ -608,10 +764,8 @@ class simulation:
 if __name__=='__main__':
     plt.close('all')
     # (name,radius,Delta,numrays,numrays_stereo,wlum,pol)
-    sim = simulation('test5', [176E-6], 100E-6, 100_000, 100_000, 0.76, [1,1,0,0], Random_Pol=True)
+    sim = simulation('test5', [150E-6], 100E-6, 1_000_000, 1_000_000, 0.76, [0,1,0,0], Random_Pol=False)
     # sim = simulation('test4', [176E-6], 0, 100_000, 100_000, 0.76, [1,1,0,0])
-    # sim.create_directory()
-    # sim.Load_File()
     sim.Create_ZMX()
     sim.create_detector()
     sim.create_source()
@@ -620,12 +774,16 @@ if __name__=='__main__':
     sim.shoot_rays()
     sim.Close_Zemax()
     sim.Load_parquetfile()
-    # sim.calculate_SSA()
-    # sim.calculate_B()
-    # sim.calculate_g()
-    sim.plot_phase_function_stokes(bins=100)
-    sim.plot_phase_function_DOP(bins=100)
-    # sim.properties()
+    sim.calculate_SSA()
+    sim.calculate_B()
+    sim.calculate_g()
+    sim.plot_phase_function_stokes()
+    sim.plot_phase_function_DOP()
+    sim.plot_intensities(bins=100)
+    # sim.plot_scattering_matrix_mie(bins=100)
+    # sim.plot_source_output()
+    # sim.plot_DOPs_source()
+    sim.properties()
     # sim.export_properties()
     # plt.close('all')
     # del sim
