@@ -10,12 +10,12 @@ import os
 
 class Simulation_Monte_Carlo:
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
-    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False):
+    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,B=1.2521,Random_pol=False,diffuse_light=False):
         self.numrays = numrays
         self.radius = radius
         self.Delta = Delta
         self.g = g
-        self.B_theo = 1.2521
+        self.B_theo = B
         self.wlum = wlum
         self.pol = pol
         self.Random_pol = Random_pol
@@ -79,6 +79,11 @@ def plot_irradiance(self,label,fig,ax,c=['-','--'],TI=True,Tartes=False,x_axis='
     
     def normalized(array):
         return array/max(array)
+    
+    def find_ind(array):
+        ind = list(array).index(1.0)
+        return ind
+
     #Load data
     datas = np.load(path,allow_pickle=True).item()
     
@@ -91,9 +96,15 @@ def plot_irradiance(self,label,fig,ax,c=['-','--'],TI=True,Tartes=False,x_axis='
     
     #Plot data
     if TI==True and Tartes==True:
-        ax.semilogy(depth,normalized(datas['irradiance_down_tartes']+datas['irradiance_up_tartes']),c[1],label='Total Irradiance tartes')
+        irradiance = normalized(datas['irradiance_down_tartes']+datas['irradiance_up_tartes'])
+        # ind = find_ind(irradiance)
+        # depth = depth-depth[ind]
+        ax.semilogy(depth,irradiance,c[1],label='Total Irradiance tartes')
     if TI==True:
-        ax.semilogy(depth,normalized(datas['Irradiance_rt']),c[0],label='Total Irradiance raytracing '+label)
+        irradiance = normalized(datas['Irradiance_rt'])
+        # ind = find_ind(irradiance)
+        # depth = depth-depth[ind]
+        ax.semilogy(depth,irradiance,c[0],label='Total Irradiance raytracing '+label)
     # if UI==True and Tartes==True:
     #     ax.semilogy(datas['depth'],normalized(datas['irradiance_up_tartes']),c,label='Downwelling Irradiance tartes')
     # if DI==True and Tartes==True:
@@ -127,7 +138,7 @@ def plot_Stokes_reflectance(self,fig,ax,datas_ind,label,c):
     Stokes_bins, radius = np.histogram(df['radius'], weights=df['array_Stokes'][datas_ind], bins=bins)
 
     #Normalize
-    Stokes_bins = Stokes_bins/max(Stokes_bins)
+    # Stokes_bins = Stokes_bins/max(Stokes_bins)
     ax.semilogy(radius[:-1],Stokes_bins,c,label=label)
     
     ax.legend()
@@ -213,19 +224,38 @@ def map_DOP_reflectance(self,fig,ax,datas_ind,datas_str):
     ax.set_title(datas_str,c='k',x=0.30,y=0.8)
     return cb
 
-def plot_DOPL_transmittance(self,fig,ax,label,c='-'):
-    return plot_DOP_transmittance(self,fig,ax,2,'DOPL',label,c)
-def plot_DOP45_transmittance(self,fig,ax,label,c='-'):
-    return plot_DOP_transmittance(self,fig,ax,3,'DOP45',label,c)
-def plot_DOPC_transmittance(self,fig,ax,label,c='-'):
-    return plot_DOP_transmittance(self,fig,ax,4,'DOPC',label,c)
+def plot_I_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_Stokes_transmittance(self,fig,ax,1,'I',label,c,**kwargs)
+def plot_Q_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_Stokes_transmittance(self,fig,ax,2,'Q',label,c,**kwargs)
+def plot_U_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_Stokes_transmittance(self,fig,ax,3,'U',label,c,**kwargs)
+def plot_V_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_Stokes_transmittance(self,fig,ax,4,'V',label,c,**kwargs)
         
-def plot_DOP_transmittance(self,fig,ax,DOP_int,DOP_str,label,c):
+def plot_Stokes_transmittance(self,fig,ax,Stokes_int,Stokes_str,label,c,**kwargs):
+    path = os.path.join(self.path_plot,self.properties_string_plot+'_plot_stokes_transmitance.npy')
+    
+    #Load data
+    Stokes_dict = np.load(path,allow_pickle=True).item()
+    ax.plot(Stokes_dict['depths'],Stokes_dict[Stokes_str],c,label=label,**kwargs)
+    ax.legend()
+    
+    return 
+
+def plot_DOPL_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_DOP_transmittance(self,fig,ax,2,'DOPL',label,c,**kwargs)
+def plot_DOP45_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_DOP_transmittance(self,fig,ax,3,'DOP45',label,c,**kwargs)
+def plot_DOPC_transmittance(self,fig,ax,label,c='-',**kwargs):
+    return plot_DOP_transmittance(self,fig,ax,4,'DOPC',label,c,**kwargs)
+        
+def plot_DOP_transmittance(self,fig,ax,DOP_int,DOP_str,label,c,**kwargs):
     path = os.path.join(self.path_plot,self.properties_string_plot+'_plot_DOP_transmitance.npy')
     
     #Load data
     df_DOP = np.load(path,allow_pickle=True).item()
-    ax.plot(df_DOP['depths'],df_DOP['DOPs'][DOP_int],c,label=label)
+    ax.plot(df_DOP['depths'],df_DOP['DOPs'][DOP_int],c,label=label,**kwargs)
     ax.legend()
     
     #Plot data

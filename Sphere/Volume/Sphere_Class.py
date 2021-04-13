@@ -12,14 +12,14 @@ from win32com.client import CastTo, constants
 import matplotlib.pyplot as plt
 import csv
 import scipy.constants, scipy.optimize
+import Sphere_Raytrace
 
 #Import other files
 pathRaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries\Raytrace.DLL'
 sys.path.insert(1,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
 import PythonNET_ZRDLoaderFull as init_Zemax
-import Sphere_Raytrace
-pathRaytraceDLL = 'Z:\Sintering\Glass Catalog'
-sys.path.insert(2,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
+pathRaytraceDLL = 'Z:\Sintering\Glass_Catalog'
+sys.path.insert(2,os.path.realpath(pathRaytraceDLL))
 import Glass_Catalog
 import matplotlib
 import math
@@ -81,7 +81,7 @@ class Sphere_Simulation:
         mat = Glass_Catalog.Material(sphere_material)
         self.index_real,self.index_imag = mat.get_refractive_index(self.wlum)
         # self.index_real, self.index_imag = tartes.refice2016(self.wlum*1E-6)
-        # self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
+        self.gamma = 4*np.pi*self.index_imag/(self.wlum*1E-6)
         
         self.pathDatas = os.path.join(self.path,'Simulations',self.name)
         self.path_plot = os.path.join(self.pathDatas,'Results_plots')
@@ -293,7 +293,6 @@ class Sphere_Simulation:
         self.TheSystem.LoadFile(self.fileZMX,False)
         self.TheNCE = self.TheSystem.NCE
         
-        #Change wl in um
         self.TheSystem.SystemData.Wavelengths.GetWavelength(1).Wavelength = self.wlum
         
         #Change Polarization
@@ -1068,7 +1067,7 @@ class Sphere_Simulation:
         
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
-        depths = np.linspace(2/self.musp_theo,50/self.musp_theo,10)
+        depths = np.linspace(2/self.mus_theo,50/self.mus_theo,10)
         Irradiance_rt = self.df.map_partitions(self.Irradiance,depths,meta=list)
         Irradiance_rt = Irradiance_rt.compute().sum(axis=0)
         self.ke_rt, self.b_rt = self.ke_raytracing(depths,Irradiance_rt)
@@ -1082,7 +1081,7 @@ class Sphere_Simulation:
         if not hasattr(self, 'SSA_theo'): self.calculate_SSA()
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         
-        depths_fit = np.linspace(1/self.musp_theo,10/self.musp_theo,10)
+        depths_fit = np.linspace(1/self.mus_theo,10/self.mus_theo,10)
         #ke TARTES
         down_irr_profile, up_irr_profile = tartes.irradiance_profiles(
             self.wlum*1E-6,depths_fit,self.SSA_theo,self.density_theo,g0=self.g_theo,B0=self.B_stereo,dir_frac=self.tartes_dir_frac)
@@ -1112,11 +1111,6 @@ class Sphere_Simulation:
         #Intensity top detector
         filt_top = (self.df['hitObj'] == self.find_detector_object()[0])
         I_top_detector = np.sum(self.df[filt_top]['intensity'])
-        
-        #Rajoute l'intensité contenu dans les erreurs à alpha
-        # filt_error = self.df['segmentLevel'] == self.max_segments-1
-        # df_error = self.df[filt_error]
-        # I_error = np.sum(df_error['intensity']*np.exp(-df_error['z']*self.ke_rt)/2)
         
         #Intensité total
         self.alpha_rt = I_top_detector.compute() #+ I_error
@@ -1398,7 +1392,7 @@ class Sphere_Simulation:
     def plot_DOP_transmitance(self):
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
-        depths = np.linspace(0,25/self.musp_theo,100)
+        depths = np.linspace(0,25/self.mus_theo,100)
         # Stokes_data = self.DOPs_at_depths(self.df.compute(),depths)
         Stokes = self.df.map_partitions(self.DOPs_at_depths,depths,meta=list).compute()
         
@@ -1662,7 +1656,7 @@ properties=[]
 if __name__ == '__main__':
     for wlum in [1.0]:
         # sim = simulation('test1', [65E-6], 287E-6, 1000, 100, wlum, [1,1,0,0], diffuse_light=False)
-        sim = Sphere_Simulation('test3_sphere', 66E-6, 287E-6, 10_000, 1_000, wlum, [1,1,0,90], diffuse_light=True)
+        sim = Sphere_Simulation('test3_sphere', 3000E-6, 8500E-6, 10_000, 1_000, wlum, [1,1,0,90], diffuse_light=True)
         # sim = Sphere_Simulation('test3_sphere', 88E-6, 347.7E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False)
         # sim = Sphere_Simulation('test3_sphere_B270', 150E-6, 425E-6, 10_000, 100, wlum, [1,1,0,90], diffuse_light=False, sphere_material='B270')
         # sim.Load_File()

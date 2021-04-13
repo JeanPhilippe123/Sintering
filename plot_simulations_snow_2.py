@@ -23,12 +23,12 @@ if __name__ == '__main__':
     #Figure 1
     #Irradiance reflectance vs radius
     fig,ax = plt.subplots(1,1,figsize=[10,6])
-    for ind_shape in [0,1]:
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
-        mc_2 = ps.Simulation_Monte_Carlo('test3_mc', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
+    for ind_shape in [0,1,2]:
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
+        # mc_2 = ps.Simulation_Monte_Carlo('test3_mc', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
         sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlum, pol_vectors[1])
         ps.plot_Stokes_reflectance_I(mc,fig,ax,label=mc.label,c=c[ind_shape])
-        ps.plot_Stokes_reflectance_I(mc_2,fig,ax,label=mc.label,c='-.'+c[ind_shape])
+        # ps.plot_Stokes_reflectance_I(mc_2,fig,ax,label=mc.label,c='-.'+c[ind_shape])
         ps.plot_Stokes_reflectance_I(sphere,fig,ax,label=sphere.label,c='--'+c[ind_shape])
         ax.set_xlim([0,0.04])
         ax.set_ylim([1E-3,2])
@@ -38,15 +38,15 @@ if __name__ == '__main__':
     
     #Figure 2
     #Longueur d'onde 2
-    compare_shapes=[[0,1]]
+    compare_shapes=[[0,1,2]]
     for compare_shape in compare_shapes:
         fig,ax = plt.subplots(2,2,figsize=[10,6],sharex=True)
         for ind_shape in compare_shape:
-            mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[0])
+            mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[0])
             sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlum, pol_vectors[0])
             ps.plot_DOPL_radius_reflectance(sphere,fig,ax[0,0],label=sphere.label,c=c[ind_shape])
             ps.plot_DOPL_radius_reflectance(mc,fig,ax[0,0],label=mc.label,c='--'+c[ind_shape])
-            mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
+            mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
             sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlum, pol_vectors[1])
             ps.plot_DOPC_radius_reflectance(sphere,fig,ax[0,1],label=sphere.label,c=c[ind_shape])
             ps.plot_DOPC_radius_reflectance(mc,fig,ax[0,1],label=mc.label,c='--'+c[ind_shape])
@@ -66,14 +66,14 @@ if __name__ == '__main__':
 
     #Figure 3 Irradiance tranmition
     fig,ax = plt.subplots(1,1,figsize=[10,6])
-    for ind_shape in [0,1]:
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
-        mc_2 = ps.Simulation_Monte_Carlo('test3_mc', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
+    for ind_shape in [0,1,2]:
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
+        # mc_2 = ps.Simulation_Monte_Carlo('test3_mc', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
         # print(mc.properties()['ke_rt'])
         # print(mc_2.properties()['ke_rt'])
         sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlum, pol_vectors[1])
         ps.plot_irradiance(mc,mc.label,fig,ax,c=['-.'+c[ind_shape],c[ind_shape]],TI=True,Tartes=True)
-        ps.plot_irradiance(mc_2,mc_2.label,fig,ax,c=['-.'+c[ind_shape],c[ind_shape]],TI=True,Tartes=True)
+        # ps.plot_irradiance(mc_2,mc_2.label,fig,ax,c=['-.'+c[ind_shape],c[ind_shape]],TI=True,Tartes=True)
         ps.plot_irradiance(sphere,sphere.label,fig,ax,c=['--'+c[ind_shape]],TI=True,Tartes=False)
     ax.legend(loc='lower left', prop={'size': 10})
     ax.set_ylim([1E-3,2E0])
@@ -86,12 +86,12 @@ if __name__ == '__main__':
     #Figure 4
     #DOPC, DOPL, transmittance
     fig,ax = plt.subplots(2,figsize=[10,6],sharex=True)
-    for ind_shape in [0,1]:
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
+    for ind_shape in [0,1,2]:
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlum, pol_vectors[1])
         sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlum, pol_vectors[1])
         ps.plot_DOPC_transmittance(sphere,fig,ax[0],sphere.label,c=c[ind_shape])
         ps.plot_DOPC_transmittance(mc,fig,ax[0],mc.label,c='--'+c[ind_shape])
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlums[2], pol_vectors[0])
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlums[2], pol_vectors[0])
         sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlums[2], pol_vectors[0])
         ps.plot_DOPL_transmittance(sphere,fig,ax[1],c=c[ind_shape],label=sphere.label)
         ps.plot_DOPL_transmittance(mc,fig,ax[1],c='--'+c[ind_shape],label=mc.label)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     for pol in pol_vectors:
         fig,ax = plt.subplots(2,4,sharex=True,sharey=True,figsize=[10,6])
         fig.suptitle('Map DOPs Reflectance' + str(pol),fontsize=16)
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[0], deltas[0], 0.89, wlums[2], pol)
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[0], deltas[0], 0.89, wlums[2], pol)
         sphere = ps.Simulation_Sphere('test3_sphere', radius[0], deltas[0], 100_000, 1000, wlums[2], pol)
         cb = ps.map_reflectance_I(mc,fig,ax[0,0])
         cb.ax.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     for pol in pol_vectors:
         fig,ax = plt.subplots(2,4,sharex=True,sharey=True,figsize=[10,6])
         fig.suptitle('Map Stokes Reflectance' + str(pol),fontsize=16)
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[0], deltas[0], 0.89, wlums[2], pol)
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[0], deltas[0], 0.89, wlums[2], pol)
         sphere = ps.Simulation_Sphere('test3_sphere', radius[0], deltas[0], 100_000, 1000, wlums[2], pol)
         cb = ps.map_Stokes_reflectance_I(mc,fig,ax[0,0])
         cb.ax.set_xlabel('W')
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     # fig,ax = plt.subplots(1,1,figsize=[10,6])
     # fig.suptitle('Irradiance transmission vs wlum')
     # for ind_wlum in range(0,len(wlums)):
-    #     mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[0], deltas[0], 0.89, wlums[ind_wlum], pol_vectors[1])
+    #     mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[0], deltas[0], 0.89, wlums[ind_wlum], pol_vectors[1])
     #     sphere = ps.Simulation_Sphere('test3_sphere', radius[0], deltas[0], 100_000, 100, wlums[ind_wlum], pol_vectors[1])
     #     ps.plot_irradiance(mc,mc.label,fig,ax,c=[c[ind_wlum],'--'+c[ind_wlum]],TI=True,Tartes=True)
     #     # plot_irradiance(sphere,sphere.label,fig,ax,TI=True,Tartes=True)
@@ -167,12 +167,12 @@ if __name__ == '__main__':
     fig,ax = plt.subplots(1,1,figsize=[10,6])
     fig.suptitle('Irradiance vs $\mu_s\'$')
     for ind_shape in [0,1,2]:
-        mc = ps.Simulation_Monte_Carlo('test4_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlums[2], pol_vectors[1])
+        mc = ps.Simulation_Monte_Carlo('test5_mc_msp', 100_000, radius[ind_shape], deltas[ind_shape], 0.89, wlums[2], pol_vectors[1])
         sphere = ps.Simulation_Sphere('test3_sphere', radius[ind_shape], deltas[ind_shape], 100_000, 100, wlums[2], pol_vectors[1])
-        # plot_irradiance(sphere,sphere.label,fig,ax,c=[c[ind_shape],'-.'+c[ind_shape]],TI=True,Tartes=True,x_axis='musp_theo')
+        ps.plot_irradiance(sphere,sphere.label,fig,ax,c=[c[ind_shape],'-.'+c[ind_shape]],TI=True,Tartes=False,x_axis='musp_theo')
         ps.plot_irradiance(mc,sphere.label,fig,ax,c=[c[ind_shape],'-.'+c[ind_shape]],TI=True,Tartes=True,x_axis='musp_theo')
     ax.set_xlabel('$\mu_s\' \ (m^-1)$')
     ax.set_ylabel('Irradiance (W)')
-    ax.set_xlim([0,30])
+    ax.set_xlim([0,15])
     ax.set_ylim([1E-1,1.5])
     ax.legend(loc='lower left')   

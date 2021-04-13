@@ -11,15 +11,18 @@ warnings.filterwarnings('ignore')
 
 if __name__ == '__main__':
     #Inputs :
-    radius = [176E-6,176E-6]
-    delta = np.linspace(radius[0]/100,2*radius[0],100).round(6)
+    # radius = [176E-6,176E-6]
+    # delta = np.linspace(radius[0]/100,2*radius[0],100).round(6)
+    radius_sphere = np.linspace(60E-6,600E-6,10)
+    radius_spheres = np.expand_dims(radius_sphere,axis=0).repeat(2,axis=0).transpose()
+    delta = radius_sphere*7/8
     pols = [[1,0,0,0],[1,1,0,90]]
     # pols = [[1,0,0,0],[0,1,0,0],[1,1,0,0]]
     # delta = [0.]
-    for i in range(0,len(delta)):
+    for i in range(0,len(radius_spheres)):
         for pol in pols:
             # (name,radius,Delta,numrays,numrays_stereo,wlum,pol)
-            sim = simulation('t4', radius, delta[i], 1_000_000, 1_000_000, 1.0, pol, Random_Pol=False)
+            sim = simulation('test_SSA', radius_spheres[i], delta[i], 1_000_000, 1_000_000, 1.0, pol, Random_Pol=False)
             # print('Delta :', delta[i])
             # sim.Create_ZMX()
             # sim.create_detector()

@@ -95,7 +95,6 @@ def retrieve_data(self,ZRDReader,path_parquet):
 
 # @profile
 def Shoot(self,Filter,numrays,path_parquet,nameZRD):
-    
     # Open file
     pathZMX = os.path.dirname(self.fileZMX)
     

@@ -16,15 +16,15 @@ from dask.diagnostics import visualize
 from dask.diagnostics import Profiler, ResourceProfiler, CacheProfiler
 
 path_Sphere_Raytrace = 'Z:\Sintering\Sphere\Volume'
-sys.path.insert(3,path_Sphere_Raytrace)
+sys.path.insert(2,path_Sphere_Raytrace)
 import Sphere_Raytrace
 
 path_RaytraceDLL = 'C:\Zemax Files\ZOS-API\Libraries'
-sys.path.insert(2,path_RaytraceDLL)
+sys.path.insert(1,path_RaytraceDLL)
 import PythonNET_ZRDLoader as init_Zemax
 
-pathRaytraceDLL = 'Z:\Sintering\Glass Catalog'
-sys.path.insert(1,os.path.dirname(os.path.realpath(pathRaytraceDLL)))
+pathRaytraceDLL = 'Z:\Sintering\Glass_Catalog'
+sys.path.insert(3,pathRaytraceDLL)
 import Glass_Catalog
 
 def profiler(func):
@@ -38,7 +38,7 @@ class simulation_MC:
     path = os.path.join(os.sep, os.path.dirname(os.path.realpath(__file__)), '')
     max_segments = 4000
     
-    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,Random_pol=False,diffuse_light=False,source_radius=None,sphere_material='MY_ICE.ZTG',p_material=917):
+    def __init__(self,name,numrays,radius,Delta,g,wlum,pol,B=1.2521,Random_pol=False,diffuse_light=False,source_radius=None,sphere_material='MY_ICE.ZTG',p_material=917):
         self.inputs = [name,numrays,radius,Delta,g,wlum,pol,Random_pol,diffuse_light]
         self.name = name
         self.numrays = numrays
@@ -46,7 +46,6 @@ class simulation_MC:
         self.radius = radius
         self.p_material = p_material
         
-        #Same radius as in laboratory
         if source_radius==None:        
             self.source_radius = 10*self.radius
         else:
@@ -56,7 +55,7 @@ class simulation_MC:
         self.calculate_density()
         self.calculate_SSA()
         self.calculate_mus()
-        self.B_theo = 1.2521
+        self.B_theo = B
         self.calculate_porosity()
 
         mat = Glass_Catalog.Material(sphere_material)
@@ -88,7 +87,7 @@ class simulation_MC:
         self.path_metadata = os.path.join(self.pathDatas,'_'.join([self.properties_string,'metadata'])+ ".npy")
         self.path_ZRD = os.path.join(self.pathDatas,self.name_ZRD)
         path_ZMX = os.path.dirname(os.path.dirname(self.pathDatas))
-        self.fileZMX = os.path.join(path_ZMX, 'test_MC_msp.zmx')
+        self.fileZMX = os.path.join(path_ZMX, 'test_MC_msp_'+self.properties_string+'.zmx')
         
         self.add_properties_to_dict('radius',self.radius)
         self.add_properties_to_dict('Delta',self.Delta)
@@ -132,8 +131,26 @@ class simulation_MC:
 
     def update_metadata(self):
         #Write metadata
-        np.save(self.path_metadata,self.array_objects())
+        np.save(self.path_metadata,self.get_array_objects_zemax())
         
+    def get_array_objects_zemax(self):
+        list_obj=[]
+        for i in range(1,self.TheNCE.NumberOfObjects+1):
+            Object = self.TheNCE.GetObjectAt(i)
+            ObjectType = Object.TypeName
+            ObjectMaterial = Object.Material 
+            list_obj += [[ObjectType,ObjectMaterial]]
+            array_obj = np.array(list_obj)
+        return array_obj
+    
+    def delete_null(self):
+        self.list_null = []
+        for i in range(1,self.TheNCE.NumberOfObjects+1):
+            Object = self.TheNCE.GetObjectAt(i)
+            ObjectType = Object.TypeName
+            if ObjectType == 'Null Object':
+                self.TheNCE.RemoveObjectAt(i)
+   
     def array_objects(self):
         #Check for metadata
         if os.path.exists(self.path_metadata):
@@ -164,37 +181,55 @@ class simulation_MC:
         self.ZOSAPI = self.zosapi.ZOSAPI
         self.ZOSAPI_NCE = self.ZOSAPI.Editors.NCE
         
-    def Load_File(self):
+    def create_ZMX(self):
         self.Initialize_Zemax()
         start = time.time()
-        self.TheSystem.LoadFile(self.fileZMX,False)
+        self.TheSystem.New(False)
+        self.TheSystem.SaveAs(self.fileZMX)
         self.TheNCE = self.TheSystem.NCE
+        self.TheSystem.MakeNonSequential()
+        self.TheSystem.SystemData.Units.LensUnits = self.ZOSAPI.SystemData.ZemaxSystemUnits.Meters
+        #Wavelength is changed in the function Shoot
+        self.TheSystem.SystemData.Wavelengths.GetWavelength(1).Wavelength = self.wlum
+        self.TheSystem.SystemData.NonSequentialData.MaximumIntersectionsPerRay = self.max_segments
+        self.TheSystem.SystemData.NonSequentialData.MinimumRayIntensity = 1E-6
+        self.TheSystem.SystemData.NonSequentialData.MaximumSegmentsPerRay = self.max_segments
+        self.TheSystem.SystemData.NonSequentialData.MaximumNestedTouchingObjects = 8
+        self.TheSystem.SystemData.NonSequentialData.SimpleRaySplitting = True
+        self.TheSystem.SystemData.NonSequentialData.MaximumSourceFileRaysInMemory = 1000000
+        self.TheSystem.SystemData.NonSequentialData.GlueDistanceInLensUnits = 1.0000E-10
         
         #Change wl in um
         self.TheSystem.SystemData.Wavelengths.GetWavelength(1).Wavelength = 1.0
         
-        #Change Polarization
-        Source_obj = self.find_source_object()[0]
-        Source = self.TheNCE.GetObjectAt(Source_obj)
+        self.create_setup()
         
-        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.source_radius #X Half width
-        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.source_radius #Y Half width
-        
-        Source.SourcesData.RandomPolarization = self.Random_pol
-        Source.SourcesData.Jx = self.jx
-        Source.SourcesData.Jy = self.jy
-        Source.SourcesData.XPhase = self.phase_x
-        Source.SourcesData.YPhase = self.phase_y
+        self.TheSystem.SaveAs(self.fileZMX)
+        end = time.time()
+        print('Fichier loader en ',end-start)
 
+        self.update_metadata()
+        pass
+    
+    def create_setup(self):
+        self.create_source()
+        self.delete_null()
+        self.create_detector()
+        self.create_volume()
+    
+    def create_volume(self):
+        self.TheNCE.InsertNewObjectAt(1)
+        Object = self.TheNCE.GetObjectAt(1)
+        Type = Object.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.RectangularVolume)
+        Object.ChangeType(Type)
+        
         Rectangular_obj = self.TheNCE.GetObjectAt(1)
         Rectangular_obj_physdata = Rectangular_obj.VolumePhysicsData
         Rectangular_obj_physdata.Model = self.ZOSAPI_NCE.VolumePhysicsModelType.DLLDefinedScattering
         self.calculate_mua()
         
-        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'Henyey-Greenstein-bulk.dll'
         #Change MSP
-        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4p2.dll'
-        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4.dll'
+        Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.DLL = 'MSP_v4p3_NotThatLong.dll'
         
         #MeanPath
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.MeanPath = 1/(self.mus_theo+self.mua_theo)
@@ -204,14 +239,66 @@ class simulation_MC:
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(1,self.radius*1E6)
         # #ice index
         Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(2,self.index_real)
+        self.TheSystem.SaveAs(self.fileZMX)
+
+        self.update_metadata()
+        pass
+    
+    def create_detector(self):
+        #Créer le détecteur pour la tansmission
+        self.TheNCE.InsertNewObjectAt(1)
+        Object = self.TheNCE.GetObjectAt(1)
+        Type = Object.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.DetectorRectangle)
+        Object.ChangeType(Type)
+        Object.Material = 'ABSORB'
+            
+        Object.ZPosition = 1.01
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).DoubleValue = 1
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par2).DoubleValue = 1
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par3).IntegerValue = 1
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par4).IntegerValue = 1
         
-        # g
-        # Rectangular_obj_physdata.ModelSettings._S_DLLDefinedScattering.SetParameterValue(1,self.g_theo)
+        #Créer le détecteur pour la réflexion
+        self.TheNCE.InsertNewObjectAt(1)
+        Object = self.TheNCE.GetObjectAt(1)
+        Type = Object.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.DetectorRectangle)
+        Object.ChangeType(Type)
+        Object.Material = 'ABSORB'
+            
+        Object.ZPosition = -1.1E-5
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).DoubleValue = 1
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par2).DoubleValue = 1
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par3).IntegerValue = 1
+        Object.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par4).IntegerValue = 1
         
         self.TheSystem.SaveAs(self.fileZMX)
-        end = time.time()
-        print('Fichier loader en ',end-start)
 
+        self.update_metadata()
+        pass
+    
+    def create_source(self):
+        #Créer la source avec un rectangle et 2 sphères
+        self.TheNCE.InsertNewObjectAt(1)
+        
+        Source = self.TheNCE.GetObjectAt(1)
+        self.TheSystem.SaveAs(self.fileZMX)
+        Type_Source = Source.GetObjectTypeSettings(self.ZOSAPI_NCE.ObjectType.SourceEllipse)
+        Source.ChangeType(Type_Source)
+        
+        Source.ZPosition = -1.0E-5
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par1).IntegerValue = 100 #Layout Rays
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par6).DoubleValue = self.source_radius #X Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par7).DoubleValue = self.source_radius #Y Half width
+        Source.GetObjectCell(self.ZOSAPI_NCE.ObjectColumn.Par9).DoubleValue = 100 #cosine
+
+        Source.SourcesData.RandomPolarization = self.Random_pol
+        Source.SourcesData.Jx = self.jx
+        Source.SourcesData.Jy = self.jy
+        Source.SourcesData.XPhase = self.phase_x
+        Source.SourcesData.YPhase = self.phase_y
+        
+        self.TheSystem.SaveAs(self.fileZMX)
+        
         self.update_metadata()
         pass
     
@@ -335,6 +422,7 @@ class simulation_MC:
     def calculate_neff(self):
         porosity = self.physical_porosity_theo
         self.neff_theo = (porosity + self.index_real*self.B_theo*(1-porosity))/(porosity + self.B_theo*(1-porosity))
+        self.neff_theo_c = (porosity + self.index_real*self.B_theo*(1-porosity))
         pass        
         
     def calculate_mua(self):
@@ -381,7 +469,7 @@ class simulation_MC:
         [a,b], pcov=scipy.optimize.curve_fit(lambda x,a,b: a*x+b, depths_fit, np.log(intensity))
         return -a, b
     
-    def calculate_ke_rt(self):
+    def calculate_ke_rt(self,filt=None):
         #ke raytracing
         def linear_fit(depth,a,b):
             intensity = a*depth+b
@@ -664,18 +752,45 @@ class simulation_MC:
         self.create_npy(path_npy,df_lair=df_lair)
         return
     
-    def plot_DOP_transmitance(self):
+    def plot_stokes_transmitance(self,filt_labo=False):
+        if not hasattr(self, 'musp_stereo'): self.calculate_musp()
+        
+        #Plot datas
+        depths = np.linspace(0,0.1,100)
+        Stokes = self.df.map_partitions(self.Stokes_at_depths,depths,filt_labo,meta=list).compute()
+        
+        # Mean all the partitions results together
+        [I,Q,U,V] = Stokes.swapaxes(0,1).sum(axis=1).transpose()
+        
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        ax[0,0].plot(depths,I)
+        ax[0,1].plot(depths,Q)
+        ax[1,0].plot(depths,U)
+        ax[1,1].plot(depths,V)
+        
+        #Set titles
+        ax[0,0].set_title('I')
+        ax[0,1].set_title('Q')
+        ax[1,0].set_title('U')
+        ax[1,1].set_title('V')
+        fig.suptitle('Stokes vs Depth')
+        
+        #Save Datas to npy file
+        plt.savefig(os.path.join(self.path_plot,self.properties_string_plot+'_plot_stokes_transmitance.png'),format='png')
+        path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_stokes_transmitance.npy')
+        self.create_npy(path_npy,depths=depths,I=I,Q=Q,U=U,V=V)
+        
+    def plot_DOP_transmitance(self,filt_labo=False):
         if not hasattr(self, 'musp_stereo'): self.calculate_musp()
         #Plot datas
         fig, ax = plt.subplots(nrows=2,ncols=2)
-        depths = np.linspace(0,25/self.musp_theo,100)
-        # Stokes_data = self.DOPs_at_depths(self.df.compute(),depths)
-        Stokes = self.df.map_partitions(self.DOPs_at_depths,depths,meta=list).compute()
+        depths = np.linspace(0,0.1,100)
+        Stokes = self.df.map_partitions(self.Stokes_at_depths,depths,filt_labo,meta=list).compute()
         
         # Mean all the partitions results together
-        [I,Q,U,V] = Stokes.swapaxes(0,1).mean(axis=1).transpose()
+        [I,Q,U,V] = Stokes.swapaxes(0,1).sum(axis=1).transpose()
         
-        DOPs = self.calculate_DOP(I, Q, U, V)
+        DOPs = self.calculate_DOP(I,Q,U,V)
         ax[0,0].plot(depths,DOPs[0]) #DOP
         ax[0,1].plot(depths,DOPs[2]) #DOPL
         ax[1,0].plot(depths,DOPs[3]) #DOP45
@@ -699,17 +814,24 @@ class simulation_MC:
         path_npy = os.path.join(self.path_plot,self.properties_string_plot+'_plot_DOP_transmitance.npy')
         self.create_npy(path_npy,depths=depths,DOPs=DOPs)
     
-    def Transmitance_at_depth(self,df,depth):
+    def Transmitance_at_depth(self,df,depth,filt_labo):
         df_filt = df[df['z'] >= depth]
         df = df_filt[~df_filt.index.duplicated(keep='first')]
+        if filt_labo==True:
+            #Filter source_radius
+            detector_radius = 0.001/2
+            df = df[np.sqrt((df[['x','y']]**2).sum(axis=1))<detector_radius]
+            #Filter angle radius
+            cos = np.cos(np.arctan(12.7*0.5/20))
+            df = df[df.N>cos]
         return df
     
-    def DOPs_at_depths(self,df,depths):
+    def Stokes_at_depths(self,df,depths,filt_labo):
         """depths: list
         df: dataframe"""
         
-        def Stokes(self,df,depth):
-            df = self.Transmitance_at_depth(df,depth)
+        def Stokes(self,df,depth,filt_labo):
+            df = self.Transmitance_at_depth(df,depth,filt_labo)
             [I,Q,U,V] = self.calculate_Stokes_of_rays(df)
             I=np.mean(I)
             Q=np.mean(Q)
@@ -717,7 +839,7 @@ class simulation_MC:
             V=np.mean(V)
             return np.array([I,Q,U,V])
         
-        Stokes_lam = lambda depth: Stokes(self,df,depth)
+        Stokes_lam = lambda depth: Stokes(self,df,depth,filt_labo)
         Stokes_datas=np.array(list(map(Stokes_lam,depths)))
         return np.array([Stokes_datas])
     
@@ -881,7 +1003,7 @@ class simulation_MC:
     def Irradiance(self,df,depths):
         def Irradiance_at_depth(df,depth):    
             df = df.query('((z<= {} & z.shift() >= {})|(z>= {} & z.shift() <= {}))&(segmentLevel!=0)'.format(depth,depth,depth,depth))
-            irradiance = df['intensity'].mul(df['L'].abs()).sum()
+            irradiance = df['intensity'].mul(df['N'].abs()).sum()
             return irradiance
         Irradiance = lambda depth: Irradiance_at_depth(df,depth)
         Irradiance_rt=np.array(list(map(Irradiance,depths)))
@@ -890,7 +1012,7 @@ class simulation_MC:
     def Irradiance_up(self,df,depths):
         def Irradiance_up_at_depth(df,depth):    
             df = df.query('((z<= {} & z.shift() >= {})&(segmentLevel!=0))'.format(depth,depth))
-            irradiance_up = df['intensity'].mul(df['L'].abs()).sum()
+            irradiance_up = df['intensity'].mul(df['N'].abs()).sum()
             return irradiance_up
         Irradiance_up = lambda depth: Irradiance_up_at_depth(df,depth)
         Irradiance_up_rt=np.array(list(map(Irradiance_up,depths)))
@@ -900,7 +1022,7 @@ class simulation_MC:
     def Irradiance_down(self,df,depths):
         def Irradiance_down_at_depth(df,depth):
             df = df.query('(z>= {} & z.shift() <= {})&(segmentLevel!=0)'.format(depth,depth))
-            irradiance_down = df['intensity'].mul(df['L'].abs()).sum()
+            irradiance_down = df['intensity'].mul(df['N'].abs()).sum()
             return irradiance_down
         Irradiance_down = lambda depth: Irradiance_down_at_depth(df,depth)
         Irradiance_down_rt=np.array(list(map(Irradiance_down,depths)))
@@ -910,7 +1032,6 @@ class simulation_MC:
         if not hasattr(self, 'musp_theo'): self.calculate_musp()
         if not hasattr(self, 'ke_rt'): self.calculate_ke_rt()
         if not hasattr(self, 'ke_tartes'): self.calculate_ke_theo()
-        
         #Change pathLength
         filt = self.df['segmentLevel']==0
         self.df['pathLength'] = (~filt)*np.sqrt((((self.df[['x','y','z']].diff())**2).sum(1)))
@@ -920,7 +1041,6 @@ class simulation_MC:
         Irradiance_rt = self.df.map_partitions(self.Irradiance,depth,meta=list).compute().sum(axis=0)
         Irradiance_up_rt = self.df.map_partitions(self.Irradiance_up,depth,meta=list).compute().sum(axis=0)
         Irradiance_down_rt = self.df.map_partitions(self.Irradiance_down,depth,meta=list).compute().sum(axis=0)
-        
         #Irradiance TARTES
         if not hasattr(self, 'density_theo'): self.calculate_density()
         if not hasattr(self, 'g_theo'): self.calculate_g()
@@ -952,7 +1072,8 @@ class simulation_MC:
                         Irradiance_rt=Irradiance_rt,
                         Irradiance_down_rt=Irradiance_down_rt,
                         Irradiance_up_rt=Irradiance_up_rt)
- 
+        pass
+    
     def time(self,text):
         t = time.localtime()
         self.date = str(t.tm_year)+"/"+str(t.tm_mon)+"/"+str(t.tm_mday)
@@ -988,28 +1109,53 @@ class simulation_MC:
 if __name__ == '__main__':
     plt.close('all')
     properties=[]
-    for wlum in [1.0]:
-        sim = simulation_MC('test4_mc', 10_000, 150E-6, 700E-6, 0.78, wlum, [1,1,0,90], diffuse_light=False)
-        # sim = simulation_MC('test4_mc', 10_000, 88E-6, 382.66E-6, 0.89, wlum, [1,1,0,90], diffuse_light=False)
-        sim.Load_File()
-        sim.shoot_rays()
-        sim.Close_Zemax()
-        sim.Load_parquetfile()
-        sim.AOP()
-        sim.calculate_musp()
-        sim.calculate_ke_theo()
-        sim.calculate_MOPL()
-        sim.calculate_alpha()
-        sim.calculate_mua()
-        sim.calculate_ke_rt()
-        sim.plot_time_reflectance()
-        sim.plot_DOP_transmitance()
-        sim.map_stokes_reflectance()
-        sim.map_DOP_reflectance()
-        sim.plot_DOP_radius_reflectance()
-        sim.plot_irradiances()
-        sim.plot_MOPL_radius_reflectance()
-        sim.plot_lair_radius_reflectance()
-        sim.properties()
-        sim.export_properties()
-        # del sim
+    sim = simulation_MC('t6', 1000, 500E-6, 1415E-6, 0.895, 1.1, [1,0,0,0], B=1.2521, source_radius = 0.0127, diffuse_light=False, sphere_material='CUSTOM_INDEX.ZTG')
+    sim.create_ZMX()
+    sim.shoot_rays()
+    sim.Close_Zemax()
+    sim.Load_parquetfile()
+    sim.AOP()
+    sim.calculate_musp()
+    sim.calculate_ke_theo()
+    sim.calculate_MOPL()
+    sim.calculate_alpha()
+    sim.calculate_mua()
+    sim.calculate_ke_rt()
+    sim.plot_stokes_transmitance()
+    sim.plot_DOP_transmitance()
+    # sim.map_stokes_reflectance()
+    # sim.map_DOP_reflectance()
+    # sim.plot_DOP_radius_reflectance()
+    sim.plot_irradiances()
+    print(sim.mua_theo,sim.mus_theo)
+    print(sim.index_real,sim.index_imag)
+    # sim.plot_MOPL_radius_reflectance()
+    # sim.plot_lair_radius_reflectance()
+    # sim.properties()
+    # sim.export_properties()
+    # del sim
+    sim = simulation_MC('t6', 1000, 500E-6, 1415E-6, 0.895, 1.3, [1,0,0,0], B=1.2521, source_radius = 0.0127, diffuse_light=False, sphere_material='CUSTOM_INDEX.ZTG')
+    sim.create_ZMX()
+    sim.shoot_rays()
+    sim.Close_Zemax()
+    sim.Load_parquetfile()
+    sim.AOP()
+    sim.calculate_musp()
+    sim.calculate_ke_theo()
+    sim.calculate_MOPL()
+    sim.calculate_alpha()
+    sim.calculate_mua()
+    sim.calculate_ke_rt()
+    sim.plot_stokes_transmitance()
+    sim.plot_DOP_transmitance()
+    # sim.map_stokes_reflectance()
+    # sim.map_DOP_reflectance()
+    # sim.plot_DOP_radius_reflectance()
+    sim.plot_irradiances()
+    print(sim.mua_theo,sim.mus_theo)
+    print(sim.index_real,sim.index_imag)
+    # sim.plot_MOPL_radius_reflectance()
+    # sim.plot_lair_radius_reflectance()
+    # sim.properties()
+    # sim.export_properties()
+    # del sim
