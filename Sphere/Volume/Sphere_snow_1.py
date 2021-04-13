@@ -14,34 +14,29 @@ if __name__ == '__main__':
     
     name= 'test3_sphere'
     #Selecting parameters
-    radius=[66E-6,88E-6,176E-6,88E-6,88E-6]
-    deltas=[287E-6,382.66E-6,765.33E-6,347.7E-6,482.1E-6]
-    # radius=[66E-6]
-    # deltas=[287E-6]
-    # radius=[88E-6,176E-6,88E-6,88E-6]
-    # deltas=[382.66E-6,765.33E-6,347.7E-6,482.1E-6]
+    # radius=[66E-6,88E-6,176E-6,88E-6,88E-6]
+    # deltas=[287E-6,382.66E-6,765.33E-6,347.7E-6,482.1E-6]
+    radius=[88E-6,88E-6]
+    deltas=[347.7E-6,482.1E-6]
     shapes = zip(radius,deltas)
     # wlums=[1.0]
-    # wlums=[1.0]
     wlums=[0.8,0.9]
-    pol_vector = [[1,1,0,90]]
-    # pol_vector = [[1,0,0,0]]
+    # pol_vector = [[1,1,0,90]]
+    pol_vector = [[1,0,0,0]]
     properties_predict=[]
     
     #Simulating for choseen parameters
     for shape in shapes:
         for wlum in wlums:
             for pol in pol_vector:
-                sim = Sc.Sphere_Simulation(name,shape[0],shape[1], 100_000, 1000, wlum,pol,Random_pol=False,diffuse_light=False)
+                sim = Sc.Sphere_Simulation(name,shape[0],shape[1], 100_000, 1000, wlum,pol,Random_pol=False,source_radius = 2E-3, diffuse_light=False)
                 print(sim.inputs)
-                # if not os.path.exists(sim.fileZMX):
-                #     print(shape[0],shape[1])
-                #     sim.create_ZMX()
-                #     sim.create_source()
-                #     sim.create_detectors()
-                #     sim.create_snow()
-                #     sim.shoot_rays()
-                #     sim.Close_Zemax()
+                # sim.create_ZMX()
+                # sim.create_source()
+                # sim.create_detectors()
+                # sim.create_medium()
+                # sim.shoot_rays()
+                # sim.Close_Zemax()
                 # sim.Load_File()
                 # sim.shoot_rays_stereo()
                 # sim.shoot_rays()

@@ -344,3 +344,88 @@ SSA théorique : 50.353498
 B : 1.2531
 g : 0.8954
 gG : 0.7907
+ 
+====================================================== 
+Simulation : test3
+Radius : [6.5e-05]
+Distance : 0.0
+Numrays : 50000
+Wavelength : 1.0
+Polarization : [1, 1, 0, 90]
+Time started 2021/1/5 22:8:47
+ 
+SSA stéréologie : 13.421693
+SSA théorique : 13.421693
+B : 1.0
+g : 0.9829
+gG : 0.9658
+ 
+====================================================== 
+Simulation : test3
+Radius : [0.0003]
+Distance : 0.1
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1 1 0 0]
+Time started 2021/1/6 13:11:4
+ 
+ 
+====================================================== 
+Simulation : test3
+Radius : [0.0003]
+Distance : 0.1
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1 1 0 0]
+Time started 2021/1/6 13:11:7
+ 
+ 
+====================================================== 
+Simulation : test3
+Radius : [0.0003]
+Distance : 0.1
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1 1 0 0]
+Time started 2021/1/6 13:11:8
+ 
+ 
+====================================================== 
+Simulation : test3
+Radius : [0.0003]
+Distance : 0.1
+Numrays : 1000
+Wavelength : 1.0
+Polarization : [1 1 0 0]
+Time started 2021/1/6 13:11:14
+ 
+SSA stéréologie : 2.908033
+SSA théorique : 2.908033
+g : 0.97
+gG : 0.94
+B : 1.0
+ 
+====================================================== 
+Simulation : test3
+Radius : [6.5e-05]
+Distance : 0.0
+Numrays : 50000
+Wavelength : 1.0
+Polarization : [0.1, 0.3, 30, 90]
+Time started 2021/2/3 12:55:26
+ 
+ 
+====================================================== 
+Simulation : test3
+Radius : [6.5e-05]
+Distance : 0.0
+Numrays : 10000
+Wavelength : 1.0
+Polarization : [0.1, 0.3, 30, 90]
+Time started 2021/2/3 13:4:9
+ 
+SSA stéréologie : 50.058862
+SSA théorique : 50.058862
+B : 1.2431
+g : 0.8944
+gG : 0.7888

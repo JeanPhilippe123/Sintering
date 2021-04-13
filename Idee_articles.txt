@@ -1,0 +1,39 @@
+Frittage:
+Figures: 
+- comparaison non-sticky MC avec non-sticky Raytracing
+- comparaison même SSA et densité entre non-sticky Raytracing et sticky Raytracing
+- SSP pour des sphères frittées à différents pourcentages
+
+Hypothèse:
+L'effet du taux de frittage sur les AOPs de la polarisation
+
+Défaut:
+Insérer l'expérimental ???
+Long implémenter le taux de frittage
+
+Comparaison entre le MC et Zemax:
+Figures:
+- Faire le lien entre le MC et Zemax pour:
+     - temps de vol
+     - lair/MOPL
+     - pour différentes SSAs et densités
+     - DOPC/DOPL
+
+- Faire la comparaison entre un milieu en labo et Raytracing:
+     - lair/MOPL
+     - DOPC/DOPL
+
+Hypothèse:
+On peut remplacer Zemax par un Monte-Carlo. On peut essayer de faire un lien entre mu_s et la polarisation
+
+Défaut:
+Le lien entre la polarisation et les propriétés physiques reste nébuleux
+
+Comparaison entre la polarisation et les propriétés physiques:
+Figures:
+- Faire des courbes DOPL et DOPC en fonction de la densité/SSA/taux de frittage/indice de réfraction (pour MC et Raytracing)
+- Labo: faire des courbes DOPL et DOPC (contrôle sur la SSA et l'indice de réfraction avec de l'eau)
+
+Défaut:
+Travailler sur le taux de frittage.
+Sans SSP donc valeur théorique avec les simulations sont difficiles à déterminer, à cause des grosses incertitudes sur les valeures de alpha et ke (bug de Zemax)
